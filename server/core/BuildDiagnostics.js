@@ -18,22 +18,40 @@ export class BuildDiagnostics {
     // Heuristics for different errors
     const heuristics = [
       {
-        category: "MissingPackage",
-        regex: /(?:Cannot resolve|Cannot find module|Failed to resolve entry for package|failed to resolve import)\s+['"]?([^'"\s]+)['"]?/i,
+        category: "OutOfMemory",
+        regex: /(?:OOM|heap out of memory|ENOMEM|JavaScript heap out of memory)/i,
+        recoverable: false,
+        summary: () => "Node process failed due to out of memory (OOM)"
+      },
+      {
+        category: "NodeCrash",
+        regex: /(?:segmentation fault|node crash|fatal error in v8|abort trap|Segmentation fault \(core dumped\))/i,
+        recoverable: false,
+        summary: () => "Node process terminated unexpectedly (crash)"
+      },
+      {
+        category: "CSSError",
+        regex: /Cannot resolve CSS file[^'"]*['"]?([^\s'"]+\.css)['"]?/i,
         recoverable: true,
-        summary: (match) => `Missing package or file: ${match[1]}`
+        summary: (match) => `CSS import error: ${match[1]}`
+      },
+      {
+        category: "MissingModule",
+        regex: /Cannot find module\s+['"]?([^'"\s]+)['"]?/i,
+        recoverable: true,
+        summary: (match) => `Missing module: ${match[1]}`
       },
       {
         category: "MissingFile",
-        regex: /Could not resolve\s+['"]?([^'"\n]+)['"]?/i,
+        regex: /(?:Could not resolve|failed to resolve import)\s+['"]?(\.[^'"\s]+)['"]?/i,
         recoverable: true,
         summary: (match) => `Missing source file: ${match[1]}`
       },
       {
-        category: "CSSError",
-        regex: /Cannot resolve CSS file.*['"]?([^'"\n]+)['"]?/i,
+        category: "MissingPackage",
+        regex: /(?:Cannot resolve|Failed to resolve entry for package|failed to resolve import)\s+['"]?([^.'"][^'"\s]*)['"]?/i,
         recoverable: true,
-        summary: (match) => `CSS import error: ${match[1]}`
+        summary: (match) => `Missing package: ${match[1]}`
       },
       {
         category: "JSXError",
@@ -58,12 +76,6 @@ export class BuildDiagnostics {
         regex: /(?:Rollup Error|Plugin Error):\s*(.*)/i,
         recoverable: true,
         summary: (match) => `Bundler error: ${match[1]}`
-      },
-      {
-        category: "Crash",
-        regex: /(?:OOM|heap out of memory|segmentation fault|node crash)/i,
-        recoverable: false,
-        summary: () => "Node process crashed (likely out of memory)"
       }
     ];
 
