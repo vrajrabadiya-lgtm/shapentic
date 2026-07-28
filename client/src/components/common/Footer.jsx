@@ -76,7 +76,7 @@ export default function Footer() {
                 {/* Brand Column */}
                 <div className="md:col-span-4 flex flex-col gap-5">
                     <div className="flex items-center gap-2.5">
-                        <img src="/logo.svg" alt="Shapentic Logo" className="h-6 w-6 rounded-md" />
+                        <img src="/logo.svg" alt="Shapentic Logo" className="h-7 w-7 object-contain" />
                         <span className="font-black text-xs tracking-widest text-white uppercase font-sans">
                             Shapentic
                         </span>

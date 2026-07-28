@@ -172,8 +172,8 @@ export default function Navbar() {
         <nav className="flex items-center gap-1 sm:gap-4 md:gap-6 px-4 py-2 rounded-full border border-white/[0.08] bg-zinc-950/70 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] max-w-fit mix-blend-screen">
 
           {/* Logo */}
-          <div className="flex items-center gap-2 pr-4 border-r border-white/10">
-            <img src="/logo.svg" alt="Shapentic Logo" className="h-6 w-6 rounded-md" />
+          <div className="flex items-center gap-2.5 pr-4 border-r border-white/10">
+            <img src="/logo.svg" alt="Shapentic Logo" className="h-7 w-7 object-contain" />
             <span className="font-black text-xs tracking-widest text-white uppercase font-sans">
               Shapentic
             </span>
