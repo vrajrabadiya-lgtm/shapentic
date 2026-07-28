@@ -15,28 +15,28 @@ export default function CompareMatrix() {
             <div className="max-w-4xl mx-auto">
                 <h3 className="text-2xl md:text-4xl font-bold tracking-tight mb-12 text-center">Where Shapentic fits in the stack</h3>
 
-                <div className="w-full overflow-x-auto border border-zinc-900 rounded-xl bg-zinc-950/40">
+                <div className="w-full overflow-x-auto border border-white/10 rounded-2xl bg-zinc-900/40 backdrop-blur-xl shadow-2xl">
                     <table className="w-full min-w-[600px] text-left border-collapse text-xs font-medium">
                         <thead>
-                            <tr className="border-b border-zinc-900 text-zinc-500 text-[10px] font-bold tracking-wider uppercase">
+                            <tr className="border-b border-white/10 text-zinc-400 text-[10px] font-bold tracking-wider uppercase">
                                 <th className="p-4">Capability Metric</th>
-                                <th className="p-4 text-white font-black bg-zinc-900/30">Shapentic Core</th>
+                                <th className="p-4 text-white font-black bg-blue-500/10 border-x border-white/10">Shapentic Core</th>
                                 <th className="p-4">Traditional Builders</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-zinc-900">
+                        <tbody className="divide-y divide-white/10">
                             {rows.map((row, index) => (
-                                <tr key={index} className="hover:bg-zinc-900/10 transition-colors">
+                                <tr key={index} className="hover:bg-white/5 transition-colors">
                                     <td className="p-4 text-zinc-300">{row.metric}</td>
-                                    <td className="p-4 text-zinc-100 font-semibold bg-zinc-900/20 border-x border-zinc-900/40">
+                                    <td className="p-4 text-white font-semibold bg-blue-500/5 border-x border-white/10">
                                         <div className="flex items-center gap-2">
-                                            <Check className="h-3.5 w-3.5 text-blue-500 stroke-[3]" />
+                                            <Check className="h-3.5 w-3.5 text-blue-400 stroke-[3]" />
                                             <span>{row.Shapentic}</span>
                                         </div>
                                     </td>
-                                    <td className="p-4 text-zinc-500">
+                                    <td className="p-4 text-zinc-400">
                                         <div className="flex items-center gap-2">
-                                            <Minus className="h-3.5 w-3.5 text-zinc-700" />
+                                            <Minus className="h-3.5 w-3.5 text-zinc-600" />
                                             <span>{row.framework}</span>
                                         </div>
                                     </td>

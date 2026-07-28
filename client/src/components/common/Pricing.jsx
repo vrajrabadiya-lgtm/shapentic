@@ -98,11 +98,15 @@ export default function PricingSection() {
                     {tiers.map((tier, index) => (
                         <div
                             key={index}
-                            className={`relative rounded-2xl border p-8 flex flex-col justify-between transition-all duration-300 group hover:border-zinc-700 ${tier.borderColor}`}
+                            className={`relative rounded-2xl border p-8 flex flex-col justify-between transition-all duration-300 backdrop-blur-xl group hover:border-blue-500/40 hover:-translate-y-1 ${
+                                tier.featured
+                                    ? "bg-zinc-900/60 border-blue-500/40 shadow-[0_0_50px_-12px_rgba(59,130,246,0.25)]"
+                                    : "bg-zinc-900/30 border-white/10 hover:bg-zinc-900/50 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+                            }`}
                         >
                             {/* Pro Badge Accent */}
                             {tier.featured && (
-                                <div className="absolute -top-3.5 left-8 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-mono text-[9px] font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-blue-400/30 flex items-center gap-1">
+                                <div className="absolute -top-3.5 left-8 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-mono text-[9px] font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-blue-400/40 flex items-center gap-1 shadow-lg">
                                     <Sparkles className="h-2.5 w-2.5 fill-white" />
                                     Most Demanded
                                 </div>
@@ -110,29 +114,29 @@ export default function PricingSection() {
 
                             {/* Core Price Meta */}
                             <div>
-                                <span className="text-sm font-bold tracking-wide text-zinc-400 block mb-1">
+                                <span className="text-sm font-bold tracking-wide text-zinc-300 block mb-1">
                                     {tier.name}
                                 </span>
-                                <p className="text-zinc-500 text-xs leading-relaxed min-h-[40px] mb-6">
+                                <p className="text-zinc-400 text-xs leading-relaxed min-h-[40px] mb-6">
                                     {tier.desc}
                                 </p>
 
                                 <div className="flex items-baseline gap-1.5 mb-8">
-                                    <span className="text-4xl md:text-5xl font-black tracking-tight text-zinc-100 group-hover:text-white transition-colors">
+                                    <span className="text-4xl md:text-5xl font-black tracking-tight text-white transition-colors">
                                         {tier.price}
                                     </span>
-                                    <span className="text-zinc-500 text-xs font-medium">
+                                    <span className="text-zinc-400 text-xs font-medium">
                                         / {tier.period}
                                     </span>
                                 </div>
 
-                                <div className="h-[1px] bg-zinc-900 w-full mb-8" />
+                                <div className="h-[1px] bg-white/10 w-full mb-8" />
 
                                 {/* Feature Inclusions Vector List */}
                                 <ul className="space-y-4 mb-12">
                                     {tier.features.map((feature, fIdx) => (
-                                        <li key={fIdx} className="flex items-start gap-3 text-xs text-zinc-400">
-                                            <div className={`mt-0.5 h-4 w-4 rounded-full flex items-center justify-center shrink-0 ${tier.featured ? 'bg-blue-500/10 text-blue-400' : 'bg-zinc-900 text-zinc-600'}`}>
+                                        <li key={fIdx} className="flex items-start gap-3 text-xs text-zinc-300">
+                                            <div className={`mt-0.5 h-4 w-4 rounded-full flex items-center justify-center shrink-0 ${tier.featured ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-white/10 text-zinc-400 border border-white/10'}`}>
                                                 <Check className="h-2.5 w-2.5" />
                                             </div>
                                             <span>{feature}</span>

@@ -24,16 +24,16 @@ export default function PresetsSection() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {presets.map((preset, index) => (
-                        <div key={index} className="group relative rounded-2xl border border-zinc-800/60 bg-zinc-950 p-6 flex flex-col justify-between min-h-[320px] transition-all hover:border-zinc-700 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)]">
+                        <div key={index} className="group relative rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-xl p-6 flex flex-col justify-between min-h-[320px] transition-all duration-300 hover:border-blue-500/40 hover:bg-zinc-900/60 hover:shadow-[0_12px_40px_rgba(59,130,246,0.15)] hover:-translate-y-1">
                             <div>
-                                <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase block mb-2">{preset.type}</span>
-                                <h3 className="text-xl font-bold group-hover:text-zinc-200 transition-colors">{preset.title}</h3>
-                                <p className="text-zinc-500 text-xs mt-2 leading-relaxed">{preset.desc}</p>
+                                <span className="text-[10px] font-bold tracking-widest text-zinc-400 uppercase block mb-2">{preset.type}</span>
+                                <h3 className="text-xl font-bold group-hover:text-white transition-colors">{preset.title}</h3>
+                                <p className="text-zinc-400 text-xs mt-2 leading-relaxed">{preset.desc}</p>
                             </div>
 
-                            <div className={`mt-8 h-36 rounded-xl bg-gradient-to-tr ${preset.color} border border-zinc-800/40 relative overflow-hidden flex items-center justify-center group-hover:opacity-90 transition-opacity`}>
-                                <div className="absolute inset-0 bg-black/20" />
-                                <div className="h-10 w-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 backdrop-blur-sm shadow-xl">
+                            <div className={`mt-8 h-36 rounded-xl bg-gradient-to-tr ${preset.color} border border-white/10 relative overflow-hidden flex items-center justify-center backdrop-blur-md group-hover:border-white/20 transition-all`}>
+                                <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
+                                <div className="h-10 w-10 rounded-full bg-zinc-950/80 border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 backdrop-blur-md shadow-2xl">
                                     <Eye className="h-4 w-4 text-white" />
                                 </div>
                             </div>

@@ -153,25 +153,25 @@ export default function PipelineSection() {
             return (
               <div
                 key={index}
-                className={`relative z-10 p-5 rounded-2xl border flex flex-col items-center text-center transition-all duration-300 group hover:border-zinc-700 hover:bg-zinc-950 hover:shadow-[0_12px_40px_rgba(0,0,0,0.7)] ${step.borderColor}`}
+                className="relative z-10 p-5 rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-xl flex flex-col items-center text-center transition-all duration-300 group hover:border-blue-500/40 hover:bg-zinc-900/60 hover:shadow-[0_12px_40px_rgba(59,130,246,0.15)] hover:-translate-y-1"
               >
                 {/* Squared Soft Icon Node */}
-                <div className="h-11 w-11 rounded-xl bg-zinc-900/50 border border-zinc-800/40 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                <div className="h-11 w-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform backdrop-blur-md">
                   <StepIcon className={`h-4 w-4 ${step.iconColor} group-hover:text-white transition-colors`} />
                 </div>
 
                 {/* Index Number */}
-                <span className="text-[10px] font-bold tracking-widest text-zinc-600 font-mono mb-2 block">
+                <span className="text-[10px] font-bold tracking-widest text-zinc-400 font-mono mb-2 block">
                   {step.number}
                 </span>
 
                 {/* Card Header */}
-                <h3 className="text-sm font-bold text-zinc-100 mb-2 tracking-tight group-hover:text-white">
+                <h3 className="text-sm font-bold text-white mb-2 tracking-tight">
                   {step.title}
                 </h3>
 
                 {/* Card Body Narrative */}
-                <p className="text-zinc-500 text-[11px] leading-relaxed max-w-[170px] mt-1 group-hover:text-zinc-400 transition-colors">
+                <p className="text-zinc-400 text-[11px] leading-relaxed max-w-[170px] mt-1 group-hover:text-zinc-300 transition-colors">
                   {step.desc}
                 </p>
               </div>
@@ -180,7 +180,7 @@ export default function PipelineSection() {
         </div>
 
         {/* NEW SECTION: PREMIUM GLASSMORPHIC CONTACT FORM */}
-        <div className="w-full max-w-4xl text-left border border-white/[0.06] rounded-[2.5rem] bg-gradient-to-b from-zinc-950 to-black p-8 md:p-14 relative overflow-hidden shadow-2xl">
+        <div className="w-full max-w-4xl text-left border border-white/10 rounded-[2.5rem] bg-zinc-900/40 backdrop-blur-2xl p-8 md:p-14 relative overflow-hidden shadow-2xl">
 
           {/* Subtle Ambient Glow */}
           <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
