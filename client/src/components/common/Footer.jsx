@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Mail, ArrowUp, Sparkles } from "lucide-react";
 
 function XIcon({ className }) {
@@ -76,12 +76,8 @@ export default function Footer() {
                 {/* Brand Column */}
                 <div className="md:col-span-4 flex flex-col gap-5">
                     <div className="flex items-center gap-2.5">
-                        <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-blue-500 via-indigo-500 to-cyan-400 p-[1px] shadow-[0_0_12px_rgba(59,130,246,0.5)]">
-                            <div className="h-full w-full bg-zinc-950 rounded-[7px] flex items-center justify-center">
-                                <div className="h-2.5 w-2.5 rotate-45 border-2 border-cyan-400 bg-blue-600/40" />
-                            </div>
-                        </div>
-                        <span className="font-black text-sm tracking-[0.2em] bg-gradient-to-r from-white via-zinc-200 to-blue-400 bg-clip-text text-transparent uppercase font-sans">
+                        <img src="/logo.svg" alt="Shapentic Logo" className="h-6 w-6 rounded-md" />
+                        <span className="font-black text-xs tracking-widest text-white uppercase font-sans">
                             Shapentic
                         </span>
                     </div>
