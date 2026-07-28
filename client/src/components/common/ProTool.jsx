@@ -42,21 +42,21 @@ export default function ProToolsSection() {
     ];
 
     return (
-        <section id="pro-tools" className="w-full bg-black text-white py-24 px-6 border-t border-zinc-900">
+        <section id="pro-tools" className="w-full text-[#f5f5f7] py-20 px-6 border-t border-white/10 bg-transparent">
             <div className="max-w-7xl mx-auto flex flex-col items-center">
 
                 {/* Badge Category */}
-                <div className="inline-flex items-center gap-1.5 mb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 border border-zinc-800/80 bg-zinc-900/50 px-3 py-1 rounded-full">
-                    <Box className="h-3 w-3 text-blue-400 fill-blue-400/20" />
+                <div className="inline-flex items-center gap-1.5 mb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#2997ff] border border-[#2997ff]/30 bg-[#2997ff]/10 px-3.5 py-1.5 rounded-full backdrop-blur-md">
+                    <Box className="h-3.5 w-3.5 text-[#2997ff]" />
                     Pro Tools
                 </div>
 
                 {/* Main Copy Headers */}
-                <div className="text-center max-w-3xl mb-20">
-                    <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6 text-zinc-100">
-                        Built for <span className="bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400 bg-clip-text text-transparent">serious websites</span>
+                <div className="text-center max-w-3xl mb-16">
+                    <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6 text-[#f5f5f7]">
+                        Built for <span className="text-[#2997ff]">serious websites</span>
                     </h2>
-                    <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-2xl mx-auto font-medium opacity-80">
+                    <p className="text-[#86868b] text-sm md:text-base leading-relaxed max-w-2xl mx-auto font-normal">
                         Presets give you polished UI instantly; the 3D builder adds cinematic scroll on top. Chain videos, swap media, layer elements over frames, and export production-ready code.
                     </p>
                 </div>
@@ -69,19 +69,19 @@ export default function ProToolsSection() {
                         return (
                             <div
                                 key={index}
-                                className={`group p-8 rounded-2xl border flex flex-col justify-between min-h-[260px] transition-all duration-300 hover:border-zinc-700 hover:bg-zinc-950/80 hover:shadow-[0_12px_40px_rgba(0,0,0,0.7)] ${feat.gridClass}`}
+                                className={`group p-8 rounded-2xl border border-white/10 bg-[#1c1c1e] flex flex-col justify-between min-h-[260px] transition-all duration-300 hover:border-white/20 hover:bg-[#242426] hover:shadow-2xl ${index === 0 ? "md:col-span-2 border-[#2997ff]/30" : ""}`}
                             >
                                 {/* Framed Mini Square Icon Container */}
-                                <div className="h-11 w-11 rounded-xl bg-zinc-900/40 border border-zinc-800/50 flex items-center justify-center group-hover:scale-105 transition-transform">
-                                    <Icon className={`h-4 w-4 ${feat.iconColor} group-hover:text-white transition-colors`} />
+                                <div className="h-11 w-11 rounded-xl bg-[#2c2c2e] border border-white/10 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                    <Icon className="h-5 w-5 text-[#2997ff]" />
                                 </div>
 
                                 {/* Content Block */}
                                 <div className="mt-8">
-                                    <h3 className="text-lg font-bold text-zinc-100 mb-2 tracking-tight group-hover:text-white transition-colors">
+                                    <h3 className="text-lg font-bold text-[#f5f5f7] mb-2 tracking-tight">
                                         {feat.title}
                                     </h3>
-                                    <p className="text-zinc-500 text-xs leading-relaxed max-w-sm group-hover:text-zinc-400 transition-colors">
+                                    <p className="text-[#86868b] text-xs leading-relaxed max-w-sm">
                                         {feat.desc}
                                     </p>
                                 </div>

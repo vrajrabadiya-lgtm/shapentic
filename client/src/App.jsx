@@ -196,67 +196,72 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden antialiased selection:bg-zinc-800">
+    <div className="min-h-screen bg-[#000000] text-[#f5f5f7] font-sans overflow-x-hidden antialiased selection:bg-blue-500/30 relative">
 
-      {/* Global Background Styling Atmosphere */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293708_1px,transparent_1px),linear-gradient(to_bottom,#1f293708_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0" />
-
-      <Navbar />
-
-      <div id="home">
-        <HeroSection />
+      {/* Global Background Atmosphere - Subtle Apple Grid Mesh */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       </div>
 
-      <main className="bg-black min-h-screen space-y-20">
+      <div className="relative z-10">
+        <Navbar />
 
-        {/* Features Section */}
-        <div id="features">
-          <ScrollReveal>
-            <FeaturesHeroSection />
-          </ScrollReveal>
-          <ScrollReveal>
-            <ProToolsSection />
-          </ScrollReveal>
+        {/* Hero Section remains intact */}
+        <div id="home">
+          <HeroSection />
         </div>
 
-        {/* Presets / Templates Section */}
-        <div id="presets">
+        <main className="bg-transparent min-h-screen space-y-24 py-10">
+
+          {/* Features Section */}
+          <div id="features">
+            <ScrollReveal>
+              <FeaturesHeroSection />
+            </ScrollReveal>
+            <ScrollReveal>
+              <ProToolsSection />
+            </ScrollReveal>
+          </div>
+
+          {/* Presets / Templates Section */}
+          <div id="presets">
+            <ScrollReveal>
+              <TemplatesShowcase />
+            </ScrollReveal>
+            <ScrollReveal>
+              <PresetsSection />
+            </ScrollReveal>
+          </div>
+
           <ScrollReveal>
-            <TemplatesShowcase />
+            <AnimatedTestimonials testimonials={testimonialData} />
           </ScrollReveal>
-          <ScrollReveal>
-            <PresetsSection />
-          </ScrollReveal>
-        </div>
 
-        <ScrollReveal>
-          <AnimatedTestimonials testimonials={testimonialData} />
-        </ScrollReveal>
+          {/* Blog / Compare Matrix Section */}
+          <div id="blog">
+            <ScrollReveal>
+              <CompareMatrix />
+            </ScrollReveal>
+          </div>
 
-        {/* Blog / Compare Matrix (Optional section) */}
-        <div id="blog">
-          <ScrollReveal>
-            <CompareMatrix />
-          </ScrollReveal>
-        </div>
+          {/* Pricing Section */}
+          <div id="pricing">
+            <ScrollReveal>
+              <PricingSection />
+            </ScrollReveal>
+          </div>
 
-        {/* Pricing Section */}
-        <div id="pricing">
-          <ScrollReveal>
-            <PricingSection />
-          </ScrollReveal>
-        </div>
+          {/* Contact / Workflow Section */}
+          <div id="contact">
+            <ScrollReveal>
+              <WorkflowSection />
+            </ScrollReveal>
+          </div>
 
-        {/* Contact / Workflow Section */}
-        <div id="contact">
-          <ScrollReveal>
-            <WorkflowSection />
-          </ScrollReveal>
-        </div>
+        </main>
 
-      </main>
-
-      <Footer />
+        <Footer />
+      </div>
 
     </div>
   );

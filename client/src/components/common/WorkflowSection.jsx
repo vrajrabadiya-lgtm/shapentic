@@ -122,21 +122,21 @@ export default function PipelineSection() {
   };
 
   return (
-    <section id="pipeline" className="w-full bg-black text-white py-24 px-6 border-t border-zinc-900 select-none">
+    <section id="pipeline" className="w-full text-[#f5f5f7] py-24 px-6 border-t border-white/10 bg-transparent select-none">
       <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
 
         {/* Micro Category Tag */}
-        <div className="inline-flex items-center gap-1.5 mb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400 border border-blue-500/20 bg-blue-500/5 px-3 py-1 rounded-full">
-          <span className="h-1 w-1 rounded-full bg-blue-400 animate-pulse" />
+        <div className="inline-flex items-center gap-1.5 mb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#2997ff] border border-[#2997ff]/30 bg-[#2997ff]/10 px-3.5 py-1.5 rounded-full backdrop-blur-md">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#2997ff] animate-pulse" />
           The Pipeline
         </div>
 
         {/* Typography Heading Set */}
-        <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6 max-w-4xl text-zinc-100">
-          From prompt to <span className="bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400 bg-clip-text text-transparent">production</span>
+        <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6 max-w-4xl text-[#f5f5f7]">
+          From prompt to <span className="text-[#2997ff]">production</span>
         </h2>
 
-        <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-2xl mb-16 font-medium opacity-80">
+        <p className="text-[#86868b] text-sm md:text-base leading-relaxed max-w-2xl mb-16 font-normal">
           Use a stunning preset and edit in place — or describe a 3D scroll site from scratch.
           AI generates motion, extracts frames, and ships production HTML without a long prompt.
         </p>
@@ -144,8 +144,8 @@ export default function PipelineSection() {
         {/* Grid Deck */}
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 relative mb-28">
 
-          {/* The Background Connecting Track line (visible behind cards on large layouts) */}
-          <div className="absolute top-[48px] left-8 right-8 h-[1px] bg-zinc-900 hidden lg:block z-0" />
+          {/* The Background Connecting Track line */}
+          <div className="absolute top-[48px] left-8 right-8 h-[1px] bg-white/10 hidden lg:block z-0" />
 
           {pipelineSteps.map((step, index) => {
             const StepIcon = step.icon;
@@ -153,25 +153,25 @@ export default function PipelineSection() {
             return (
               <div
                 key={index}
-                className="relative z-10 p-5 rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-xl flex flex-col items-center text-center transition-all duration-300 group hover:border-blue-500/40 hover:bg-zinc-900/60 hover:shadow-[0_12px_40px_rgba(59,130,246,0.15)] hover:-translate-y-1"
+                className="relative z-10 p-5 rounded-2xl border border-white/10 bg-[#1c1c1e] flex flex-col items-center text-center transition-all duration-300 group hover:border-white/20 hover:bg-[#242426] hover:-translate-y-1 shadow-lg"
               >
                 {/* Squared Soft Icon Node */}
-                <div className="h-11 w-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform backdrop-blur-md">
-                  <StepIcon className={`h-4 w-4 ${step.iconColor} group-hover:text-white transition-colors`} />
+                <div className="h-11 w-11 rounded-xl bg-[#2c2c2e] border border-white/10 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                  <StepIcon className="h-4 w-4 text-[#2997ff]" />
                 </div>
 
                 {/* Index Number */}
-                <span className="text-[10px] font-bold tracking-widest text-zinc-400 font-mono mb-2 block">
+                <span className="text-[10px] font-bold tracking-widest text-[#86868b] font-mono mb-2 block">
                   {step.number}
                 </span>
 
                 {/* Card Header */}
-                <h3 className="text-sm font-bold text-white mb-2 tracking-tight">
+                <h3 className="text-sm font-bold text-[#f5f5f7] mb-2 tracking-tight">
                   {step.title}
                 </h3>
 
                 {/* Card Body Narrative */}
-                <p className="text-zinc-400 text-[11px] leading-relaxed max-w-[170px] mt-1 group-hover:text-zinc-300 transition-colors">
+                <p className="text-[#86868b] text-[11px] leading-relaxed max-w-[170px] mt-1 font-normal">
                   {step.desc}
                 </p>
               </div>
@@ -180,36 +180,33 @@ export default function PipelineSection() {
         </div>
 
         {/* NEW SECTION: PREMIUM GLASSMORPHIC CONTACT FORM */}
-        <div className="w-full max-w-4xl text-left border border-white/10 rounded-[2.5rem] bg-zinc-900/40 backdrop-blur-2xl p-8 md:p-14 relative overflow-hidden shadow-2xl">
-
-          {/* Subtle Ambient Glow */}
-          <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="w-full max-w-4xl text-left border border-white/10 rounded-[2.5rem] bg-[#161617] p-8 md:p-14 relative overflow-hidden shadow-2xl">
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start relative z-10">
 
             {/* Contact details */}
             <div className="lg:col-span-5 space-y-6">
               <div>
-                <span className="text-[10px] font-bold tracking-widest text-blue-400 uppercase block mb-2">
+                <span className="text-[10px] font-bold tracking-widest text-[#2997ff] uppercase block mb-2">
                   Have Questions?
                 </span>
-                <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white mb-3">
+                <h3 className="text-2xl md:text-3xl font-black tracking-tight text-[#f5f5f7] mb-3">
                   Let's Connect
                 </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed font-medium">
-                  Have customization inquiries or questions about our WebGL engine? Fill out the form, and your query will compile directly into our MongoDB Atlas database feed.
+                <p className="text-xs text-[#86868b] leading-relaxed font-normal">
+                  Have customization inquiries or questions about our WebGL engine? Fill out the form, and your query will compile directly into our database feed.
                 </p>
               </div>
 
-              <div className="space-y-4 pt-4 text-xs text-zinc-400 font-medium">
+              <div className="space-y-4 pt-4 text-xs text-[#86868b] font-normal">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-zinc-900 border border-white/5 flex items-center justify-center text-blue-400">
+                  <div className="h-8 w-8 rounded-lg bg-[#2c2c2e] border border-white/10 flex items-center justify-center text-[#2997ff]">
                     <Mail className="h-4 w-4" />
                   </div>
                   <span>support@Shapentic.space</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-zinc-900 border border-white/5 flex items-center justify-center text-purple-400">
+                  <div className="h-8 w-8 rounded-lg bg-[#2c2c2e] border border-white/10 flex items-center justify-center text-[#2997ff]">
                     <MessageSquare className="h-4 w-4" />
                   </div>
                   <span>24/7 MERN Stack Support Enabled</span>
@@ -218,13 +215,13 @@ export default function PipelineSection() {
             </div>
 
             {/* Contact HTML Form */}
-            <div className="lg:col-span-7 bg-zinc-900/30 border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-xl">
+            <div className="lg:col-span-7 bg-[#1c1c1e] border border-white/10 rounded-3xl p-6 md:p-8">
 
               {formStatus.text && (
                 <div
                   className={`p-4 mb-6 rounded-xl border flex items-start gap-2.5 text-xs ${formStatus.type === "success"
-                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
-                      : "bg-red-500/10 border-red-500/20 text-red-300"
+                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
+                    : "bg-red-500/10 border-red-500/20 text-red-300"
                     }`}
                 >
                   {formStatus.type === "success" ? (
@@ -239,7 +236,7 @@ export default function PipelineSection() {
               <form onSubmit={handleContactSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#86868b]">
                       Your Name
                     </label>
                     <input
@@ -248,12 +245,12 @@ export default function PipelineSection() {
                       placeholder="Jane Doe"
                       value={contactName}
                       onChange={(e) => setContactName(e.target.value)}
-                      className="w-full h-10 px-3 bg-zinc-950 border border-white/10 rounded-xl text-xs text-white placeholder-zinc-700 outline-none focus:border-blue-500 transition-colors"
+                      className="w-full h-10 px-3 bg-[#2c2c2e] border border-white/10 rounded-xl text-xs text-[#f5f5f7] placeholder-[#86868b] outline-none focus:border-[#2997ff] transition-colors"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#86868b]">
                       Email Address
                     </label>
                     <input
@@ -262,13 +259,13 @@ export default function PipelineSection() {
                       placeholder="jane@company.com"
                       value={contactEmail}
                       onChange={(e) => setContactEmail(e.target.value)}
-                      className="w-full h-10 px-3 bg-zinc-950 border border-white/10 rounded-xl text-xs text-white placeholder-zinc-700 outline-none focus:border-blue-500 transition-colors"
+                      className="w-full h-10 px-3 bg-[#2c2c2e] border border-white/10 rounded-xl text-xs text-[#f5f5f7] placeholder-[#86868b] outline-none focus:border-[#2997ff] transition-colors"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#86868b]">
                     Your Message
                   </label>
                   <textarea
@@ -277,14 +274,14 @@ export default function PipelineSection() {
                     placeholder="Describe how we can help you configure your 3D workflow..."
                     value={contactMessage}
                     onChange={(e) => setContactMessage(e.target.value)}
-                    className="w-full p-3 bg-zinc-950 border border-white/10 rounded-xl text-xs text-white placeholder-zinc-700 outline-none focus:border-blue-500 transition-colors resize-none"
+                    className="w-full p-3 bg-[#2c2c2e] border border-white/10 rounded-xl text-xs text-[#f5f5f7] placeholder-[#86868b] outline-none focus:border-[#2997ff] transition-colors resize-none"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-11 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-lg shadow-blue-500/10"
+                  className="w-full h-11 bg-[#2997ff] hover:bg-[#0077ed] disabled:opacity-50 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-lg shadow-[#2997ff]/20"
                 >
                   {isSubmitting ? (
                     <span>Sending Submission...</span>

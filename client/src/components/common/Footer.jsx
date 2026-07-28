@@ -70,24 +70,24 @@ export default function Footer() {
     ];
 
     return (
-        <footer className="w-full bg-black text-white border-t border-zinc-900/80 font-sans relative z-10 select-none">
+        <footer className="w-full bg-[#0b0b0c] text-[#f5f5f7] border-t border-white/10 font-sans relative z-10 select-none">
             <div className="max-w-7xl mx-auto px-6 pt-20 pb-12 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-6">
 
                 {/* Brand Column */}
                 <div className="md:col-span-4 flex flex-col gap-5">
                     <div className="flex items-center gap-2.5">
                         <img src="/logo.svg" alt="Shapentic Logo" className="h-7 w-7 object-contain" />
-                        <span className="font-black text-xs tracking-widest text-white uppercase font-sans">
+                        <span className="font-black text-xs tracking-widest text-[#f5f5f7] uppercase font-sans">
                             Shapentic
                         </span>
                     </div>
 
-                    <p className="text-zinc-400 text-xs leading-relaxed max-w-[280px] font-normal">
+                    <p className="text-[#86868b] text-xs leading-relaxed max-w-[280px] font-normal">
                         Next-generation 3D Website Builder for cinematic scroll experiences — powered by AI frame sequences.
                     </p>
 
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-950 border border-zinc-800 text-[10px] font-mono text-zinc-400 w-fit">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1c1c1e] border border-white/10 text-[10px] font-mono text-[#86868b] w-fit">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#30d158] animate-pulse" />
                         <span>All Engine Nodes Operational</span>
                     </div>
 
@@ -102,7 +102,7 @@ export default function Footer() {
                             <a
                                 key={index}
                                 href={social.href}
-                                className="h-9 w-9 rounded-xl border border-zinc-900 bg-zinc-950 flex items-center justify-center text-zinc-400 hover:text-white hover:border-blue-500/40 hover:bg-blue-500/10 transition-all duration-200"
+                                className="h-9 w-9 rounded-xl border border-white/10 bg-[#1c1c1e] flex items-center justify-center text-[#86868b] hover:text-[#2997ff] hover:border-[#2997ff]/40 hover:bg-[#2997ff]/10 transition-all duration-200"
                             >
                                 {social.icon}
                             </a>
@@ -114,7 +114,7 @@ export default function Footer() {
                 <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8 md:gap-4">
                     {footerSections.map((section) => (
                         <div key={section.title} className="flex flex-col gap-4">
-                            <h4 className="text-[10px] font-mono font-bold tracking-[0.2em] text-zinc-300 uppercase">
+                            <h4 className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#f5f5f7] uppercase">
                                 {section.title}
                             </h4>
                             <ul className="flex flex-col gap-3">
@@ -122,7 +122,7 @@ export default function Footer() {
                                     <li key={link.label}>
                                         <a
                                             href={link.href}
-                                            className="text-zinc-400 hover:text-white text-xs transition-colors duration-200 font-normal"
+                                            className="text-[#86868b] hover:text-[#f5f5f7] text-xs transition-colors duration-200 font-normal"
                                         >
                                             {link.label}
                                         </a>
@@ -136,13 +136,13 @@ export default function Footer() {
             </div>
 
             {/* Bottom Bar */}
-            <div className="max-w-7xl mx-auto px-6 py-6 border-t border-zinc-900/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+            <div className="max-w-7xl mx-auto px-6 py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#86868b]">
                 <div>
                     © {new Date().getFullYear()} Shapentic 3D Studio. All rights reserved.
                 </div>
                 <button
                     onClick={scrollToTop}
-                    className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                    className="flex items-center gap-2 text-[#86868b] hover:text-[#f5f5f7] transition-colors cursor-pointer"
                 >
                     <span>Back to Top</span>
                     <ArrowUp className="h-3.5 w-3.5" />

@@ -59,35 +59,35 @@ export default function PricingSection() {
     ];
 
     return (
-        <section id="pricing" className="w-full bg-black text-white py-32 px-6 border-t border-zinc-900">
+        <section id="pricing" className="w-full text-[#f5f5f7] py-24 px-6 border-t border-white/10 bg-transparent">
             <div className="max-w-7xl mx-auto flex flex-col items-center">
 
                 {/* Micro Category Tag */}
-                <div className="inline-flex items-center gap-1.5 mb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 bg-zinc-900/40 border border-zinc-800/80 px-3 py-1 rounded-full">
+                <div className="inline-flex items-center gap-1.5 mb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#2997ff] border border-[#2997ff]/30 bg-[#2997ff]/10 px-3.5 py-1.5 rounded-full backdrop-blur-md">
                     Scalable Compute
                 </div>
 
                 {/* Typography Heading Set */}
                 <div className="text-center max-w-2xl mb-12">
-                    <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
-                        Predictable <span className="bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400 bg-clip-text text-transparent">pipelines</span>
+                    <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6 text-[#f5f5f7]">
+                        Predictable <span className="text-[#2997ff]">pipelines</span>
                     </h2>
-                    <p className="text-zinc-500 text-sm md:text-base leading-relaxed">
+                    <p className="text-[#86868b] text-sm md:text-base leading-relaxed font-normal">
                         Choose the rendering bandwidth your workload commands. Save up to 20% on annual commitments.
                     </p>
                 </div>
 
                 {/* Billing Cycle Switcher */}
-                <div className="flex items-center bg-zinc-950 border border-zinc-900 p-1 rounded-full mb-20">
+                <div className="flex items-center bg-[#1c1c1e] border border-white/10 p-1 rounded-full mb-20">
                     <button
                         onClick={() => setBillingCycle("monthly")}
-                        className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${billingCycle === "monthly" ? "bg-zinc-900 text-white border border-zinc-800" : "text-zinc-500 hover:text-zinc-300"}`}
+                        className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${billingCycle === "monthly" ? "bg-[#2997ff] text-white" : "text-[#86868b] hover:text-[#f5f5f7]"}`}
                     >
                         Monthly
                     </button>
                     <button
                         onClick={() => setBillingCycle("annual")}
-                        className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${billingCycle === "annual" ? "bg-zinc-900 text-white border border-zinc-800" : "text-zinc-500 hover:text-zinc-300"}`}
+                        className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${billingCycle === "annual" ? "bg-[#2997ff] text-white" : "text-[#86868b] hover:text-[#f5f5f7]"}`}
                     >
                         Annual (-20%)
                     </button>
@@ -98,15 +98,15 @@ export default function PricingSection() {
                     {tiers.map((tier, index) => (
                         <div
                             key={index}
-                            className={`relative rounded-2xl border p-8 flex flex-col justify-between transition-all duration-300 backdrop-blur-xl group hover:border-blue-500/40 hover:-translate-y-1 ${
+                            className={`relative rounded-3xl border p-8 flex flex-col justify-between transition-all duration-300 group hover:border-white/20 hover:bg-[#242426] ${
                                 tier.featured
-                                    ? "bg-zinc-900/60 border-blue-500/40 shadow-[0_0_50px_-12px_rgba(59,130,246,0.25)]"
-                                    : "bg-zinc-900/30 border-white/10 hover:bg-zinc-900/50 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+                                    ? "bg-[#1c1c1e] border-[#2997ff]/40 shadow-2xl"
+                                    : "bg-[#161617] border-white/10"
                             }`}
                         >
                             {/* Pro Badge Accent */}
                             {tier.featured && (
-                                <div className="absolute -top-3.5 left-8 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-mono text-[9px] font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-blue-400/40 flex items-center gap-1 shadow-lg">
+                                <div className="absolute -top-3.5 left-8 bg-[#2997ff] text-white font-mono text-[9px] font-bold tracking-widest uppercase px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
                                     <Sparkles className="h-2.5 w-2.5 fill-white" />
                                     Most Demanded
                                 </div>
@@ -114,18 +114,18 @@ export default function PricingSection() {
 
                             {/* Core Price Meta */}
                             <div>
-                                <span className="text-sm font-bold tracking-wide text-zinc-300 block mb-1">
+                                <span className="text-sm font-bold tracking-wide text-[#f5f5f7] block mb-1">
                                     {tier.name}
                                 </span>
-                                <p className="text-zinc-400 text-xs leading-relaxed min-h-[40px] mb-6">
+                                <p className="text-[#86868b] text-xs leading-relaxed min-h-[40px] mb-6 font-normal">
                                     {tier.desc}
                                 </p>
 
                                 <div className="flex items-baseline gap-1.5 mb-8">
-                                    <span className="text-4xl md:text-5xl font-black tracking-tight text-white transition-colors">
+                                    <span className="text-4xl md:text-5xl font-black tracking-tight text-[#f5f5f7]">
                                         {tier.price}
                                     </span>
-                                    <span className="text-zinc-400 text-xs font-medium">
+                                    <span className="text-[#86868b] text-xs font-medium">
                                         / {tier.period}
                                     </span>
                                 </div>
@@ -135,8 +135,8 @@ export default function PricingSection() {
                                 {/* Feature Inclusions Vector List */}
                                 <ul className="space-y-4 mb-12">
                                     {tier.features.map((feature, fIdx) => (
-                                        <li key={fIdx} className="flex items-start gap-3 text-xs text-zinc-300">
-                                            <div className={`mt-0.5 h-4 w-4 rounded-full flex items-center justify-center shrink-0 ${tier.featured ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-white/10 text-zinc-400 border border-white/10'}`}>
+                                        <li key={fIdx} className="flex items-start gap-3 text-xs text-[#f5f5f7]">
+                                            <div className={`mt-0.5 h-4 w-4 rounded-full flex items-center justify-center shrink-0 ${tier.featured ? 'bg-[#2997ff]/20 text-[#2997ff] border border-[#2997ff]/30' : 'bg-white/10 text-[#86868b]'}`}>
                                                 <Check className="h-2.5 w-2.5" />
                                             </div>
                                             <span>{feature}</span>
@@ -146,19 +146,19 @@ export default function PricingSection() {
                             </div>
 
                             {/* Dynamic Trigger CTA */}
-                            <button className={`w-full font-semibold text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 group/btn ${tier.buttonStyle}`}>
+                            <button className={`w-full font-semibold text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 ${tier.featured ? "bg-[#2997ff] text-white hover:bg-[#0077ed]" : "bg-[#2c2c2e] text-[#f5f5f7] hover:bg-[#3a3a3c]"}`}>
                                 <span>{tier.cta}</span>
-                                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
+                                <ArrowRight className="h-3.5 w-3.5" />
                             </button>
                         </div>
                     ))}
                 </div>
 
                 {/* Micro Guarantee Disclaimer Footer */}
-                <div className="mt-16 flex items-center gap-2 text-zinc-600 text-xs font-medium">
-                    <HelpCircle className="h-3.5 w-3.5" />
+                <div className="mt-16 flex items-center gap-2 text-[#86868b] text-xs font-medium">
+                    <HelpCircle className="h-3.5 w-3.5 text-[#2997ff]" />
                     <span>Need a dedicated high-volume custom multi-GPU engine node?</span>
-                    <a href="#contact" className="text-zinc-400 hover:text-white underline transition-colors">Talk to infrastructure.</a>
+                    <a href="#contact" className="text-[#2997ff] hover:underline transition-colors">Talk to infrastructure.</a>
                 </div>
 
             </div>

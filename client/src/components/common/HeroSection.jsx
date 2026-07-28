@@ -43,7 +43,7 @@ export default function HeroSection() {
             </div>
 
             {/* Main Content Workspace Layer */}
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: 30, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -51,7 +51,7 @@ export default function HeroSection() {
             >
 
                 {/* 1. Watch Demo Floating Pill */}
-                <motion.button 
+                <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-zinc-900/60 hover:bg-zinc-900/80 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wide shadow-2xl transition-all duration-300 mb-6 group cursor-pointer"
@@ -61,7 +61,7 @@ export default function HeroSection() {
                 </motion.button>
 
                 {/* 2. Central Specialized Apple Glassmorphic AI Prompt Panel */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
