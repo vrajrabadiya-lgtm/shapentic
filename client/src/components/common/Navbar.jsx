@@ -173,9 +173,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <div className="flex items-center gap-2 pr-4 border-r border-white/10">
-            <div className="h-5 w-5 rounded bg-white flex items-center justify-center">
-              <div className="h-2 w-2 rounded-sm bg-black" />
-            </div>
+            <img src="/logo.svg" alt="Shapentic Logo" className="h-6 w-6 rounded-md" />
             <span className="font-black text-xs tracking-widest text-white uppercase font-sans">
               Shapentic
             </span>

@@ -1,0 +1,30 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="16" fill="#090A0F"/>
+  <!-- Top Face (Purple Gradient) -->
+  <path d="M32 16L48 24L32 32L16 24L32 16Z" fill="url(#top_grad)"/>
+  <!-- Left Face (Dark Blue) -->
+  <path d="M16 24L32 32V48L16 40V24Z" fill="url(#left_grad)"/>
+  <!-- Right Face (Bright Blue) -->
+  <path d="M32 32L48 24V40L32 48V32Z" fill="url(#right_grad)"/>
+  <!-- Central Glowing Orb -->
+  <circle cx="32" cy="32" r="5" fill="#3B82F6" opacity="0.5" filter="url(#blur)"/>
+  <circle cx="32" cy="32" r="3" fill="#FFFFFF"/>
+
+  <defs>
+    <linearGradient id="top_grad" x1="16" y1="16" x2="48" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9333EA"/>
+      <stop offset="1" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="left_grad" x1="16" y1="24" x2="32" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#1E3A8A"/>
+    </linearGradient>
+    <linearGradient id="right_grad" x1="32" y1="24" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <filter id="blur" x="23" y="23" width="18" height="18" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+  </defs>
+</svg>
