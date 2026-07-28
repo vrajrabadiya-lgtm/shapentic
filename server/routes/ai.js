@@ -28,7 +28,7 @@ function getConfigStatus() {
   const providers = [];
   if (process.env.ANTHROPIC_API_KEY) providers.push('claude');
   if (process.env.GROQ_API_KEY) providers.push('groq');
-  if (process.env.GOOGLE_PROJECT_ID && process.env.GOOGLE_LOCATION) providers.push('gemini');
+  if (process.env.GEMINI_API_KEY) providers.push('gemini');
   return {
     hasAnyAI: providers.length > 0,
     providers,

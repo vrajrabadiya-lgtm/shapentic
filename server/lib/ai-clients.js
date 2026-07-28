@@ -1,6 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
-import { GoogleAuth } from "google-auth-library";
 import Groq from "groq-sdk";
 import User from "../models/User.js";
 
@@ -9,30 +8,18 @@ export const claude = process.env.ANTHROPIC_API_KEY
   : null;
 
 let _googleAI = null;
-let _gauth = null;
 
+/**
+ * Initialise Gemini using the simple Developer API key (GEMINI_API_KEY).
+ * This works on any hosting platform (Render, Vercel, Railway…) without
+ * needing GCP Application Default Credentials or a service-account JSON.
+ */
 function getGoogleAI() {
-  if (!_googleAI && process.env.GOOGLE_PROJECT_ID && process.env.GOOGLE_LOCATION) {
-    _googleAI = new GoogleGenAI({
-      vertexai: true,
-      project: process.env.GOOGLE_PROJECT_ID,
-      location: process.env.GOOGLE_LOCATION,
-    });
+  if (!_googleAI && process.env.GEMINI_API_KEY) {
+    _googleAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   }
   return _googleAI;
 }
-
-function getGAuth() {
-  if (!_gauth) {
-    _gauth = new GoogleAuth({
-      scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-    });
-  }
-  return _gauth;
-}
-
-export const googleAI = getGoogleAI();
-export const gauth = getGAuth();
 
 export const groq = process.env.GROQ_API_KEY
   ? new Groq({ apiKey: process.env.GROQ_API_KEY })

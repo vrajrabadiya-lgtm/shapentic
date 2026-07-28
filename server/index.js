@@ -10,7 +10,7 @@ import projectRoutes from "./routes/projects.js";
 import aiRoutes from "./routes/ai.js";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/3d-builder";
 
 // Middleware
@@ -19,6 +19,8 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",
   "http://localhost:5174",
   "http://127.0.0.1:5174",
+  // CLIENT_ORIGIN = your Vercel deployment URL (set in Render env vars)
+  process.env.CLIENT_ORIGIN,
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
