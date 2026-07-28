@@ -61,7 +61,7 @@ export default function PricingSection() {
     return (
         <section id="pricing" className="w-full bg-black text-white py-32 px-6 border-t border-zinc-900">
             <div className="max-w-7xl mx-auto flex flex-col items-center">
-                
+
                 {/* Micro Category Tag */}
                 <div className="inline-flex items-center gap-1.5 mb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 bg-zinc-900/40 border border-zinc-800/80 px-3 py-1 rounded-full">
                     Scalable Compute
@@ -79,13 +79,13 @@ export default function PricingSection() {
 
                 {/* Billing Cycle Switcher */}
                 <div className="flex items-center bg-zinc-950 border border-zinc-900 p-1 rounded-full mb-20">
-                    <button 
+                    <button
                         onClick={() => setBillingCycle("monthly")}
                         className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${billingCycle === "monthly" ? "bg-zinc-900 text-white border border-zinc-800" : "text-zinc-500 hover:text-zinc-300"}`}
                     >
                         Monthly
                     </button>
-                    <button 
+                    <button
                         onClick={() => setBillingCycle("annual")}
                         className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${billingCycle === "annual" ? "bg-zinc-900 text-white border border-zinc-800" : "text-zinc-500 hover:text-zinc-300"}`}
                     >
@@ -96,7 +96,7 @@ export default function PricingSection() {
                 {/* Tiers Grid Card System */}
                 <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
                     {tiers.map((tier, index) => (
-                        <div 
+                        <div
                             key={index}
                             className={`relative rounded-2xl border p-8 flex flex-col justify-between transition-all duration-300 group hover:border-zinc-700 ${tier.borderColor}`}
                         >
@@ -116,7 +116,7 @@ export default function PricingSection() {
                                 <p className="text-zinc-500 text-xs leading-relaxed min-h-[40px] mb-6">
                                     {tier.desc}
                                 </p>
-                                
+
                                 <div className="flex items-baseline gap-1.5 mb-8">
                                     <span className="text-4xl md:text-5xl font-black tracking-tight text-zinc-100 group-hover:text-white transition-colors">
                                         {tier.price}

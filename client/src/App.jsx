@@ -180,7 +180,7 @@ export default function App() {
     window.addEventListener("hashchange", handleHashChange);
     // Also trigger immediately if hash is already #3d-builder on load
     handleHashChange();
-    
+
     // Smooth scroll check on initial load
     if (window.location.hash && window.location.hash !== "#3d-builder") {
       setTimeout(() => {
@@ -208,7 +208,7 @@ export default function App() {
       </div>
 
       <main className="bg-black min-h-screen space-y-20">
-        
+
         {/* Features Section */}
         <div id="features">
           <ScrollReveal>

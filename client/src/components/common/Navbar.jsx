@@ -191,8 +191,8 @@ export default function Navbar() {
                   href={item.href}
                   onClick={() => setActiveTab(item.name)}
                   className={`relative px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all duration-300 ${isActive
-                      ? "text-white bg-zinc-800/80 border border-white/10 shadow-sm"
-                      : "text-zinc-400 hover:text-zinc-200"
+                    ? "text-white bg-zinc-800/80 border border-white/10 shadow-sm"
+                    : "text-zinc-400 hover:text-zinc-200"
                     }`}
                 >
                   {item.name}
@@ -219,8 +219,8 @@ export default function Navbar() {
             <div
               onClick={() => !user && setIsModalOpen(true)}
               className={`h-7 w-7 rounded-full border overflow-hidden bg-zinc-800 transition-all ${user
-                  ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] cursor-default"
-                  : "border-white/20 cursor-pointer hover:opacity-80"
+                ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] cursor-default"
+                : "border-white/20 cursor-pointer hover:opacity-80"
                 }`}
               title={user ? `Logged in as ${user.name}` : "Sign In"}
             >

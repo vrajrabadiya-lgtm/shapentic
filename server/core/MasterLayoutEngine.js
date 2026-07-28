@@ -613,8 +613,7 @@ export default function Hero() {
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         style={{
           position: 'absolute', bottom: '12%', left: '8%',
-          background: 'rgba(255,255,255,0.06)',
-          backdropFilter: 'blur(20px)',
+          background: 'rgba(15,15,22,0.92)',
           border: '1px solid rgba(255,255,255,0.12)',
           borderRadius: '20px',
           padding: '2.5rem 3rem',
