@@ -1,164 +1,140 @@
-import React, { useState } from "react";
-import { Play, Mic, ChevronDown, Send, Box, Layers, HelpCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { motion } from "framer-motion";
+import React, { useRef, useEffect, useState } from "react";
 
 export default function HeroSection() {
-    const [prompt, setPrompt] = useState("");
-    const [loading, setLoading] = useState(false);
+  const canvasRef = useRef(null);
+  const [loaded, setLoaded] = useState(false);
 
-    const handleStart = async () => {
-        if (!prompt.trim()) return;
-        setLoading(true);
-        try {
-            const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-            const res = await fetch(`${backendUrl}/api/ai/generate-blueprint`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt })
-            });
-            const data = await res.json();
-            console.log("AI Blueprint Generation Result:", data);
-            alert("AI Blueprint generated successfully! Check your browser console to see the JSON output.");
-        } catch (error) {
-            console.error("Error generating AI blueprint:", error);
-            alert("Failed to connect to AI backend. Make sure the server is running.");
-        } finally {
-            setLoading(false);
-        }
+  useEffect(() => {
+    setTimeout(() => setLoaded(true), 100);
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let w = (canvas.width = canvas.offsetWidth);
+    let h = (canvas.height = canvas.offsetHeight);
+    let raf;
+
+    const onResize = () => {
+      w = canvas.width = canvas.offsetWidth;
+      h = canvas.height = canvas.offsetHeight;
     };
+    window.addEventListener("resize", onResize);
 
-    return (
-        <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden font-sans select-none">
+    let t = 0;
+    const draw = () => {
+      t += 0.004;
+      ctx.clearRect(0, 0, w, h);
 
-            {/* Background Media Container */}
-            <div className="absolute inset-0 w-full h-full z-0">
-                <img
-                    src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=80"
-                    alt="Cinematic Background"
-                    className="w-full h-full object-cover brightness-[0.85] contrast-[1.05]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/40" />
-            </div>
+      // Black base
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, w, h);
 
-            {/* Main Content Workspace Layer */}
-            <motion.div
-                initial={{ opacity: 0, y: 30, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="relative z-10 w-full max-w-4xl px-4 flex flex-col items-center text-center mt-20"
-            >
+      // Apple-style subtle glow at top center
+      const g1 = ctx.createRadialGradient(w / 2, -h * 0.1, 0, w / 2, -h * 0.1, h * 0.9);
+      g1.addColorStop(0, "rgba(41,151,255,0.07)");
+      g1.addColorStop(0.5, "rgba(41,151,255,0.02)");
+      g1.addColorStop(1, "transparent");
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, w, h);
 
-                {/* 1. Watch Demo Floating Pill */}
-                <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-zinc-900/60 hover:bg-zinc-900/80 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wide shadow-2xl transition-all duration-300 mb-6 group cursor-pointer"
-                >
-                    <Play className="h-3.5 w-3.5 fill-white text-white group-hover:scale-110 transition-transform" />
-                    <span>Watch demo</span>
-                </motion.button>
+      // Floating 3D wireframe sphere — Apple Vision Pro style
+      const cx = w / 2, cy = h / 2;
+      const r = Math.min(w, h) * 0.28;
+      const rings = 8;
 
-                {/* 2. Central Specialized Apple Glassmorphic AI Prompt Panel */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                    className="w-full max-w-2xl bg-zinc-900/60 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] p-4 text-left mb-6 transition-all duration-300 hover:border-white/25"
-                >
-                    <Textarea
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        placeholder="Describe your website..."
-                        className="w-full min-h-[80px] bg-transparent text-white text-sm placeholder-zinc-400 resize-none border-0 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 pt-1 shadow-none"
-                    />
+      for (let i = 0; i < rings; i++) {
+        const phi = (Math.PI / rings) * i + t * 0.3;
+        const sr = r * Math.sin(phi);
+        const y = cy + r * Math.cos(phi) * 0.35;
+        const alpha = 0.08 + 0.05 * Math.sin(t + i);
 
-                    {/* Action Toolbar Inside Prompt Box */}
-                    <div className="flex items-center justify-between pt-3 border-t border-white/10 mt-2">
-                        <div className="flex items-center gap-2">
-                            {/* Voice Prompt Icon */}
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
-                            >
-                                <Mic className="h-4 w-4" />
-                            </Button>
+        ctx.beginPath();
+        ctx.ellipse(cx, y, sr, sr * 0.35, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
 
-                            {/* Build Dropdown Pill */}
-                            <Button
-                                variant="outline"
-                                className="h-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-zinc-200 hover:bg-white/10 hover:text-white transition-colors shadow-none"
-                            >
-                                <span>Build</span>
-                                <ChevronDown className="h-3 w-3 text-zinc-400" />
-                            </Button>
+      // Vertical rings
+      for (let j = 0; j < 6; j++) {
+        const theta = (Math.PI / 6) * j + t * 0.2;
+        const alpha = 0.05 + 0.03 * Math.sin(t * 0.7 + j);
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, r * Math.sin(theta) * 0.5, r * 0.35, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(41,151,255,${alpha})`;
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+      }
 
-                            {/* Asset Mode Dropdown Pill */}
-                            <Button
-                                variant="outline"
-                                className="h-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-zinc-200 hover:bg-white/10 hover:text-white transition-colors shadow-none"
-                            >
-                                <span>Image and Video</span>
-                                <ChevronDown className="h-3 w-3 text-zinc-400" />
-                            </Button>
-                        </div>
+      // Slow rotating outer ring
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, r + 20, (r + 20) * 0.35, t * 0.1, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
-                        {/* Submit Start Button */}
-                        <Button
-                            onClick={handleStart}
-                            disabled={!prompt.trim() || loading}
-                            className="h-auto flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 border border-blue-500 text-xs font-semibold text-white hover:bg-blue-500 disabled:opacity-40 transition-all shadow-lg shadow-blue-500/20"
-                        >
-                            <Send className={`h-3 w-3 ${loading ? "animate-pulse" : ""}`} />
-                            <span>{loading ? "Building..." : "Start"}</span>
-                        </Button>
-                    </div>
-                </motion.div>
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
 
-                {/* Small Notice Label Beneath input block */}
-                <p className="text-[10px] font-medium text-zinc-400/80 tracking-wide mb-8">
-                    One hero image · One motion video · Scroll-sync prototype (Sign out required)
-                </p>
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
 
-                {/* 3. Bottom Dual Execution Links */}
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
-                    {/* White Builder Button */}
-                    <a href="#3d-builder" className="w-full sm:w-auto">
-                        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                            <Button className="flex items-center justify-center gap-2 w-full sm:w-auto min-w-[200px] h-auto px-6 py-3.5 rounded-full bg-white text-black font-semibold text-sm hover:bg-zinc-100 shadow-2xl transition-all duration-200 cursor-pointer">
-                                <Box className="h-4 w-4 stroke-[2.5]" />
-                                <span>3D Website Builder</span>
-                                <span className="text-xs font-bold ml-0.5">→</span>
-                            </Button>
-                        </motion.div>
-                    </a>
+  return (
+    <section className="relative w-full min-h-[96vh] flex flex-col items-center justify-center overflow-hidden bg-black text-center px-6 pt-24 pb-20">
+      {/* Subtle top glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#2997ff]/6 rounded-full blur-[120px] pointer-events-none" />
 
-                    {/* Blue Preset Button */}
-                    <a href="#presets" className="w-full sm:w-auto">
-                        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                            <Button className="flex items-center justify-center gap-2 w-full sm:w-auto min-w-[200px] h-auto px-6 py-3.5 rounded-full bg-blue-600 text-white font-semibold text-sm hover:bg-blue-500 shadow-2xl shadow-blue-600/20 transition-all duration-200 cursor-pointer border border-blue-400/30">
-                                <Layers className="h-4 w-4" />
-                                <span>Build from Preset</span>
-                            </Button>
-                        </motion.div>
-                    </a>
-                </div>
+      <div className={`relative z-10 flex flex-col items-center max-w-5xl mx-auto transition-all duration-1000 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
 
-            </motion.div>
+        {/* Apple eyebrow label */}
+        <p className="text-[#2997ff] text-sm font-medium tracking-wide mb-5">
+          AI Powered 3D Studio
+        </p>
 
-            {/* 4. Scroll Helper Text Target Indicator */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 opacity-60 pointer-events-none">
-                <span className="text-[10px] font-bold text-white tracking-[0.25em] uppercase">Scroll</span>
-            </div>
+        {/* Main headline — Apple display style */}
+        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold text-[#f5f5f7] leading-[1.05] tracking-tight mb-6 max-w-4xl">
+          Transform Ideas Into<br />
+          <span className="text-white">Cinematic 3D Experiences</span>
+        </h1>
 
-            {/* 5. Floating Bottom Right Guide Button */}
-            <Button className="fixed bottom-6 right-6 z-50 h-auto flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-black text-xs font-bold shadow-2xl hover:bg-zinc-100 transition-all">
-                <HelpCircle className="h-4 w-4 text-purple-600 stroke-[2.5]" />
-                <span>Guide</span>
-            </Button>
+        {/* Subhead */}
+        <p className="text-lg sm:text-xl text-[#86868b] max-w-2xl leading-relaxed mb-10 font-normal">
+          We create next-generation AI-powered 3D animations, immersive product visualizations,
+          and premium marketing content that elevates brands worldwide.
+        </p>
 
-        </section>
-    );
+        {/* Apple-style CTA pair */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-16">
+          <a
+            href="#contact"
+            className="flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#2997ff] text-white font-medium text-sm hover:bg-[#2383e2] transition-colors"
+          >
+            Start Your Project
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+          <a
+            href="#showcase"
+            className="flex items-center gap-2 px-8 py-3.5 rounded-full border border-white/20 text-[#f5f5f7] font-medium text-sm hover:border-white/40 hover:text-white transition-all"
+          >
+            View Portfolio
+          </a>
+        </div>
+
+        {/* 3D Canvas */}
+        <div className="relative w-full max-w-lg h-[340px] mx-auto">
+          <canvas ref={canvasRef} className="w-full h-full" />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[10px] font-mono text-[#86868b]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#2997ff] animate-pulse" />
+            Interactive 3D Viewport
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }

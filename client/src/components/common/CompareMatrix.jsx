@@ -1,43 +1,59 @@
 import React from "react";
 import { Check, Minus } from "lucide-react";
 
+const rows = [
+    { metric: "Scroll-driven 3D animation",  Shapentic: "Frame-extracted video", framework: "CSS transforms only" },
+    { metric: "AI video generation",          Shapentic: "Built-in Runway/Sora",  framework: "Not supported" },
+    { metric: "Export format",               Shapentic: "Full-stack ZIP",        framework: "Static HTML only" },
+    { metric: "Multi-video chaining",        Shapentic: "Unlimited segments",    framework: "Not available" },
+    { metric: "FPS control",                 Shapentic: "10–40 FPS adjustable",  framework: "Fixed" },
+    { metric: "AI chat editing",             Shapentic: "Live section editing",   framework: "Manual code only" },
+];
+
 export default function CompareMatrix() {
-    const rows = [
-        { metric: "Website presets gallery", Shapentic: "50+ templates", framework: "—" },
-        { metric: "AI prompt-to-site", Shapentic: "Full pipeline", framework: "Partial" },
-        { metric: "3D motion architecture", Shapentic: "Native scroll frames", framework: "WebGL (Heavy Tax)" },
-        { metric: "Code asset export style", Shapentic: "HTML / Tailwind / JS", framework: "Locked ecosystems" },
-        { metric: "Hosting obligations", Shapentic: "Completely Optional", framework: "Bundled mandatory" },
-    ];
-
     return (
-        <section className="w-full text-[#f5f5f7] py-24 px-6 border-t border-white/10 bg-transparent">
-            <div className="max-w-4xl mx-auto">
-                <h3 className="text-2xl md:text-4xl font-bold tracking-tight mb-12 text-center text-[#f5f5f7]">Where Shapentic fits in the stack</h3>
+        <section className="w-full py-28 px-6 relative">
+            {/* Ambient glow */}
+            <div className="absolute top-1/2 -translate-y-1/2 right-0 w-[500px] h-[500px] bg-[#12192e]/30 rounded-full blur-[160px] pointer-events-none" />
 
-                <div className="w-full overflow-x-auto border border-white/10 rounded-2xl bg-[#1c1c1e] shadow-2xl">
-                    <table className="w-full min-w-[600px] text-left border-collapse text-xs font-medium">
+            <div className="max-w-4xl mx-auto relative z-10">
+                {/* Section Header — centered, same badge pattern */}
+                <div className="flex flex-col items-center text-center mb-14">
+                    <div className="inline-flex items-center gap-2 mb-5 px-3.5 py-1.5 rounded-full bg-[#2997ff]/10 border border-[#2997ff]/25 text-[#2997ff] text-[10px] font-bold tracking-[0.18em] uppercase">
+                        <Check className="h-3 w-3" />
+                        Comparison
+                    </div>
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[#f5f5f7]">
+                        Where Shapentic fits in the stack
+                    </h2>
+                </div>
+
+                {/* Table */}
+                <div className="w-full overflow-x-auto rounded-2xl border border-white/[0.07] bg-[#141416] shadow-[0_0_60px_rgba(0,0,0,0.6)]">
+                    <table className="w-full min-w-[560px] text-left border-collapse text-xs font-medium">
                         <thead>
-                            <tr className="border-b border-white/10 text-[#86868b] text-[10px] font-bold tracking-wider uppercase">
-                                <th className="p-4">Capability Metric</th>
-                                <th className="p-4 text-[#2997ff] font-black bg-[#2997ff]/10 border-x border-white/10">Shapentic Core</th>
-                                <th className="p-4">Traditional Builders</th>
+                            <tr className="border-b border-white/[0.07] text-[9px] font-bold tracking-[0.2em] uppercase">
+                                <th className="p-5 text-[#86868b]">Capability Metric</th>
+                                <th className="p-5 text-[#2997ff] font-black bg-[#2997ff]/[0.07] border-x border-white/[0.07]">
+                                    Shapentic Core
+                                </th>
+                                <th className="p-5 text-[#86868b]">Traditional Builders</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10">
-                            {rows.map((row, index) => (
-                                <tr key={index} className="hover:bg-[#242426] transition-colors">
-                                    <td className="p-4 text-[#f5f5f7]">{row.metric}</td>
-                                    <td className="p-4 text-[#f5f5f7] font-semibold bg-[#2997ff]/5 border-x border-white/10">
+                        <tbody className="divide-y divide-white/[0.05]">
+                            {rows.map((row, i) => (
+                                <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                                    <td className="p-5 text-[#f5f5f7]">{row.metric}</td>
+                                    <td className="p-5 text-[#f5f5f7] font-semibold bg-[#2997ff]/[0.04] border-x border-white/[0.07]">
                                         <div className="flex items-center gap-2">
-                                            <Check className="h-3.5 w-3.5 text-[#2997ff] stroke-[3]" />
-                                            <span>{row.Shapentic}</span>
+                                            <Check className="h-3.5 w-3.5 text-[#2997ff] stroke-[2.5] shrink-0" />
+                                            {row.Shapentic}
                                         </div>
                                     </td>
-                                    <td className="p-4 text-[#86868b]">
+                                    <td className="p-5 text-[#86868b]">
                                         <div className="flex items-center gap-2">
-                                            <Minus className="h-3.5 w-3.5 text-[#86868b]" />
-                                            <span>{row.framework}</span>
+                                            <Minus className="h-3.5 w-3.5 text-[#3a3a3c] shrink-0" />
+                                            {row.framework}
                                         </div>
                                     </td>
                                 </tr>
