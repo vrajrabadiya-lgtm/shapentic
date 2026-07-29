@@ -171,8 +171,10 @@ export default function App() {
       const hash = window.location.hash || "#";
       setCurrentHash(hash);
       if (hash && hash !== "#3d-builder" && hash !== "#preview") {
-        const target = document.querySelector(hash);
-        if (target) target.scrollIntoView({ behavior: "smooth" });
+        try {
+          const target = document.querySelector(hash);
+          if (target) target.scrollIntoView({ behavior: "smooth" });
+        } catch {}
       }
     };
     window.addEventListener("hashchange", handleHashChange);

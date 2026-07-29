@@ -438,11 +438,21 @@ export default function App() {
 
                   {/* Navigation Links */}
                   <div className="hidden md:flex items-center gap-8 text-xs font-semibold text-zinc-300">
-                    <a href="#hero" className="hover:text-white transition-colors">Home</a>
-                    <a href="#viewport-3d" className="hover:text-white transition-colors">3D Scene</a>
-                    <a href="#features" className="hover:text-white transition-colors">Features</a>
-                    <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-                    <a href="#contact" className="hover:text-white transition-colors">Contact</a>
+                    {["hero", "features", "pricing", "contact"].map((sec) => (
+                      <button
+                        key={sec}
+                        onClick={() => document.getElementById(sec)?.scrollIntoView({ behavior: "smooth" })}
+                        className="capitalize hover:text-white transition-colors cursor-pointer"
+                      >
+                        {sec === "hero" ? "Home" : sec.charAt(0).toUpperCase() + sec.slice(1)}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => document.getElementById("viewport-3d")?.scrollIntoView({ behavior: "smooth" })}
+                      className="hover:text-white transition-colors cursor-pointer"
+                    >
+                      3D Scene
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-3">
