@@ -80,10 +80,15 @@ export default function HeroSection() {
 
             {/* Background Media Container */}
             <div className="absolute inset-0 w-full h-full z-0">
-                <img
-                    src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=80"
-                    alt="Cinematic Background"
-                    className="w-full h-full object-cover brightness-[0.85] contrast-[1.05]"
+                <video
+                    src="/unstatic_video.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    disablePictureInPicture
+                    controlsList="nodownload nofullscreen noremoteplayback"
+                    className="w-full h-full object-cover brightness-[0.85] contrast-[1.05] pointer-events-none"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/40" />
             </div>
