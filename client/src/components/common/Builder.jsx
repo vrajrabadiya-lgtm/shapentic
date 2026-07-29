@@ -165,7 +165,7 @@ export default function Builder() {
     }
   }, []);
 
-  const BACKEND_URL = `${import.meta.env.VITE_API_URL || "https://shapentic.onrender.com"}/api/designs`;
+  const BACKEND_URL = `${import.meta.env.VITE_API_URL || "https://shapentic-server.onrender.com"}/api/designs`;
 
   // Fetch designs for the current user
   const fetchUserDesigns = async (targetUid = userId) => {
