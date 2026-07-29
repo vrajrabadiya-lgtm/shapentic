@@ -257,7 +257,7 @@ export default function App() {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-zinc-950 flex flex-col overflow-hidden text-white font-sans"
+      className="h-full w-full bg-zinc-950 flex flex-col overflow-hidden text-white font-sans"
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}

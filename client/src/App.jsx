@@ -130,7 +130,7 @@ import ProToolsSection from "./components/common/ProTool";
 import TemplatesShowcase from "./components/common/Template";
 import PricingSection from "./components/common/Pricing";
 import Builder from "./components/common/Builder";
-import GeneratedWebsitePreview from "./components/common/GeneratedWebsitePreview";
+import PreviewPage from "./pages/PreviewPage";
 
 const testimonialData = [
   {
@@ -187,14 +187,7 @@ export default function App() {
   }
 
   if (currentHash === "#preview") {
-    let aiResult = null;
-    try { aiResult = JSON.parse(sessionStorage.getItem("ai_result")); } catch {}
-    return (
-      <GeneratedWebsitePreview
-        aiResult={aiResult}
-        onClose={() => { window.location.hash = "#3d-builder"; }}
-      />
-    );
+    return <PreviewPage />;
   }
 
   return (
