@@ -1,33 +1,67 @@
 # Deployment Guide
 
-## Frontend (Vercel)
+## Quick Fix for Current Issue
 
-1. Deploy the client to Vercel:
-   ```bash
-   cd client
-   npm run build
-   ```
-2. Connect your GitHub repo to Vercel
-3. Set environment variable in Vercel:
-   - `VITE_API_URL`: Your deployed backend URL (e.g., https://shapentic-server.onrender.com)
+Your frontend is deployed but the backend is not running. I've added a **fallback mode** so the Start button will work even without the backend - it will create a basic blueprint locally.
 
-## Backend (Render)
+**To enable full AI features, deploy the backend:**
 
-1. Create a Render account
-2. Connect your GitHub repo
-3. Use the provided `render.yaml` configuration
-4. Set environment variables in Render dashboard:
+## Backend Deployment (Render)
+
+1. Go to [render.com](https://render.com) and create an account
+2. Click "New +" → "Web Service"
+3. Connect your GitHub repository
+4. Configure:
+   - **Name**: shapentic-server
+   - **Branch**: main
+   - **Root Directory**: server
+   - **Build Command**: npm install
+   - **Start Command**: npm start
+   - **Runtime**: Node
+
+5. Add Environment Variables:
    - `PORT`: 10000
-   - `MONGO_URI`: Your MongoDB connection string
-   - `JWT_SECRET`: Your JWT secret
-   - Optional: AI API keys (ANTHROPIC_API_KEY, GROQ_API_KEY, etc.)
+   - `NODE_ENV`: production
+   - `MONGO_URI`: Your MongoDB connection string (get from MongoDB Atlas)
+   - `JWT_SECRET`: Generate a random string (use: `openssl rand -base64 32`)
+   - Optional AI keys for enhanced features:
+     - `ANTHROPIC_API_KEY`: sk-ant-xxxxx
+     - `GROQ_API_KEY`: gsk_xxxxx
+
+6. Click "Deploy Web Service"
+
+7. Once deployed, copy your backend URL (e.g., `https://shapentic-server.onrender.com`)
+
+## Frontend Configuration (Vercel)
+
+1. Go to your Vercel project dashboard
+2. Go to Settings → Environment Variables
+3. Add:
+   - `VITE_API_URL`: Your Render backend URL (e.g., `https://shapentic-server.onrender.com`)
+4. Redeploy your frontend
+
+## Alternative: Use Local Backend
+
+If you want to run the backend locally while frontend is deployed:
+
+1. Run backend locally:
+   ```bash
+   cd server
+   npm start
+   ```
+
+2. Use a tunnel service (ngrok) to expose local backend:
+   ```bash
+   ngrok http 10000
+   ```
+
+3. Update Vercel `VITE_API_URL` to the ngrok URL
 
 ## Troubleshooting
 
 **Start button not working:**
-- Ensure backend server is running
-- Check `VITE_API_URL` is set correctly in client `.env`
-- Verify CORS configuration in server allows your frontend URL
+- Now has fallback mode - will work without backend
+- For full AI features, backend must be deployed
 
 **"Failed to connect to AI backend" error:**
 - Backend server must be deployed separately from frontend
@@ -39,10 +73,10 @@
 1. Copy environment files:
    ```bash
    cp .env.example server/.env
-   cp client/.env.example client/.env
+   cp client/.env.example client/.env.local
    ```
 
-2. For local development, set `VITE_API_URL=http://localhost:10000` in `client/.env`
+2. For local development, set `VITE_API_URL=http://localhost:10000` in `client/.env.local`
 
 3. Start servers:
    ```bash

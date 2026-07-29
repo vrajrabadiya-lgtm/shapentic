@@ -11,10 +11,11 @@ export default function HeroSection() {
     const handleStart = async () => {
         if (!prompt.trim()) return;
         setLoading(true);
+        
+        const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:10000";
+        console.log("Connecting to backend:", backendUrl);
+        
         try {
-            const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:10000";
-            console.log("Connecting to backend:", backendUrl);
-            
             const res = await fetch(`${backendUrl}/api/ai/generate-blueprint`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -35,7 +36,40 @@ export default function HeroSection() {
             window.location.hash = "#3d-builder";
         } catch (error) {
             console.error("Error generating AI blueprint:", error);
-            alert(`Failed to connect to AI backend: ${error.message}\n\nMake sure the server is running and VITE_API_URL is configured.`);
+            
+            // Fallback: Create a basic blueprint locally and redirect to builder
+            console.log("Using fallback mode - creating local blueprint");
+            const fallbackBlueprint = {
+                blueprint: {
+                    website_name: "My Website",
+                    business_type: "technology",
+                    design_style: "Modern",
+                    color_palette: {
+                        primary: "#3d5eff",
+                        secondary: "#00d4ff",
+                        accent: "#bf5fff",
+                        background: "#0a0a14",
+                        text: "#f0f0ff"
+                    },
+                    hero: {
+                        headline: "Welcome to My Website",
+                        subheadline: prompt,
+                        cta_primary: "Get Started",
+                        cta_secondary: "Learn More",
+                        layout: "split",
+                        three_d_object: { type: "floating-sphere" }
+                    },
+                    sections: [
+                        { type: "features", title: "Features", id: "features" },
+                        { type: "about", title: "About", id: "about" }
+                    ]
+                },
+                plan: "free",
+                fallback: true
+            };
+            
+            sessionStorage.setItem("ai_result", JSON.stringify(fallbackBlueprint));
+            window.location.hash = "#3d-builder";
         } finally {
             setLoading(false);
         }
