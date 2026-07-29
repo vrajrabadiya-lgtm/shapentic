@@ -30,21 +30,6 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (curl, Postman, same-origin) or allowed origins
-    // Also allow any vercel.app subdomain for preview deployments
-    if (
-      !origin ||
-      allowedOrigins.includes(origin) ||
-      /\.vercel\.app$/.test(origin) ||
-      /\.onrender\.com$/.test(origin)
-    ) {
-      callback(null, true);
-    } else {
-      console.warn(`[CORS Warning] Origin disallowed: ${origin}`);
-      callback(null, true); // Fallback allow to prevent preflight blockage during development
-    }
-  },
   // The origin property can be a string, a regex, a boolean, or an array of these.
   // By providing the array directly, we enforce a strict whitelist.
   // The 'cors' package is smart enough to handle various scenarios, including
@@ -53,8 +38,6 @@ const corsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  optionsSuccessStatus: 204,
-  preflightContinue: false,
 };
 
 app.use(cors(corsOptions));
