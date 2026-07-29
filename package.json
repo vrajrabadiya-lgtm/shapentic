@@ -11,6 +11,12 @@
     "install:all": "cd client && npm install && cd ../server && npm install",
     "test": "cd server && npm test"
   },
+  "overrides": {
+    "uuid": ">=11.1.1",
+    "gaxios": ">=6.7.2",
+    "postcss": ">=8.5.18",
+    "brace-expansion": ">=5.0.8"
+  },
   "devDependencies": {
     "concurrently": "^9.1.0"
   }
