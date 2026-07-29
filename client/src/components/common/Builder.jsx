@@ -156,8 +156,9 @@ export default function Builder() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        if (parsed.components) {
+        if (parsed && typeof parsed === "object") {
           setAiResult(parsed);
+          setShowPreview(true);
           sessionStorage.removeItem("ai_result");
         }
       } catch { }

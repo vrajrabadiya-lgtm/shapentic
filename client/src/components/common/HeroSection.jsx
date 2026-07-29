@@ -20,7 +20,12 @@ export default function HeroSection() {
             });
             const data = await res.json();
             console.log("AI Blueprint Generation Result:", data);
-            alert("AI Blueprint generated successfully! Check your browser console to see the JSON output.");
+            
+            // Save generated website blueprint/components to sessionStorage
+            sessionStorage.setItem("ai_result", JSON.stringify(data));
+            
+            // Redirect to 3D Builder page which automatically opens preview
+            window.location.hash = "#3d-builder";
         } catch (error) {
             console.error("Error generating AI blueprint:", error);
             alert("Failed to connect to AI backend. Make sure the server is running.");
