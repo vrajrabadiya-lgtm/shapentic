@@ -45,6 +45,11 @@ const corsOptions = {
       callback(null, true); // Fallback allow to prevent preflight blockage during development
     }
   },
+  // The origin property can be a string, a regex, a boolean, or an array of these.
+  // By providing the array directly, we enforce a strict whitelist.
+  // The 'cors' package is smart enough to handle various scenarios, including
+  // allowing requests with no origin (like Postman or mobile apps).
+  origin: allowedOrigins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
