@@ -13,11 +13,18 @@ export default function HeroSection() {
         setLoading(true);
         try {
             const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:10000";
+            console.log("Connecting to backend:", backendUrl);
+            
             const res = await fetch(`${backendUrl}/api/ai/generate-blueprint`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ prompt })
             });
+            
+            if (!res.ok) {
+                throw new Error(`Backend returned ${res.status}: ${res.statusText}`);
+            }
+            
             const data = await res.json();
             console.log("AI Blueprint Generation Result:", data);
             
@@ -28,7 +35,7 @@ export default function HeroSection() {
             window.location.hash = "#3d-builder";
         } catch (error) {
             console.error("Error generating AI blueprint:", error);
-            alert("Failed to connect to AI backend. Make sure the server is running.");
+            alert(`Failed to connect to AI backend: ${error.message}\n\nMake sure the server is running and VITE_API_URL is configured.`);
         } finally {
             setLoading(false);
         }

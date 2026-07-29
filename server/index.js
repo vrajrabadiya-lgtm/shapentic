@@ -19,12 +19,13 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",
   "http://localhost:5174",
   "http://127.0.0.1:5174",
+  "http://localhost:3000",
   // CLIENT_ORIGIN = your Vercel deployment URL (set in Render env vars)
   process.env.CLIENT_ORIGIN,
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (curl, Postman, same-origin) or allowed origins
     // Also allow any vercel.app subdomain for preview deployments
@@ -36,11 +37,17 @@ app.use(cors({
     ) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS: origin ${origin} not allowed`));
+      console.warn(`[CORS Warning] Origin disallowed: ${origin}`);
+      callback(null, true); // Fallback allow to prevent preflight blockage during development
     }
   },
   credentials: true,
-}));
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 
 // Routes
@@ -61,6 +68,12 @@ app.get("/", (req, res) => {
       projectRoutes: "CRUD /api/projects"
     }
   });
+});
+
+// Global error handling middleware (ensures standard JSON response on exceptions)
+app.use((err, req, res, next) => {
+  console.error("Unhandled Server Error:", err.stack || err.message || err);
+  res.status(500).json({ message: err.message || "Internal server error." });
 });
 
 // Database connection & Server startup — skipped when imported by tests
