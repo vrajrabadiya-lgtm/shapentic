@@ -22,6 +22,8 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://www.shapentic.com",
   "https://shapentic.com",
+  "https://shapentic-git-main-vraj-s-team.vercel.app",
+  "https://shapentic-ozymil65e-vraj-s-team.vercel.app",
   // CLIENT_ORIGIN = your Vercel deployment URL (set in Render env vars)
   process.env.CLIENT_ORIGIN,
   process.env.CLIENT_URL,
