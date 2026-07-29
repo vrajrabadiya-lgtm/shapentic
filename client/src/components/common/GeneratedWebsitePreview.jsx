@@ -246,17 +246,22 @@ export default function App() {
   const getViewportContainerStyle = () => {
     switch (viewportMode) {
       case "mobile":
-        return "max-w-[390px] mx-auto my-3 rounded-[36px] border-[10px] border-zinc-800 shadow-2xl overflow-hidden h-[760px]";
+        return "max-w-[390px] mx-auto my-3 rounded-[36px] border-[10px] border-zinc-800 shadow-2xl overflow-hidden flex-1";
       case "tablet":
-        return "max-w-[768px] mx-auto my-3 rounded-2xl border-4 border-zinc-800 shadow-2xl overflow-hidden h-[820px]";
+        return "max-w-[768px] mx-auto my-3 rounded-2xl border-4 border-zinc-800 shadow-2xl overflow-hidden flex-1";
       case "desktop":
       default:
-        return "w-full h-full rounded-xl border border-white/10 shadow-2xl overflow-hidden";
+        return "w-full flex-1 rounded-xl border border-white/10 shadow-2xl overflow-hidden";
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col overflow-hidden text-white font-sans">
+    <div
+      className="fixed inset-0 z-50 bg-zinc-950 flex flex-col overflow-hidden text-white font-sans"
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
       
       {/* ── TOP PREVIEW HEADER & TOOLBAR ─────────────────────────────────────── */}
       <header className="h-14 px-5 border-b border-white/10 bg-zinc-900/95 backdrop-blur-xl flex items-center justify-between shrink-0 select-none z-30">
@@ -347,7 +352,7 @@ export default function App() {
 
           {onClose && (
             <button
-              onClick={onClose}
+              onClick={(e) => { e.stopPropagation(); onClose(); }}
               className="p-1.5 rounded-lg bg-zinc-800/60 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/10 transition-colors"
               title="Close Preview"
             >
@@ -362,8 +367,8 @@ export default function App() {
 
         {/* 1. LIVE INTERACTIVE WEBSITE TAB */}
         {activeTab === "preview" && (
-          <div className="flex-1 overflow-y-auto w-full h-full relative">
-            <div className={`transition-all duration-300 ${getViewportContainerStyle()}`}>
+          <div className="flex-1 overflow-hidden w-full h-full relative flex flex-col">
+            <div className={`transition-all duration-300 flex flex-col ${getViewportContainerStyle()}`}>
               
               {/* REALISTIC BROWSER FRAME TOP BAR */}
               <div className="bg-zinc-900 border-b border-white/10 px-4 py-2 flex items-center justify-between gap-3 text-xs text-zinc-400 shrink-0 select-none">
@@ -403,7 +408,7 @@ export default function App() {
 
               {/* THE REAL GENERATED WEBSITE BODY */}
               <div
-                className="min-h-full w-full relative flex flex-col overflow-x-hidden font-sans"
+                className="flex-1 w-full relative flex flex-col overflow-y-auto overflow-x-hidden font-sans"
                 style={{ backgroundColor: bg, color: "#f0f0ff" }}
               >
                 {/* Ambient Glow Atmosphere */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Center, Float, OrbitControls } from "@react-three/drei";
 import GeneratedWebsitePreview from "./GeneratedWebsitePreview";
@@ -295,14 +296,15 @@ export default function Builder() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,#090d16,transparent_60%)] pointer-events-none" />
 
       {/* ── AI GENERATED WEBSITE PREVIEW PANEL ─────────────────────────── */}
-      {(aiResult || showPreview) && (
+      {(aiResult || showPreview) && createPortal(
         <GeneratedWebsitePreview
           aiResult={aiResult}
           onClose={() => {
             setAiResult(null);
             setShowPreview(false);
           }}
-        />
+        />,
+        document.body
       )}
 
       {/* 1. LEFT SIDEBAR PANEL: Controls */}
