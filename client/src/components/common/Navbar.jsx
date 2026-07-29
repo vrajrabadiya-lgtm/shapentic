@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { LogOut, CheckCircle, XCircle, Loader2, User } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || "https://shapentic.onrender.com";
+const API = import.meta.env.VITE_API_URL || "https://shapentic-server.onrender.com";
 
 // ─── Toast Notification Component ────────────────────────────────────────────
 function Toast({ toasts }) {
