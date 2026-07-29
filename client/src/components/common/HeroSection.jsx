@@ -32,8 +32,8 @@ export default function HeroSection() {
             // Save generated website blueprint/components to sessionStorage
             sessionStorage.setItem("ai_result", JSON.stringify(data));
             
-            // Redirect to 3D Builder page which automatically opens preview
-            window.location.hash = "#3d-builder";
+            // Redirect to preview page
+            window.location.hash = "#preview";
         } catch (error) {
             console.error("Error generating AI blueprint:", error);
             
@@ -69,7 +69,7 @@ export default function HeroSection() {
             };
             
             sessionStorage.setItem("ai_result", JSON.stringify(fallbackBlueprint));
-            window.location.hash = "#3d-builder";
+            window.location.hash = "#preview";
         } finally {
             setLoading(false);
         }
