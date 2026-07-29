@@ -47,15 +47,17 @@ app.options('*', (req, res) => {
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/shapentic(-[a-z0-9]+-vraj-s-team)\.vercel\.app$/.test(origin);
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      // Log unknown origins for debugging
       console.log(`CORS blocked origin: ${origin}`);
-      callback(null, false);
+      callback(new Error(`CORS: origin ${origin} not allowed`));
     }
   },
   credentials: true,
