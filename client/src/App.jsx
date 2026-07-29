@@ -130,6 +130,7 @@ import ProToolsSection from "./components/common/ProTool";
 import TemplatesShowcase from "./components/common/Template";
 import PricingSection from "./components/common/Pricing";
 import Builder from "./components/common/Builder";
+import GeneratedWebsitePreview from "./components/common/GeneratedWebsitePreview";
 
 const testimonialData = [
   {
@@ -167,32 +168,31 @@ export default function App() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      setCurrentHash(window.location.hash || "#");
-      const hash = window.location.hash;
-      if (hash && hash !== "#3d-builder") {
+      const hash = window.location.hash || "#";
+      setCurrentHash(hash);
+      if (hash && hash !== "#3d-builder" && hash !== "#preview") {
         const target = document.querySelector(hash);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth" });
-        }
+        if (target) target.scrollIntoView({ behavior: "smooth" });
       }
     };
-
     window.addEventListener("hashchange", handleHashChange);
-    // Also trigger immediately if hash is already #3d-builder on load
     handleHashChange();
-
-    // Smooth scroll check on initial load
-    if (window.location.hash && window.location.hash !== "#3d-builder") {
-      setTimeout(() => {
-        const target = document.querySelector(window.location.hash);
-        if (target) target.scrollIntoView({ behavior: "smooth" });
-      }, 300);
-    }
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
   if (currentHash === "#3d-builder") {
     return <Builder />;
+  }
+
+  if (currentHash === "#preview") {
+    let aiResult = null;
+    try { aiResult = JSON.parse(sessionStorage.getItem("ai_result")); } catch {}
+    return (
+      <GeneratedWebsitePreview
+        aiResult={aiResult}
+        onClose={() => { window.location.hash = "#3d-builder"; }}
+      />
+    );
   }
 
   return (

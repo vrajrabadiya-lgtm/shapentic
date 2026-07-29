@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Center, Float, OrbitControls } from "@react-three/drei";
-import GeneratedWebsitePreview from "./GeneratedWebsitePreview";
 import {
   Palette,
   Layers,
@@ -16,9 +14,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Share2,
-  Code2,
-  Eye,
-  X,
   Globe,
 } from "lucide-react";
 
@@ -149,22 +144,6 @@ export default function Builder() {
 
   // 3. AI Generated Website State
   const [aiResult, setAiResult] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
-
-  // Load AI result from sessionStorage on mount
-  useEffect(() => {
-    const stored = sessionStorage.getItem("ai_result");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed && typeof parsed === "object") {
-          setAiResult(parsed);
-          setShowPreview(true);
-          sessionStorage.removeItem("ai_result");
-        }
-      } catch { }
-    }
-  }, []);
 
   const BACKEND_URL = `${import.meta.env.VITE_API_URL || "https://shapentic.onrender.com"}/api/designs`;
 
@@ -296,16 +275,6 @@ export default function Builder() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,#090d16,transparent_60%)] pointer-events-none" />
 
       {/* ── AI GENERATED WEBSITE PREVIEW PANEL ─────────────────────────── */}
-      {(aiResult || showPreview) && createPortal(
-        <GeneratedWebsitePreview
-          aiResult={aiResult}
-          onClose={() => {
-            setAiResult(null);
-            setShowPreview(false);
-          }}
-        />,
-        document.body
-      )}
 
       {/* 1. LEFT SIDEBAR PANEL: Controls */}
       <aside className="w-full md:w-[400px] border-b md:border-b-0 md:border-r border-white/10 bg-zinc-950/80 backdrop-blur-xl flex flex-col z-20 shrink-0 h-1/2 md:h-full">
@@ -772,7 +741,10 @@ export default function Builder() {
         {/* Interactive Floating Canvas HUD */}
         <div className="absolute bottom-6 right-6 z-10 flex gap-2">
           <button
-            onClick={() => setShowPreview(true)}
+            onClick={() => {
+              if (aiResult) sessionStorage.setItem("ai_result", JSON.stringify(aiResult));
+              window.location.hash = "#preview";
+            }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-xl transition-all cursor-pointer border border-blue-400/30"
           >
             <Globe className="h-3.5 w-3.5 text-white" />
