@@ -439,7 +439,7 @@ export default function App() {
                   {/* Navigation Links */}
                   <div className="hidden md:flex items-center gap-8 text-xs font-semibold text-zinc-300">
                     <a href="#hero" className="hover:text-white transition-colors">Home</a>
-                    <a href="#3d-viewport" className="hover:text-white transition-colors">3D Scene</a>
+                    <a href="#viewport-3d" className="hover:text-white transition-colors">3D Scene</a>
                     <a href="#features" className="hover:text-white transition-colors">Features</a>
                     <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
                     <a href="#contact" className="hover:text-white transition-colors">Contact</a>
@@ -485,7 +485,7 @@ export default function App() {
                     <div className="flex flex-wrap items-center gap-4 pt-2">
                       <button
                         onClick={() => {
-                          const target = document.getElementById("3d-viewport");
+                          const target = document.getElementById("viewport-3d");
                           if (target) target.scrollIntoView({ behavior: "smooth" });
                         }}
                         className="px-6 py-3 rounded-xl text-xs font-bold text-white flex items-center gap-2 transition-transform hover:scale-105 shadow-xl cursor-pointer"
@@ -522,7 +522,7 @@ export default function App() {
                   </div>
 
                   {/* Right Column: Interactive 3D Canvas Box */}
-                  <div id="3d-viewport" className="w-full lg:w-[480px] h-[380px] lg:h-[450px] relative rounded-3xl overflow-hidden border border-white/15 bg-zinc-900/50 backdrop-blur-md shadow-2xl group flex flex-col">
+                  <div id="viewport-3d" className="w-full lg:w-[480px] h-[380px] lg:h-[450px] relative rounded-3xl overflow-hidden border border-white/15 bg-zinc-900/50 backdrop-blur-md shadow-2xl group flex flex-col">
                     
                     {/* Top overlay controls inside 3D viewport */}
                     <div className="p-3 border-b border-white/10 bg-black/40 backdrop-blur-md flex items-center justify-between z-10 shrink-0">
