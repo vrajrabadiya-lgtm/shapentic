@@ -12,7 +12,7 @@ Your frontend is deployed but the backend is not running. I've added a **fallbac
 2. Click "New +" → "Web Service"
 3. Connect your GitHub repository
 4. Configure:
-   - **Name**: shapentic-server
+   - **Name**: shapentic
    - **Branch**: main
    - **Root Directory**: server
    - **Build Command**: npm install
@@ -28,16 +28,16 @@ Your frontend is deployed but the backend is not running. I've added a **fallbac
      - `ANTHROPIC_API_KEY`: sk-ant-xxxxx
      - `GROQ_API_KEY`: gsk_xxxxx
 
-6. Click "Deploy Web Service"
+6. Click "Create Web Service"
 
-7. Once deployed, copy your backend URL (e.g., `https://shapentic-server.onrender.com`)
+7. Once deployed, copy your backend URL (e.g., `https://shapentic.onrender.com`)
 
 ## Frontend Configuration (Vercel)
 
-1. Go to your Vercel project dashboard
+1. Go to your Vercel project dashboard for `shapentic.com`
 2. Go to Settings → Environment Variables
 3. Add:
-   - `VITE_API_URL`: Your Render backend URL (e.g., `https://shapentic-server.onrender.com`)
+   - `VITE_API_URL`: Your Render backend URL (e.g., `https://shapentic.onrender.com`)
 4. Redeploy your frontend
 
 ## Alternative: Use Local Backend

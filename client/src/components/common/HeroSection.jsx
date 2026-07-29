@@ -12,7 +12,7 @@ export default function HeroSection() {
         if (!prompt.trim()) return;
         setLoading(true);
         
-        const backendUrl = import.meta.env.VITE_API_URL || "https://shapentic-server.onrender.com";
+        const backendUrl = import.meta.env.VITE_API_URL || "https://shapentic.onrender.com";
         console.log("Connecting to backend:", backendUrl);
         
         try {
