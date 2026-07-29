@@ -90,7 +90,12 @@ export default function Navbar() {
         setUser(u);
         localStorage.setItem("auth_user", JSON.stringify(u));
       })
-      .catch(() => {
+      .catch((err) => {
+        // Only clear auth if it's a 401/403 error, not a network error
+        if (err instanceof TypeError && err.message.includes("fetch")) {
+          console.log("Backend not available - keeping local auth state");
+          return;
+        }
         localStorage.removeItem("auth_token");
         localStorage.removeItem("auth_user");
         setUser(null);

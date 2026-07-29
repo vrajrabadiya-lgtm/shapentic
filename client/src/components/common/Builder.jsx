@@ -272,7 +272,8 @@ export default function Builder() {
     const loggedIn = getLoggedInUser();
     const resolvedId = loggedIn?.id || loggedIn?._id || "user_demo";
     if (resolvedId !== userId) setUserId(resolvedId);
-    fetchUserDesigns(resolvedId);
+    // Don't auto-fetch on mount to avoid errors when backend is unavailable
+    // User can manually refresh when needed
   }, []);
 
   // Quick auto-clean message after 4 seconds
