@@ -30,7 +30,7 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 const corsOptions = {
-  origin: (origin, callback) => {
+  origin: function (origin, callback) {
     // Allow requests with no origin (curl, Postman, same-origin) or allowed origins
     // Also allow any vercel.app subdomain for preview deployments
     if (
@@ -48,6 +48,8 @@ const corsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  optionsSuccessStatus: 204,
+  preflightContinue: false,
 };
 
 app.use(cors(corsOptions));
