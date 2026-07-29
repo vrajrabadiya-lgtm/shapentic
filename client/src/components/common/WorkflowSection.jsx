@@ -78,7 +78,7 @@ export default function PipelineSection() {
     setFormStatus({ type: null, text: "" });
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5051"}/api/contact`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:10000"}/api/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -113,7 +113,7 @@ export default function PipelineSection() {
       setFormStatus({
         type: "error",
         text: isNetworkError
-          ? "Failed to connect to the backend server. Make sure it is running on port 5051."
+          ? "Failed to connect to the backend server. Make sure it is running on port 10000."
           : err.message || "Failed to submit message."
       });
     } finally {

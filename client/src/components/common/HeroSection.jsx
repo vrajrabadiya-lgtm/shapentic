@@ -12,7 +12,7 @@ export default function HeroSection() {
         if (!prompt.trim()) return;
         setLoading(true);
         try {
-            const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+            const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:10000";
             const res = await fetch(`${backendUrl}/api/ai/generate-blueprint`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
