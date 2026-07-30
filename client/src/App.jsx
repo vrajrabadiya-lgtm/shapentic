@@ -233,11 +233,11 @@ export default function App() {
           </ScrollReveal>
 
           {/* Blog / Compare Matrix Section */}
-          {/* <div id="blog">
+          <div id="blog">
             <ScrollReveal>
               <CompareMatrix />
             </ScrollReveal>
-          </div> */}
+          </div>
 
           {/* Pricing Section */}
           <div id="pricing">
