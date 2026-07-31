@@ -177,7 +177,7 @@ export default function Navbar() {
         <nav className="flex items-center gap-1 sm:gap-4 md:gap-6 px-4 py-2 rounded-full border border-white/[0.08] bg-zinc-950/70 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] max-w-fit mix-blend-screen">
 
           {/* Logo */}
-          <div className="flex items-center gap-2.5 pr-4 border-r border-white/10">
+          <div className="flex items-center gap-2.5 pr-4 border-r border-white/10 cursor-pointer" onClick={() => { window.location.hash = ""; window.location.href = "/"; }}>
             <img src="/logo.svg" alt="Shapentic Logo" className="h-7 w-7 object-contain" />
             <span className="font-black text-xs tracking-widest text-white uppercase font-sans">
               Shapentic
@@ -188,15 +188,19 @@ export default function Navbar() {
           <div className="flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = activeTab === item.name;
+              const isPresets = item.name === "Presets";
               return (
                 <a
                   key={item.name}
                   href={item.href}
                   onClick={() => setActiveTab(item.name)}
-                  className={`relative px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all duration-300 ${isActive
-                    ? "text-white bg-zinc-800/80 border border-white/10 shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200"
-                    }`}
+                  className={`relative px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all duration-300 ${
+                    isPresets
+                      ? "text-[#2997ff] bg-[#2997ff]/10 border border-[#2997ff]/30"
+                      : isActive
+                      ? "text-white bg-zinc-800/80 border border-white/10 shadow-sm"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
                 >
                   {item.name}
                 </a>
@@ -220,12 +224,12 @@ export default function Navbar() {
 
             {/* Avatar / login trigger */}
             <div
-              onClick={() => !user && setIsModalOpen(true)}
-              className={`h-7 w-7 rounded-full border overflow-hidden bg-zinc-800 transition-all ${user
-                ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] cursor-default"
-                : "border-white/20 cursor-pointer hover:opacity-80"
+              onClick={() => user ? (window.location.hash = "#profile") : setIsModalOpen(true)}
+              className={`h-7 w-7 rounded-full border overflow-hidden bg-zinc-800 transition-all cursor-pointer ${user
+                ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] hover:opacity-80"
+                : "border-white/20 hover:opacity-80"
                 }`}
-              title={user ? `Logged in as ${user.name}` : "Sign In"}
+              title={user ? `View Profile` : "Sign In"}
             >
               {user ? (
                 <div className="h-full w-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center">

@@ -8,7 +8,7 @@ const brands = [
 export default function TrustMarquee() {
   const doubled = [...brands, ...brands];
   return (
-    <section className="w-full py-8 border-y border-white/[0.07] overflow-hidden bg-black select-none">
+    <section className="w-full py-8 border-y border-white/10 overflow-hidden bg-transparent select-none">
       <div className="relative overflow-hidden">
         <div className="flex gap-10 animate-marquee items-center">
           {doubled.map((b, i) => (

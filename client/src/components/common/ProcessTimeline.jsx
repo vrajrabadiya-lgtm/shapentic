@@ -12,8 +12,8 @@ const steps = [
 
 export default function ProcessTimeline() {
   return (
-    <section id="process" className="w-full bg-black py-28 px-6 border-t border-white/[0.07]">
-      <div className="max-w-[980px] mx-auto">
+    <section id="process" className="w-full bg-transparent py-24 px-6 border-t border-white/10">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <p className="text-[#2997ff] text-sm font-medium mb-4">How We Work</p>
           <h2 className="text-4xl sm:text-6xl font-bold text-[#f5f5f7] tracking-tight leading-[1.07] mb-5">

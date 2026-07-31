@@ -44,7 +44,7 @@ function AnimatedStat({ stat }) {
 
 export default function StatsSection() {
   return (
-    <section id="stats" className="w-full bg-[#050816] py-28 px-6 border-t border-white/5">
+    <section id="stats" className="w-full bg-transparent py-24 px-6 border-t border-white/10">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>

@@ -21,7 +21,7 @@ export default function ShowcaseSection() {
   const filtered = filter === "All" ? projects : projects.filter((p) => p.category === filter);
 
   return (
-    <section id="showcase" className="w-full bg-[#050816] py-28 px-6 border-t border-white/5 relative">
+    <section id="showcase" className="w-full bg-transparent py-24 px-6 border-t border-white/10 relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/30 text-[#8B5CF6] text-[10px] font-mono font-bold tracking-widest uppercase mb-5">
