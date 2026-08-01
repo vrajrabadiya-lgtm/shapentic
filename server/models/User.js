@@ -22,6 +22,16 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    loginCount: {
+      type: Number,
+      default: 0,
+    },
+    loginHistory: [
+      {
+        loginAt: { type: Date },
+        type: { type: String, enum: ["email", "google"], default: "email" },
+      },
+    ],
     googleId: {
       type: String,
       default: null,

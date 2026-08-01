@@ -7,14 +7,14 @@ const router = express.Router();
 function createMailTransporter() {
   const user = process.env.EMAIL_USER?.trim();
   const pass = process.env.EMAIL_PASS?.trim();
-
-  if (!user || !pass) {
-    return null;
-  }
-
+  if (!user || !pass) return null;
   return nodemailer.createTransport({
-    service: "gmail",
+    host: process.env.EMAIL_HOST || "smtp.hostinger.com",
+    port: parseInt(process.env.EMAIL_PORT || "587"),
+    secure: false,
+    requireTLS: true,
     auth: { user, pass },
+    tls: { rejectUnauthorized: false },
   });
 }
 

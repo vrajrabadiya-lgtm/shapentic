@@ -1,19 +1,20 @@
 import express from "express";
 import Design from "../models/Design.js";
+import { authMiddleware } from "./auth.js";
 
 const router = express.Router();
 
-// POST /api/designs - Save a new customized 3D design configuration
-router.post("/", async (req, res) => {
+// POST /api/designs
+router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { userId, designName, config, imageUrl } = req.body;
+    const { designName, config, imageUrl } = req.body;
 
-    if (!userId || !designName || !config) {
-      return res.status(400).json({ error: "Missing required fields (userId, designName, config)" });
+    if (!designName || !config) {
+      return res.status(400).json({ error: "Missing required fields (designName, config)" });
     }
 
     const newDesign = new Design({
-      userId,
+      userId: req.userId,
       designName,
       config,
       imageUrl: imageUrl || "",
@@ -27,11 +28,10 @@ router.post("/", async (req, res) => {
   }
 });
 
-// GET /api/designs/:userId - Retrieve all saved designs for a specific user
-router.get("/:userId", async (req, res) => {
+// GET /api/designs
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    const { userId } = req.params;
-    const designs = await Design.find({ userId }).sort({ createdAt: -1 });
+    const designs = await Design.find({ userId: req.userId }).sort({ createdAt: -1 });
     return res.status(200).json(designs);
   } catch (error) {
     console.error("Error fetching designs:", error);
@@ -39,15 +39,15 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
-// DELETE /api/designs/:id - Delete a specific design by its ID
-router.delete("/:id", async (req, res) => {
+// DELETE /api/designs/:id
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
-    const { id } = req.params;
-    const deletedDesign = await Design.findByIdAndDelete(id);
-    if (!deletedDesign) {
-      return res.status(404).json({ error: "Design not found" });
-    }
-    return res.status(200).json({ message: "Design deleted successfully", id });
+    const design = await Design.findById(req.params.id);
+    if (!design) return res.status(404).json({ error: "Design not found" });
+    if (design.userId.toString() !== req.userId)
+      return res.status(403).json({ error: "Not authorized" });
+    await Design.findByIdAndDelete(req.params.id);
+    return res.status(200).json({ message: "Design deleted successfully", id: req.params.id });
   } catch (error) {
     console.error("Error deleting design:", error);
     return res.status(500).json({ error: "Failed to delete design. Server error." });

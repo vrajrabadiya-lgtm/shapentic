@@ -137,6 +137,89 @@ function sendWelcomeEmail(name, email) {
     .catch(err => console.error("Welcome email error FULL:", JSON.stringify(err)));
 }
 
+function sendLoginEmail(name, email) {
+  const now = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" });
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+        <tr>
+          <td align="center" style="padding-bottom:32px;">
+            <div style="display:inline-block;background:linear-gradient(135deg,#2997ff,#0071e3);border-radius:16px;padding:12px 24px;">
+              <span style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.5px;">Shapentic</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#161617;border-radius:24px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;">
+            <div style="height:4px;background:linear-gradient(90deg,#2997ff,#0071e3,#30d158);"></div>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:40px 40px 0;">
+                  <p style="margin:0 0 8px;color:#86868b;font-size:13px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;">Login Alert</p>
+                  <h1 style="margin:0 0 16px;color:#f5f5f7;font-size:28px;font-weight:700;letter-spacing:-0.5px;">Welcome back, ${name} 👋</h1>
+                  <p style="margin:0;color:#86868b;font-size:15px;line-height:1.6;">A successful login was detected on your <strong style="color:#f5f5f7;">Shapentic</strong> account.</p>
+                </td>
+              </tr>
+              <tr><td style="padding:28px 40px;"><div style="height:1px;background:rgba(255,255,255,0.08);"></div></td></tr>
+              <tr>
+                <td style="padding:0 40px;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background:#1c1c1e;border-radius:16px;padding:20px;">
+                    <tr>
+                      <td style="padding:8px 0;">
+                        <span style="color:#86868b;font-size:13px;">Time</span>
+                        <span style="color:#f5f5f7;font-size:13px;font-weight:500;float:right;">${now} IST</span>
+                      </td>
+                    </tr>
+                    <tr><td style="height:1px;background:rgba(255,255,255,0.06);"></td></tr>
+                    <tr>
+                      <td style="padding:8px 0;">
+                        <span style="color:#86868b;font-size:13px;">Account</span>
+                        <span style="color:#f5f5f7;font-size:13px;font-weight:500;float:right;">${email}</span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:28px 40px;">
+                  <p style="margin:0 0 16px;color:#86868b;font-size:13px;line-height:1.6;">If this wasn't you, please change your password immediately.</p>
+                  <a href="https://www.shapentic.com/#profile" style="display:inline-block;background:linear-gradient(135deg,#2997ff,#0071e3);color:#fff;font-size:14px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:980px;">Go to My Account →</a>
+                </td>
+              </tr>
+              <tr><td style="padding:0 40px;"><div style="height:1px;background:rgba(255,255,255,0.08);"></div></td></tr>
+              <tr>
+                <td style="padding:24px 40px 36px;">
+                  <p style="margin:0;color:#86868b;font-size:13px;">— The Shapentic Team</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding-top:24px;">
+            <p style="margin:0;color:#3a3a3c;font-size:12px;">© 2025 Shapentic. All rights reserved.</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  transporter.sendMail({
+    from: `"Shapentic" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Shapentic — Login Successful ✓",
+    html,
+  }).then(info => console.log("Login email sent:", info.messageId))
+    .catch(err => console.error("Login email error:", JSON.stringify(err)));
+}
+
 // ─── Middleware: verify JWT token ────────────────────────────────────────────
 export function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -213,11 +296,18 @@ router.post("/login", async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Incorrect password." });
 
-    // Update last login timestamp
+    const isFirstLogin = user.loginCount === 0;
+
+    // Update login data in MongoDB
     user.lastLogin = new Date();
+    user.loginCount = (user.loginCount || 0) + 1;
+    user.loginHistory.push({ loginAt: new Date(), type: "email" });
     await user.save();
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "7d" });
+
+    if (isFirstLogin) sendWelcomeEmail(user.name, user.email);
+    else sendLoginEmail(user.name, user.email);
 
     res.status(200).json({
       message: "Login successful!",
@@ -329,9 +419,12 @@ router.post("/google", async (req, res) => {
     }
 
     user.lastLogin = new Date();
+    user.loginCount = (user.loginCount || 0) + 1;
+    user.loginHistory.push({ loginAt: new Date(), type: "google" });
     await user.save();
 
     if (isNewUser) sendWelcomeEmail(user.name, user.email);
+    else sendLoginEmail(user.name, user.email);
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "7d" });
     res.status(200).json({
