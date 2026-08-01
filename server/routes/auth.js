@@ -1,7 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
 
@@ -10,15 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "3d_studio_secret_key_change_in_pro
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // ─── Email transporter ───────────────────────────────────────────────────────
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.EMAIL_PORT || "587"),
-  secure: false,
-  requireTLS: true,
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-  tls: { rejectUnauthorized: false },
-  family: 4,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 function sendWelcomeEmail(name, email) {
   const html = `
@@ -129,13 +121,13 @@ function sendWelcomeEmail(name, email) {
 </body>
 </html>`;
 
-  transporter.sendMail({
-    from: `"Shapentic" <${process.env.EMAIL_USER}>`,
+  resend.emails.send({
+    from: `Shapentic <onboarding@resend.dev>`,
     to: email,
     subject: "Welcome to Shapentic — Let's build something amazing ✦",
     html,
-  }).then(info => console.log("Welcome email sent:", info.messageId))
-    .catch(err => console.error("Welcome email error FULL:", JSON.stringify(err)));
+  }).then(r => console.log("Welcome email sent:", r.data?.id))
+    .catch(err => console.error("Welcome email error:", err.message));
 }
 
 function sendLoginEmail(name, email) {
@@ -212,13 +204,13 @@ function sendLoginEmail(name, email) {
 </body>
 </html>`;
 
-  transporter.sendMail({
-    from: `"Shapentic" <${process.env.EMAIL_USER}>`,
+  resend.emails.send({
+    from: `Shapentic <onboarding@resend.dev>`,
     to: email,
     subject: "Shapentic — Login Successful ✓",
     html,
-  }).then(info => console.log("Login email sent:", info.messageId))
-    .catch(err => console.error("Login email error:", JSON.stringify(err)));
+  }).then(r => console.log("Login email sent:", r.data?.id))
+    .catch(err => console.error("Login email error:", err.message));
 }
 
 // ─── Middleware: verify JWT token ────────────────────────────────────────────
@@ -439,18 +431,19 @@ router.post("/google", async (req, res) => {
   }
 });
 
-// ─── TEST EMAIL (remove after debug) ────────────────────────────────────────
+// ─── TEST EMAIL ──────────────────────────────────────────────────────────────
 router.get("/test-email", async (req, res) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"Shapentic" <${process.env.EMAIL_USER}>`,
+    const { data, error } = await resend.emails.send({
+      from: `Shapentic <onboarding@resend.dev>`,
       to: process.env.EMAIL_USER,
       subject: "Test Email from Shapentic",
       text: "If you see this, email is working!",
     });
-    res.json({ success: true, messageId: info.messageId });
+    if (error) return res.status(500).json({ error });
+    res.json({ success: true, id: data.id });
   } catch (err) {
-    res.status(500).json({ error: err.message, code: err.code, full: JSON.stringify(err) });
+    res.status(500).json({ error: err.message });
   }
 });
 
