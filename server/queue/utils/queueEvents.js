@@ -1,26 +1,16 @@
 import { QueueEvents } from "bullmq";
-import { connection } from "../config/redis.js";
+import { connection, REDIS_AVAILABLE } from "../config/redis.js";
 
 const QUEUE_NAME = "project-generation";
 
-export const queueEvents = new QueueEvents(QUEUE_NAME, { connection });
+export const queueEvents = REDIS_AVAILABLE
+  ? new QueueEvents(QUEUE_NAME, { connection })
+  : null;
 
-queueEvents.on("waiting", ({ jobId }) => {
-  console.log(`[QueueEvent] Job waiting: ${jobId}`);
-});
-
-queueEvents.on("active", ({ jobId, prev }) => {
-  console.log(`[QueueEvent] Job active: ${jobId} (prev: ${prev})`);
-});
-
-queueEvents.on("completed", ({ jobId, returnvalue }) => {
-  console.log(`[QueueEvent] Job completed: ${jobId} =>`, returnvalue);
-});
-
-queueEvents.on("failed", ({ jobId, failedReason }) => {
-  console.error(`[QueueEvent] Job failed: ${jobId} | Reason: ${failedReason}`);
-});
-
-queueEvents.on("stalled", ({ jobId }) => {
-  console.warn(`[QueueEvent] Job stalled: ${jobId}`);
-});
+if (queueEvents) {
+  queueEvents.on("waiting",   ({ jobId }) => console.log(`[QueueEvent] Waiting: ${jobId}`));
+  queueEvents.on("active",    ({ jobId }) => console.log(`[QueueEvent] Active: ${jobId}`));
+  queueEvents.on("completed", ({ jobId }) => console.log(`[QueueEvent] Completed: ${jobId}`));
+  queueEvents.on("failed",    ({ jobId, failedReason }) => console.error(`[QueueEvent] Failed: ${jobId} | ${failedReason}`));
+  queueEvents.on("stalled",   ({ jobId }) => console.warn(`[QueueEvent] Stalled: ${jobId}`));
+}
