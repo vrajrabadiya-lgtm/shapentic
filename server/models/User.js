@@ -22,6 +22,14 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    googleId: {
+      type: String,
+      default: null,
+    },
+    avatar: {
+      type: String,
+      default: null,
+    },
     // ─── Credit / Plan fields (migrated from Supabase) ─────────────────
     plan: {
       type: String,

@@ -102,6 +102,45 @@ export default function Navbar() {
       });
   }, []);
 
+  // ── Google Sign-In ──
+  const handleGoogleSignIn = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+      let data;
+      try { data = await res.json(); } catch { addToast("Unexpected server response.", "error"); return; }
+      if (!res.ok) { addToast(data.message || "Google sign-in failed.", "error"); return; }
+      localStorage.setItem("auth_token", data.token);
+      localStorage.setItem("auth_user", JSON.stringify(data.user));
+      setUser(data.user);
+      setIsModalOpen(false);
+      addToast(`Welcome, ${data.user.name}! 👋`, "success");
+    } catch {
+      addToast("Google sign-in failed. Try again.", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Init Google One Tap ──
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId || !window.google) return;
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: handleGoogleSignIn,
+    });
+    window.google.accounts.id.renderButton(
+      document.getElementById("google-signin-btn"),
+      { theme: "filled_black", size: "large", width: "100%", text: "continue_with" }
+    );
+  }, [isModalOpen]);
+
   // ── Submit handler ──
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -345,6 +384,16 @@ export default function Navbar() {
                     ? "Please wait..."
                     : authMode === "login" ? "Sign In" : "Create Account"}
                 </button>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3 my-1">
+                  <div className="flex-1 h-px bg-white/10" />
+                  <span className="text-[10px] text-zinc-600 font-medium">or</span>
+                  <div className="flex-1 h-px bg-white/10" />
+                </div>
+
+                {/* Google Sign-In */}
+                <div id="google-signin-btn" className="w-full flex justify-center" />
               </form>
 
               {/* Switch mode */}

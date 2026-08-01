@@ -1,10 +1,12 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "3d_studio_secret_key_change_in_prod";
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // ─── Middleware: verify JWT token ────────────────────────────────────────────
 export function authMiddleware(req, res, next) {
@@ -156,6 +158,55 @@ router.put("/update-password", authMiddleware, async (req, res) => {
     res.status(200).json({ message: "Password updated successfully." });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── GOOGLE OAUTH ────────────────────────────────────────────────────────────
+router.post("/google", async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) return res.status(400).json({ message: "Google credential is required." });
+
+    // Verify Google token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId, picture } = payload;
+
+    // Find or create user
+    let user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      user = new User({
+        name: name.trim(),
+        email: email.toLowerCase(),
+        password: await bcrypt.hash(googleId + JWT_SECRET, 10), // non-usable password
+        googleId,
+        avatar: picture,
+      });
+      await user.save();
+    } else {
+      // Update google fields if missing
+      if (!user.googleId) {
+        user.googleId = googleId;
+        user.avatar = picture;
+        await user.save();
+      }
+    }
+
+    user.lastLogin = new Date();
+    await user.save();
+
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "7d" });
+    res.status(200).json({
+      message: "Google sign-in successful!",
+      token,
+      user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar },
+    });
+  } catch (error) {
+    console.error("Google auth error:", error.message);
+    res.status(401).json({ message: "Invalid Google credential." });
   }
 });
 
