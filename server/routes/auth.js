@@ -131,7 +131,8 @@ function sendWelcomeEmail(name, email) {
     to: email,
     subject: "Welcome to Shapentic — Let's build something amazing ✦",
     html,
-  }).catch(err => console.error("Welcome email error:", err.message));
+  }).then(info => console.log("Welcome email sent:", info.messageId))
+    .catch(err => console.error("Welcome email error FULL:", JSON.stringify(err)));
 }
 
 // ─── Middleware: verify JWT token ────────────────────────────────────────────
@@ -339,6 +340,21 @@ router.post("/google", async (req, res) => {
   } catch (error) {
     console.error("Google auth error:", error.message);
     res.status(401).json({ message: "Invalid Google credential." });
+  }
+});
+
+// ─── TEST EMAIL (remove after debug) ────────────────────────────────────────
+router.get("/test-email", async (req, res) => {
+  try {
+    const info = await transporter.sendMail({
+      from: `"Shapentic" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
+      subject: "Test Email from Shapentic",
+      text: "If you see this, email is working!",
+    });
+    res.json({ success: true, messageId: info.messageId });
+  } catch (err) {
+    res.status(500).json({ error: err.message, code: err.code, full: JSON.stringify(err) });
   }
 });
 
