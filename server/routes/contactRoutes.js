@@ -9,12 +9,10 @@ function createMailTransporter() {
   const pass = process.env.EMAIL_PASS?.trim();
   if (!user || !pass) return null;
   return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "smtp.hostinger.com",
-    port: parseInt(process.env.EMAIL_PORT || "587"),
-    secure: false,
-    requireTLS: true,
+    host: process.env.EMAIL_HOST || "smtp.gmail.com",
+    port: parseInt(process.env.EMAIL_PORT || "465"),
+    secure: true,
     auth: { user, pass },
-    tls: { rejectUnauthorized: false },
   });
 }
 
