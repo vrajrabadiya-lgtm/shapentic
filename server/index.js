@@ -68,6 +68,13 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Fix COOP for Google Sign-In postMessage
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+  next();
+});
+
 // Routes
 app.use("/api/designs", designRoutes);
 app.use("/api/contact", contactRoutes);
