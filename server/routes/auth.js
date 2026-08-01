@@ -12,9 +12,11 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // ─── Email transporter ───────────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || "smtp.hostinger.com",
-  port: parseInt(process.env.EMAIL_PORT || "465"),
-  secure: true,
+  port: parseInt(process.env.EMAIL_PORT || "587"),
+  secure: false,
+  requireTLS: true,
   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+  tls: { rejectUnauthorized: false },
 });
 
 function sendWelcomeEmail(name, email) {
