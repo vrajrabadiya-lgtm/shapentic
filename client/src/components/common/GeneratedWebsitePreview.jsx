@@ -264,62 +264,64 @@ export default function App() {
     >
       
       {/* ── TOP PREVIEW HEADER & TOOLBAR ─────────────────────────────────────── */}
-      <header className="h-14 px-5 border-b border-white/10 bg-zinc-900/95 backdrop-blur-xl flex items-center justify-between shrink-0 select-none z-30">
+      <header className="min-h-14 px-3 sm:px-5 py-2 border-b border-white/10 bg-zinc-900/95 backdrop-blur-xl flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shrink-0 select-none z-30">
         
         {/* Left: Brand / AI status */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Live Preview
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] sm:text-xs font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Live Preview</span>
           </div>
-          <span className="text-xs font-bold text-zinc-300 hidden sm:inline-block">
+          <span className="text-xs font-bold text-zinc-300 hidden md:inline-block truncate max-w-[120px]">
             {siteName}
           </span>
         </div>
 
         {/* Center: Main View Switcher */}
-        <div className="flex items-center gap-1 bg-zinc-800/80 p-1 rounded-xl border border-white/5">
+        <div className="flex items-center gap-1 bg-zinc-800/80 p-1 rounded-xl border border-white/5 text-[11px] sm:text-xs">
           <button
             onClick={() => setActiveTab("preview")}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               activeTab === "preview"
                 ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             <Globe className="h-3.5 w-3.5" />
-            <span>Interactive Website</span>
+            <span className="hidden xs:inline">Interactive</span>
+            <span className="inline xs:hidden">Web</span>
           </button>
 
           <button
             onClick={() => setActiveTab("code")}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               activeTab === "code"
                 ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             <Code2 className="h-3.5 w-3.5" />
-            <span>Source Code</span>
+            <span>Code</span>
           </button>
 
           <button
             onClick={() => setActiveTab("design")}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               activeTab === "design"
                 ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             <Palette className="h-3.5 w-3.5" />
-            <span>Design System</span>
+            <span className="hidden xs:inline">Design System</span>
+            <span className="inline xs:hidden">Design</span>
           </button>
         </div>
 
         {/* Right: Viewport mode & Close */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {activeTab === "preview" && (
-            <div className="hidden md:flex items-center gap-1 bg-zinc-800/60 p-1 rounded-lg border border-white/5">
+            <div className="hidden sm:flex items-center gap-1 bg-zinc-800/60 p-1 rounded-lg border border-white/5">
               <button
                 onClick={() => setViewportMode("desktop")}
                 title="Desktop View"
@@ -353,7 +355,7 @@ export default function App() {
           {onClose && (
             <button
               onClick={(e) => { e.stopPropagation(); onClose(); }}
-              className="p-1.5 rounded-lg bg-zinc-800/60 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/10 transition-colors"
+              className="p-1.5 rounded-lg bg-zinc-800/60 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
               title="Close Preview"
             >
               <X className="h-4 w-4" />

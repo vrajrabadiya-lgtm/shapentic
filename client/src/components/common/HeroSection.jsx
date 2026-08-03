@@ -205,8 +205,8 @@ export default function HeroSection() {
             </div>
 
             {/* 5. Floating Bottom Right Guide Button */}
-            <Button className="fixed bottom-6 right-6 z-50 h-auto flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-black text-xs font-bold shadow-2xl hover:bg-zinc-100 transition-all">
-                <HelpCircle className="h-4 w-4 text-purple-600 stroke-[2.5]" />
+            <Button className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 h-auto flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-full bg-white text-black text-[11px] sm:text-xs font-bold shadow-2xl hover:bg-zinc-100 transition-all cursor-pointer">
+                <HelpCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-600 stroke-[2.5]" />
                 <span>Guide</span>
             </Button>
 

@@ -1,23 +1,23 @@
-﻿import React from "react";
+import React from "react";
 import { Cpu, Zap, Film, RefreshCw, Users, ShieldCheck } from "lucide-react";
 
 export default function WhyChooseUsBento() {
   return (
-    <section id="why-us" className="w-full bg-transparent py-24 px-6 border-t border-white/10">
+    <section id="why-us" className="w-full bg-transparent py-16 sm:py-24 px-4 sm:px-6 border-t border-white/10">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-[#2997ff] text-sm font-medium mb-4">The Studio Advantage</p>
-          <h2 className="text-4xl sm:text-6xl font-bold text-[#f5f5f7] tracking-tight leading-[1.07] mb-5">
+        <div className="text-center mb-12 sm:mb-16">
+          <p className="text-[#2997ff] text-xs sm:text-sm font-medium mb-3">The Studio Advantage</p>
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#f5f5f7] tracking-tight leading-[1.07] mb-4 sm:mb-5">
             Why brands choose<br />Shapentic.
           </h2>
-          <p className="text-[#86868b] text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="text-[#86868b] text-sm sm:text-lg max-w-xl mx-auto leading-relaxed">
             We merge neural diffusion with Hollywood-grade 3D to deliver unprecedented visual speed and quality.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-3">
           {/* Big card */}
-          <div className="md:col-span-2 rounded-3xl bg-[#111] border border-white/[0.07] p-10 flex flex-col justify-between min-h-[300px] relative overflow-hidden hover:bg-[#161616] transition-colors">
+          <div className="md:col-span-2 rounded-3xl bg-[#111] border border-white/[0.07] p-6 sm:p-10 flex flex-col justify-between min-h-[260px] sm:min-h-[300px] relative overflow-hidden hover:bg-[#161616] transition-colors">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#2997ff]/5 rounded-full blur-3xl pointer-events-none" />
             <div>
               <div className="h-11 w-11 rounded-2xl bg-[#2997ff]/10 flex items-center justify-center mb-6">

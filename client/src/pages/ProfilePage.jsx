@@ -106,17 +106,17 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-[#000000] text-[#f5f5f7] overflow-x-hidden" style={{ fontFamily: "-apple-system, 'SF Pro Display', BlinkMacSystemFont, 'Helvetica Neue', sans-serif" }}>
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-6 pt-28 pb-24">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-16 sm:pb-24">
 
         {/* Back */}
         <button onClick={() => { window.location.href = "/"; }}
-          className="flex items-center gap-1 text-[#2997ff] text-sm font-medium mb-10 hover:opacity-70 transition-opacity cursor-pointer">
+          className="flex items-center gap-1 text-[#2997ff] text-sm font-medium mb-6 sm:mb-10 hover:opacity-70 transition-opacity cursor-pointer">
           <ChevronLeft className="h-4 w-4" />
           Home
         </button>
 
         {/* Landscape two-column layout */}
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-8 items-stretch lg:items-start w-full">
 
           {/* LEFT — Profile Card */}
           <div className="w-full lg:w-72 shrink-0">
@@ -149,13 +149,13 @@ export default function ProfilePage() {
           </div>
 
           {/* RIGHT — Forms */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 w-full">
 
             {/* Tab Switcher */}
-            <div className="flex bg-[#1c1c1e] rounded-2xl p-1 mb-6 border border-white/[0.06]">
+            <div className="flex w-full bg-[#1c1c1e] rounded-2xl p-1 mb-6 border border-white/[0.06]">
               {[{ id: "name", label: "Display Name" }, { id: "password", label: "Password" }].map((t) => (
                 <button key={t.id} onClick={() => { setTab(t.id); setNameStatus(null); setPassStatus(null); }}
-                  className={`flex-1 py-2 text-xs font-semibold rounded-xl transition-all duration-200 cursor-pointer ${tab === t.id ? "bg-[#2c2c2e] text-[#f5f5f7] shadow-sm" : "text-[#86868b] hover:text-[#f5f5f7]"}`}>
+                  className={`flex-1 w-1/2 py-2.5 px-4 text-xs font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center ${tab === t.id ? "bg-[#2c2c2e] text-[#f5f5f7] shadow-sm" : "text-[#86868b] hover:text-[#f5f5f7]"}`}>
                   {t.label}
                 </button>
               ))}
@@ -163,7 +163,7 @@ export default function ProfilePage() {
 
             {/* Name Tab */}
             {tab === "name" && (
-              <div className="bg-[#161617] rounded-3xl border border-white/[0.08] overflow-hidden animate-apple-scale">
+              <div className="w-full bg-[#161617] rounded-3xl border border-white/[0.08] overflow-hidden">
                 <div className="px-6 pt-6 pb-6">
                   <p className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider mb-5">Display Name</p>
                   <StatusBanner status={nameStatus} />
@@ -185,7 +185,7 @@ export default function ProfilePage() {
 
             {/* Password Tab */}
             {tab === "password" && (
-              <div className="bg-[#161617] rounded-3xl border border-white/[0.08] overflow-hidden animate-apple-scale">
+              <div className="w-full bg-[#161617] rounded-3xl border border-white/[0.08] overflow-hidden">
                 <div className="px-6 pt-6 pb-6">
                   <p className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider mb-5">Change Password</p>
                   <StatusBanner status={passStatus} />

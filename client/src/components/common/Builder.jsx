@@ -269,7 +269,7 @@ export default function Builder() {
   const activeConfig = { color, lightColor, materialType, shape, scale, rotateSpeed, complexity };
 
   return (
-    <div className="h-screen w-full bg-zinc-950 text-white font-sans flex flex-col md:flex-row overflow-hidden relative">
+    <div className="min-h-screen md:h-screen w-full bg-zinc-950 text-white font-sans flex flex-col-reverse md:flex-row overflow-x-hidden md:overflow-hidden relative">
 
       {/* Background visual ambience */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,#090d16,transparent_60%)] pointer-events-none" />
@@ -277,7 +277,7 @@ export default function Builder() {
       {/* ── AI GENERATED WEBSITE PREVIEW PANEL ─────────────────────────── */}
 
       {/* 1. LEFT SIDEBAR PANEL: Controls */}
-      <aside className="w-full md:w-[400px] border-b md:border-b-0 md:border-r border-white/10 bg-zinc-950/80 backdrop-blur-xl flex flex-col z-20 shrink-0 h-1/2 md:h-full">
+      <aside className="w-full md:w-[400px] border-t md:border-t-0 md:border-r border-white/10 bg-zinc-950/90 backdrop-blur-xl flex flex-col z-20 shrink-0 min-h-[400px] md:h-full">
 
         {/* Sidebar Header */}
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
@@ -719,7 +719,7 @@ export default function Builder() {
       </aside>
 
       {/* 2. RIGHT VIEWPORT: 3D Render Canvas */}
-      <main className="flex-1 h-1/2 md:h-full relative select-none">
+      <main className="flex-1 h-[380px] sm:h-[450px] md:h-full relative select-none">
 
         {/* Render status overlays */}
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 pointer-events-none">
@@ -739,13 +739,13 @@ export default function Builder() {
         </div>
 
         {/* Interactive Floating Canvas HUD */}
-        <div className="absolute bottom-6 right-6 z-10 flex gap-2">
+        <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-10 flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => {
               if (aiResult) sessionStorage.setItem("ai_result", JSON.stringify(aiResult));
               window.location.hash = "#preview";
             }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-xl transition-all cursor-pointer border border-blue-400/30"
+            className="flex items-center justify-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-[11px] sm:text-xs font-semibold shadow-xl transition-all cursor-pointer border border-blue-400/30"
           >
             <Globe className="h-3.5 w-3.5 text-white" />
             <span>Preview Generated Website</span>
@@ -756,7 +756,7 @@ export default function Builder() {
               navigator.clipboard.writeText(url);
               setApiStatus({ type: "success", message: "Builder link copied to clipboard!" });
             }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-zinc-900 border border-white/10 hover:bg-zinc-800 text-white text-xs font-semibold shadow-xl transition-all cursor-pointer"
+            className="flex items-center justify-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full bg-zinc-900 border border-white/10 hover:bg-zinc-800 text-white text-[11px] sm:text-xs font-semibold shadow-xl transition-all cursor-pointer"
           >
             <Share2 className="h-3.5 w-3.5 text-blue-400" />
             <span>Share Design</span>

@@ -71,7 +71,7 @@ export default function Footer() {
 
     return (
         <footer className="w-full bg-[#0b0b0c] text-[#f5f5f7] border-t border-white/10 font-sans relative z-10 select-none">
-            <div className="max-w-7xl mx-auto px-6 pt-20 pb-12 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-10 sm:pb-12 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-6">
 
                 {/* Brand Column */}
                 <div className="md:col-span-4 flex flex-col gap-5">
@@ -136,7 +136,7 @@ export default function Footer() {
             </div>
 
             {/* Bottom Bar */}
-            <div className="max-w-7xl mx-auto px-6 py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#86868b]">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#86868b] text-center sm:text-left">
                 <div>
                     © {new Date().getFullYear()} Shapentic 3D Studio. All rights reserved.
                 </div>
