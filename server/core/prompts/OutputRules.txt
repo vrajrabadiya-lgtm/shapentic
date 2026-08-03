@@ -1,0 +1,6 @@
+STRICT OUTPUT CONSTRAINTS:
+1. Return ONLY raw valid JSON matching the BlueprintV2 interface.
+2. Do NOT wrap output in markdown syntax (no ```json).
+3. Do NOT provide explanations, headers, introduction, or text outside the JSON payload.
+4. Do NOT invent fields like "landingPage", "heroSection", "navigationLinks", "visualStyling", or "layoutArchetype".
+5. Every field must contain actual content generated for the specific industry. Never output placeholders, empty items lists, or generic TODO entries.

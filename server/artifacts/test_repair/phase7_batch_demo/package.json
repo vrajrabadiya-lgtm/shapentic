@@ -1,0 +1,10 @@
+{
+  "name": "phase7-demo-website",
+  "version": "1.0.0",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vite": "^4.0.0",
+    "tailwindcss": "^3.0.0"
+  }
+}

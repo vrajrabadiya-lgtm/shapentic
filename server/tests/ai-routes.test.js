@@ -123,36 +123,54 @@ describe("Property 2: Code generation returns valid code structure", () => {
   it("generate-code should return heroJSX, sceneJSX, sampleSection for any valid blueprint", async () => {
     // Create an arbitrary blueprint generator
     const arbitraryBlueprint = fc.record({
-      concept: fc.record({
-        websiteName: fc.string({ minLength: 1 }),
+      brand: fc.record({
+        name: fc.string({ minLength: 1 }),
+        industry: fc.constantFrom("SaaS", "E-Commerce", "Agency", "Gaming"),
         tagline: fc.string({ minLength: 1 }),
-        businessType: fc.constantFrom("SaaS", "E-Commerce", "Agency", "Gaming"),
-        designStyle: fc.constantFrom("Futuristic", "Minimal", "Corporate", "Cyberpunk"),
-        brandPersonality: fc.array(fc.string({ minLength: 1 }), { minLength: 1, maxLength: 5 }),
       }),
-      palette: fc.record({
-        primary: fc.constant("#3d5eff"),
-        secondary: fc.constant("#00d4ff"),
-        accent: fc.constant("#bf5fff"),
-        background: fc.constant("#0a0a14"),
-        text: fc.constant("#f0f0ff"),
-        textMuted: fc.constant("#7070a0"),
-        surface: fc.constant("#0f0f1a"),
-      }),
-      pages: fc.array(
-        fc.record({
-          name: fc.constantFrom("Home", "About", "Services", "Pricing", "Contact"),
-          path: fc.string({ minLength: 1 }),
-          sections: fc.array(fc.record({
-            id: fc.string({ minLength: 1 }),
+      navigation: fc.record({
+        links: fc.array(
+          fc.record({
             name: fc.string({ minLength: 1 }),
-            purpose: fc.string({ minLength: 1 }),
-            animation: fc.string({ minLength: 1 }),
-            threeObject: fc.string({ minLength: 1 }),
-            content: fc.record({
-              headline: fc.string({ minLength: 1 }),
-            }),
-          })),
+            path: fc.string({ minLength: 1 }),
+          }),
+          { minLength: 1, maxLength: 5 }
+        ),
+        cta: fc.record({
+          label: fc.string({ minLength: 1 }),
+          path: fc.string({ minLength: 1 }),
+        }),
+      }),
+      hero: fc.record({
+        headline: fc.string({ minLength: 1 }),
+        description: fc.string({ minLength: 1 }),
+        buttons: fc.array(
+          fc.record({
+            label: fc.string({ minLength: 1 }),
+            action: fc.string({ minLength: 1 }),
+          })
+        ),
+        badge: fc.string(),
+        scene: fc.string({ minLength: 1 }),
+        layout: fc.constantFrom("split", "centered"),
+      }),
+      scene: fc.record({
+        sceneId: fc.constantFrom("FloatingBlobScene", "GlassOrbScene", "ParticleGalaxyScene"),
+        camera: fc.constant("Hero Camera"),
+        lighting: fc.constant("Studio"),
+        interaction: fc.constant("Hover Rotation"),
+        quality: fc.constant("High"),
+      }),
+      sections: fc.array(
+        fc.record({
+          id: fc.string({ minLength: 1 }),
+          name: fc.string({ minLength: 1 }),
+          title: fc.string({ minLength: 1 }),
+          subtitle: fc.string({ minLength: 1 }),
+          componentName: fc.constantFrom("FeaturesSection", "PricingSection", "FAQSection"),
+          content: fc.record({
+            items: fc.array(fc.string({ minLength: 1 }), { minLength: 1 }),
+          }),
         }),
         { minLength: 1, maxLength: 5 }
       ),

@@ -10,8 +10,8 @@ export function validateConfig() {
     "MONGO_URI",
     "DATABASE_NAME",
     "JWT_SECRET",
-    "GOOGLE_PROJECT_ID",
-    "GOOGLE_LOCATION",
+    "AWS_REGION",
+    "AWS_BEDROCK_TEXT_MODEL_ID",
   ];
 
   const missing = [];
@@ -27,8 +27,8 @@ export function validateConfig() {
   }
 
   // AI Provider check
-  if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    missing.push("GEMINI_API_KEY or GOOGLE_APPLICATION_CREDENTIALS");
+  if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    missing.push("AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY");
   }
 
   if (missing.length > 0) {

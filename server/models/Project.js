@@ -20,7 +20,7 @@ const projectSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["PENDING", "PROCESSING", "COMPLETED", "FAILED"],
+      enum: ["PENDING", "PROCESSING", "REPAIRING", "BUILDING", "COMPLETED", "FAILED"],
       default: "PENDING",
     },
     progress: {
@@ -78,6 +78,57 @@ const projectSchema = new mongoose.Schema(
     },
     artifact: {
       type: mongoose.Schema.Types.Mixed,
+    },
+    repair: {
+      attempts: [
+        {
+          attempt: Number,
+          category: String,
+          summary: String,
+          prompt: String,
+          aiProvider: String,
+          model: String,
+          rawResponse: String,
+          parsedPatch: mongoose.Schema.Types.Mixed,
+          validation: {
+            passed: Boolean,
+            errors: [String],
+          },
+          applyStatus: Boolean,
+          rebuildStatus: Boolean,
+          durationMs: Number,
+          repairDuration: Number,
+          aiGenerationDuration: Number,
+          validationDuration: Number,
+          patchApplyDuration: Number,
+          rebuildDuration: Number,
+          startedAt: Date,
+          completedAt: Date,
+          timestamp: Date,
+        },
+      ],
+      retryHistory: [
+        {
+          attempt: Number,
+          reason: String,
+          backoffMs: Number,
+          timestamp: Date,
+        },
+      ],
+      analytics: {
+        totalRepairDuration: { type: Number, default: 0 },
+        totalAiGenerationDuration: { type: Number, default: 0 },
+        totalValidationDuration: { type: Number, default: 0 },
+        totalPatchApplyDuration: { type: Number, default: 0 },
+        totalRebuildDuration: { type: Number, default: 0 },
+      },
+      totalAttempts: { type: Number, default: 0 },
+      success: { type: Boolean, default: false },
+      failureReason: String,
+      finalCategory: String,
+      rollbackPerformed: { type: Boolean, default: false },
+      rollbackSuccess: { type: Boolean, default: false },
+      completedAt: Date,
     },
     error: {
       message: String,

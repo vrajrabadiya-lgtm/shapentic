@@ -1,0 +1,105 @@
+The output JSON must strictly match the following TypeScript types and JSON structural specifications:
+
+type ColorTheme = {
+  primary: string;      // Primary color Hex code
+  secondary: string;    // Secondary color Hex code
+  background: string;   // Main page background Hex code
+  surface: string;      // Card and panel surface background Hex code
+  text: string;         // Standard text Hex code
+  accent: string;       // Accent/highlight Hex code
+  textMuted: string;    // Muted paragraph text Hex code
+};
+
+type Typography = {
+  headingFont: string;  // A premium Google Font name
+  bodyFont: string;     // A readable body Google Font name
+};
+
+type DesignTokens = {
+  colors: ColorTheme;
+  typography: Typography;
+  borderRadius: string; // e.g. "0.5rem", "0px"
+  shadows: string;      // CSS shadow declaration
+};
+
+type NavigationLink = {
+  label: string;
+  path: string;
+};
+
+type CTA = {
+  label: string;
+  path: string;
+  variant?: "primary" | "secondary";
+};
+
+type Hero = {
+  heading: string;
+  description: string;
+  badge: string;
+  ctas: CTA[];
+  layout: "3d-right" | "3d-left" | "split" | "centered" | "fullscreen";
+};
+
+type HeroScene = {
+  type: string;        // The ID of the selected Three.js scene from the registry (must match one of the supported scene types dynamically listed below)
+  style: string;       // e.g. "premium", "minimal", "futuristic", "glassmorphism", "industrial"
+  mood: string;        // e.g. "cinematic", "dark-tech", "sunset", "neon-glow"
+  colors: string[];    // Color scheme hex values or names (e.g. ["#3d5eff", "#00d4ff"])
+  motion: string;      // e.g. "flowing", "orbiting", "pulsating", "wave-movement"
+  lighting: string;    // e.g. "soft bloom", "neon glow", "warm studio", "split lighting"
+};
+
+type SectionItem = {
+  title: string;
+  desc: string;
+  icon?: string;
+  price?: string;
+  period?: string;
+  author?: string;
+  role?: string;
+  quote?: string;
+};
+
+type PageSection = {
+  id: string;          // kebab-case ID matching the section name
+  type: "features" | "testimonials" | "pricing" | "faq" | "gallery" | "services" | "stats" | "contact";
+  name: string;        // Human readable title of the section
+  componentName: string; // PascalCase component name ending with "Section"
+  layout?: string;     // "default", "grid", "slider", etc.
+  animation?: string;  // "slide-up", "fade-in", "fade-right", etc.
+  content: {
+    heading: string;
+    subheading?: string;
+    items?: SectionItem[];
+  };
+};
+
+type Page = {
+  name: string;
+  path: string;
+  sections: PageSection[];
+};
+
+type Footer = {
+  copyright: string;
+  links: NavigationLink[];
+};
+
+interface BlueprintV2 {
+  brand: {
+    name: string;
+    logoUrl: string;
+    tagline: string;
+  };
+  theme: DesignTokens;
+  navigation: {
+    logo: string;
+    links: NavigationLink[];
+    cta: CTA;
+  };
+  hero: Hero;
+  heroScene: HeroScene;
+  pages: Page[];
+  footer: Footer;
+}

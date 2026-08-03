@@ -1,0 +1,874 @@
+{
+  "info": {
+    "_postman_id": "ornitech-pipeline-debug-v1",
+    "name": "OrniTech 3D Builder — Full Pipeline Debug",
+    "description": "# Full Website Generation Pipeline Debug Collection\n\nThis collection traces every stage of the OrniTech 3D Website Builder backend pipeline from **user registration** through **ZIP download**.\n\n## Execution Order\n1. Register User\n2. Login (saves JWT)\n3. Get Profile\n4. Check Credits\n5. Create Project (saves projectId, triggers worker)\n6. List Projects\n7. Get Project Details\n8. Poll Project Status (loop until COMPLETED/FAILED)\n9. Download ZIP\n\n## How to Run\n1. Import this collection\n2. Import the environment file\n3. Select the **OrniTech 3D Builder — Pipeline Debug** environment\n4. Click **Run Collection** → Runner will execute all steps sequentially\n5. For step 8 (Poll), use **Send and Retry** or run manually until COMPLETED\n\n## Environment Variables (auto-populated)\n- `jwt` — Bearer token\n- `userId` — Authenticated user ObjectId\n- `projectId` — Created project ObjectId\n- `zipPath` — Final ZIP file path\n- `lastProgress` / `lastStatus` — Polling state tracker",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [],
+  "item": [
+    {
+      "name": "1. Register User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{userName}}\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/signup",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "signup"]
+        },
+        "description": "## Register a new user\n\n**Method:** POST  \n**URL:** `{{baseUrl}}/api/auth/signup`  \n**Auth:** None  \n\n**Body:**\n```json\n{\n  \"name\": \"Pipeline Debugger\",\n  \"email\": \"pipeline-debug@ornitech.test\",\n  \"password\": \"Debug@12345\"\n}\n```\n\n**Expected Status:** 201  \n**Expected Response:**\n```json\n{\n  \"message\": \"Account created successfully!\",\n  \"token\": \"eyJhbG...\",\n  \"user\": {\n    \"id\": \"...\",\n    \"name\": \"Pipeline Debugger\",\n    \"email\": \"pipeline-debug@ornitech.test\"\n  }\n}\n```\n\nIf user already exists, the login step will still work."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ─── Register User Tests ───",
+              "",
+              "const res = pm.response.json();",
+              "",
+              "if (pm.response.code === 201) {",
+              "    pm.test('✅ Registration successful (201)', () => {",
+              "        pm.response.to.have.status(201);",
+              "    });",
+              "",
+              "    pm.test('✅ JWT token returned', () => {",
+              "        pm.expect(res.token).to.be.a('string').and.not.empty;",
+              "    });",
+              "",
+              "    pm.test('✅ User object returned', () => {",
+              "        pm.expect(res.user).to.have.property('id');",
+              "        pm.expect(res.user).to.have.property('name');",
+              "        pm.expect(res.user).to.have.property('email');",
+              "    });",
+              "",
+              "    // Save JWT and userId",
+              "    pm.environment.set('jwt', res.token);",
+              "    pm.environment.set('userId', res.user.id);",
+              "",
+              "    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "    console.log('🟢 REGISTRATION COMPLETE');",
+              "    console.log('  User ID:  ' + res.user.id);",
+              "    console.log('  Name:     ' + res.user.name);",
+              "    console.log('  Email:    ' + res.user.email);",
+              "    console.log('  JWT:      ' + res.token.substring(0, 30) + '...');",
+              "    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "} else if (pm.response.code === 400) {",
+              "    pm.test('ℹ️ User already exists — will login next', () => {",
+              "        pm.expect(res.message).to.include('already');",
+              "    });",
+              "    console.log('ℹ️ User already registered, proceeding to login...');",
+              "} else {",
+              "    pm.test('❌ Unexpected status: ' + pm.response.code, () => {",
+              "        pm.expect.fail('Expected 201 or 400, got ' + pm.response.code);",
+              "    });",
+              "}"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "2. Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "## Login and save JWT\n\n**Method:** POST  \n**URL:** `{{baseUrl}}/api/auth/login`  \n**Auth:** None  \n\n**Body:**\n```json\n{\n  \"email\": \"pipeline-debug@ornitech.test\",\n  \"password\": \"Debug@12345\"\n}\n```\n\n**Expected Status:** 200  \n**Expected Response:**\n```json\n{\n  \"message\": \"Login successful!\",\n  \"token\": \"eyJhbG...\",\n  \"user\": {\n    \"id\": \"...\",\n    \"name\": \"Pipeline Debugger\",\n    \"email\": \"pipeline-debug@ornitech.test\",\n    \"lastLogin\": \"2026-07-31T12:00:00.000Z\"\n  }\n}\n```\n\nJWT is automatically saved to the `jwt` environment variable."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ─── Login Tests ───",
+              "",
+              "const res = pm.response.json();",
+              "",
+              "pm.test('✅ Login successful (200)', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('✅ JWT token returned', () => {",
+              "    pm.expect(res.token).to.be.a('string').and.not.empty;",
+              "});",
+              "",
+              "pm.test('✅ User object returned with id', () => {",
+              "    pm.expect(res.user).to.have.property('id');",
+              "    pm.expect(res.user.id).to.be.a('string').and.not.empty;",
+              "});",
+              "",
+              "// Save JWT and userId (overwrite any from signup)",
+              "pm.environment.set('jwt', res.token);",
+              "pm.environment.set('userId', res.user.id);",
+              "",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🟢 LOGIN COMPLETE');",
+              "console.log('  User ID:    ' + res.user.id);",
+              "console.log('  Name:       ' + res.user.name);",
+              "console.log('  Email:      ' + res.user.email);",
+              "console.log('  Last Login: ' + res.user.lastLogin);",
+              "console.log('  JWT:        ' + res.token.substring(0, 30) + '...');",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "3. Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "me"]
+        },
+        "description": "## Get authenticated user profile\n\n**Method:** GET  \n**URL:** `{{baseUrl}}/api/auth/me`  \n**Auth:** Bearer `{{jwt}}`  \n\n**Expected Status:** 200  \n**Expected Response:**\n```json\n{\n  \"user\": {\n    \"_id\": \"...\",\n    \"name\": \"Pipeline Debugger\",\n    \"email\": \"pipeline-debug@ornitech.test\",\n    \"createdAt\": \"...\",\n    \"lastLogin\": \"...\"\n  }\n}\n```"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ─── Get Profile Tests ───",
+              "",
+              "const res = pm.response.json();",
+              "",
+              "pm.test('✅ Profile retrieved (200)', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('✅ User object exists', () => {",
+              "    pm.expect(res.user).to.be.an('object');",
+              "    pm.expect(res.user._id).to.be.a('string');",
+              "});",
+              "",
+              "pm.test('✅ Password not exposed', () => {",
+              "    pm.expect(res.user).to.not.have.property('password');",
+              "});",
+              "",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🟢 PROFILE VERIFIED');",
+              "console.log('  ID:         ' + res.user._id);",
+              "console.log('  Name:       ' + res.user.name);",
+              "console.log('  Email:      ' + res.user.email);",
+              "console.log('  Created:    ' + res.user.createdAt);",
+              "console.log('  Last Login: ' + res.user.lastLogin);",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "4. Check Credits",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/ai/check-credits",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "ai", "check-credits"]
+        },
+        "description": "## Check user build credits\n\n**Method:** GET  \n**URL:** `{{baseUrl}}/api/ai/check-credits`  \n**Auth:** Bearer `{{jwt}}`  \n\n**Expected Status:** 200  \n**Expected Response:**\n```json\n{\n  \"authenticated\": true,\n  \"can_build\": true,\n  \"userId\": \"...\",\n  \"plan\": \"free\",\n  \"builds_used\": 0,\n  \"builds_limit\": 3,\n  \"video_used\": 0,\n  \"video_limit\": 1\n}\n```"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ─── Check Credits Tests ───",
+              "",
+              "const res = pm.response.json();",
+              "",
+              "pm.test('✅ Credits response (200)', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('✅ can_build is defined', () => {",
+              "    pm.expect(res).to.have.property('can_build');",
+              "});",
+              "",
+              "pm.test('✅ Plan is defined', () => {",
+              "    pm.expect(res).to.have.property('plan');",
+              "});",
+              "",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🟢 CREDITS CHECK');",
+              "console.log('  Authenticated: ' + res.authenticated);",
+              "console.log('  Can Build:     ' + res.can_build);",
+              "console.log('  Plan:          ' + res.plan);",
+              "console.log('  Builds Used:   ' + res.builds_used + ' / ' + res.builds_limit);",
+              "console.log('  Video Used:    ' + res.video_used + ' / ' + res.video_limit);",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "5. Create Project (triggers generation)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"{{projectTitle}}\",\n  \"prompt\": \"{{projectPrompt}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/projects",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "projects"]
+        },
+        "description": "## Create a project and trigger background generation\n\n**Method:** POST  \n**URL:** `{{baseUrl}}/api/projects`  \n**Auth:** Bearer `{{jwt}}`  \n\n**Body:**\n```json\n{\n  \"title\": \"Debug Hospital Website\",\n  \"prompt\": \"Create a premium hospital website for MedVista Health Center...\"\n}\n```\n\n**Expected Status:** 201  \n**Expected Response:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Project created successfully.\",\n  \"data\": {\n    \"_id\": \"...\",\n    \"userId\": \"...\",\n    \"title\": \"Debug Hospital Website\",\n    \"prompt\": \"...\",\n    \"status\": \"PENDING\",\n    \"progress\": 0\n  }\n}\n```\n\nThis endpoint saves the project to MongoDB AND enqueues a BullMQ job for the worker."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ─── Create Project Tests ───",
+              "",
+              "const res = pm.response.json();",
+              "",
+              "pm.test('✅ Project created (201)', () => {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('✅ Success flag is true', () => {",
+              "    pm.expect(res.success).to.be.true;",
+              "});",
+              "",
+              "pm.test('✅ Project ID exists', () => {",
+              "    pm.expect(res.data._id).to.be.a('string').and.not.empty;",
+              "});",
+              "",
+              "pm.test('✅ Initial status is PENDING', () => {",
+              "    pm.expect(res.data.status).to.equal('PENDING');",
+              "});",
+              "",
+              "pm.test('✅ Initial progress is 0', () => {",
+              "    pm.expect(res.data.progress).to.equal(0);",
+              "});",
+              "",
+              "// Save project ID and reset polling state",
+              "pm.environment.set('projectId', res.data._id);",
+              "pm.environment.set('lastProgress', '0');",
+              "pm.environment.set('lastStatus', 'PENDING');",
+              "pm.environment.set('pollCount', '0');",
+              "",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🚀 PROJECT CREATED — GENERATION PIPELINE STARTED');",
+              "console.log('');",
+              "console.log('  Project ID: ' + res.data._id);",
+              "console.log('  Title:      ' + res.data.title);",
+              "console.log('  Status:     ' + res.data.status);",
+              "console.log('  Progress:   ' + res.data.progress + '%');",
+              "console.log('  Created:    ' + res.data.createdAt);",
+              "console.log('');",
+              "console.log('  ⏳ Worker job has been enqueued.');",
+              "console.log('  ⏳ Use \"Poll Project Status\" to watch progress.');",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "6. List Projects",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/projects",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "projects"]
+        },
+        "description": "## List all projects for the authenticated user\n\n**Method:** GET  \n**URL:** `{{baseUrl}}/api/projects`  \n**Auth:** Bearer `{{jwt}}`  \n\n**Expected Status:** 200  \n**Expected Response:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Projects retrieved successfully.\",\n  \"data\": [\n    {\n      \"_id\": \"...\",\n      \"title\": \"Debug Hospital Website\",\n      \"status\": \"PENDING\",\n      \"progress\": 0\n    }\n  ]\n}\n```"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ─── List Projects Tests ───",
+              "",
+              "const res = pm.response.json();",
+              "",
+              "pm.test('✅ Projects listed (200)', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('✅ Success flag is true', () => {",
+              "    pm.expect(res.success).to.be.true;",
+              "});",
+              "",
+              "pm.test('✅ Data is an array', () => {",
+              "    pm.expect(res.data).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('✅ At least one project exists', () => {",
+              "    pm.expect(res.data.length).to.be.greaterThan(0);",
+              "});",
+              "",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🟢 PROJECT LIST');",
+              "console.log('  Total Projects: ' + res.data.length);",
+              "res.data.forEach((p, i) => {",
+              "    console.log('');",
+              "    console.log('  [' + (i+1) + '] ' + p.title);",
+              "    console.log('      ID:       ' + p._id);",
+              "    console.log('      Status:   ' + p.status);",
+              "    console.log('      Progress: ' + p.progress + '%');",
+              "});",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "7. Get Project Details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "projects", "{{projectId}}"]
+        },
+        "description": "## Get full project details by ID\n\n**Method:** GET  \n**URL:** `{{baseUrl}}/api/projects/{{projectId}}`  \n**Auth:** Bearer `{{jwt}}`  \n\n**Expected Status:** 200  \n**Expected Response:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"...\",\n    \"status\": \"PENDING | PROCESSING | COMPLETED | FAILED\",\n    \"progress\": 0,\n    \"buildStatus\": \"PENDING\",\n    \"artifact\": null,\n    \"blueprint\": { ... },\n    \"error\": null\n  }\n}\n```"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ─── Get Project Details Tests ───",
+              "",
+              "const res = pm.response.json();",
+              "",
+              "pm.test('✅ Project details retrieved (200)', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('✅ Project ID matches', () => {",
+              "    pm.expect(res.data._id).to.equal(pm.environment.get('projectId'));",
+              "});",
+              "",
+              "pm.test('✅ Status field exists', () => {",
+              "    pm.expect(res.data.status).to.be.a('string');",
+              "});",
+              "",
+              "pm.test('✅ Progress field exists', () => {",
+              "    pm.expect(res.data.progress).to.be.a('number');",
+              "});",
+              "",
+              "const p = res.data;",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🟢 PROJECT DETAILS');",
+              "console.log('');",
+              "console.log('  Project ID:     ' + p._id);",
+              "console.log('  Title:          ' + p.title);",
+              "console.log('  Status:         ' + p.status);",
+              "console.log('  Progress:       ' + p.progress + '%');",
+              "console.log('  Build Status:   ' + (p.buildStatus || 'N/A'));",
+              "console.log('  Created:        ' + p.createdAt);",
+              "console.log('  Updated:        ' + p.updatedAt);",
+              "console.log('  Has Blueprint:  ' + (p.blueprint ? '✅ YES' : '❌ NO'));",
+              "console.log('  Has Artifact:   ' + (p.artifact ? '✅ YES' : '❌ NO'));",
+              "console.log('  Has Error:      ' + (p.error?.message ? '⚠️ ' + p.error.message : '❌ NO'));",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "8. Poll Project Status ↻",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "projects", "{{projectId}}"]
+        },
+        "description": "## Poll project status until COMPLETED or FAILED\n\n**Method:** GET  \n**URL:** `{{baseUrl}}/api/projects/{{projectId}}`  \n**Auth:** Bearer `{{jwt}}`  \n\n### How to use\n- **Manual:** Click Send repeatedly every 2-3 seconds\n- **Runner:** Use Postman Runner with a delay of 2000ms and set iterations to 40\n- **Monitor:** Watch the Console output for live status changes\n\n### Console Output Format\n```\n↓\nPROCESSING (40%)\nGenerating Components...\n```\n\n### Tracked Fields\n- Project ID\n- Status\n- Progress\n- Build Status\n- Blueprint (exists?)\n- Artifact / ZIP (exists?)\n- Error (if any)\n- Created / Updated timestamps\n\nThe test script automatically detects status changes and prints stage transitions."
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Increment poll count",
+              "let count = parseInt(pm.environment.get('pollCount') || '0');",
+              "count++;",
+              "pm.environment.set('pollCount', count.toString());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ─── Poll Project Status Tests ───",
+              "",
+              "const res = pm.response.json();",
+              "const p = res.data;",
+              "const pollNum = parseInt(pm.environment.get('pollCount') || '1');",
+              "const prevStatus = pm.environment.get('lastStatus') || 'PENDING';",
+              "const prevProgress = parseInt(pm.environment.get('lastProgress') || '0');",
+              "",
+              "pm.test('✅ Poll response (200)', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// ─── Stage Name Mapping ───",
+              "function getStageLabel(progress) {",
+              "    if (progress <= 0) return 'Queued';",
+              "    if (progress <= 5) return 'Initializing project...';",
+              "    if (progress <= 15) return 'Analyzing prompt...';",
+              "    if (progress <= 20) return 'Generating Blueprint...';",
+              "    if (progress <= 30) return 'Validating Blueprint...';",
+              "    if (progress <= 40) return 'Generating Components...';",
+              "    if (progress <= 50) return 'Planning Layout...';",
+              "    if (progress <= 60) return 'Planning 3D Scene...';",
+              "    if (progress <= 65) return 'Building React Project...';",
+              "    if (progress <= 80) return 'Writing Files...';",
+              "    if (progress <= 90) return 'Running npm install...';",
+              "    if (progress <= 94) return 'Running Build Verification...';",
+              "    if (progress <= 97) return 'Build Verification Complete';",
+              "    if (progress <= 99) return 'Creating ZIP...';",
+              "    return 'Finalizing...';",
+              "}",
+              "",
+              "// ─── Detect status change ───",
+              "const statusChanged = (p.status !== prevStatus);",
+              "const progressChanged = (p.progress !== prevProgress);",
+              "",
+              "if (statusChanged || progressChanged) {",
+              "    console.log('');",
+              "    console.log('↓');",
+              "    console.log(p.status + ' (' + p.progress + '%)');",
+              "    console.log(getStageLabel(p.progress));",
+              "    console.log('');",
+              "}",
+              "",
+              "// ─── Detailed status output ───",
+              "console.log('┌─ Poll #' + pollNum + ' ─────────────────────────────────┐');",
+              "console.log('│  Project ID:    ' + p._id);",
+              "console.log('│  Status:        ' + p.status);",
+              "console.log('│  Progress:      ' + p.progress + '%');",
+              "console.log('│  Stage:         ' + getStageLabel(p.progress));",
+              "console.log('│  Created:       ' + p.createdAt);",
+              "console.log('│  Updated:       ' + p.updatedAt);",
+              "console.log('│  Build Status:  ' + (p.buildStatus || 'N/A'));",
+              "console.log('│  Blueprint:     ' + (p.blueprint ? '✅ Present' : '⏳ Pending'));",
+              "console.log('│  ZIP Artifact:  ' + (p.artifact ? '✅ ' + (p.artifact.zipFileName || 'Ready') : '⏳ Pending'));",
+              "console.log('│  Error:         ' + (p.error?.message || 'None'));",
+              "console.log('└────────────────────────────────────────────┘');",
+              "",
+              "// ─── Progress validation ───",
+              "if (progressChanged && p.progress > 0) {",
+              "    pm.test('✅ Progress increased: ' + prevProgress + '% → ' + p.progress + '%', () => {",
+              "        pm.expect(p.progress).to.be.at.least(prevProgress);",
+              "    });",
+              "}",
+              "",
+              "// ─── Status transition validation ───",
+              "const validTransitions = {",
+              "    'PENDING': ['PROCESSING', 'FAILED'],",
+              "    'PROCESSING': ['PROCESSING', 'REPAIRING', 'BUILDING', 'COMPLETED', 'FAILED'],",
+              "    'REPAIRING': ['PROCESSING', 'BUILDING', 'COMPLETED', 'FAILED'],",
+              "    'BUILDING': ['COMPLETED', 'FAILED']",
+              "};",
+              "",
+              "if (statusChanged && prevStatus !== p.status) {",
+              "    const allowed = validTransitions[prevStatus] || [];",
+              "    pm.test('✅ Valid status transition: ' + prevStatus + ' → ' + p.status, () => {",
+              "        pm.expect(allowed).to.include(p.status);",
+              "    });",
+              "}",
+              "",
+              "// ─── Update tracking state ───",
+              "pm.environment.set('lastStatus', p.status);",
+              "pm.environment.set('lastProgress', p.progress.toString());",
+              "",
+              "// ─── Terminal states ───",
+              "if (p.status === 'COMPLETED') {",
+              "    pm.test('✅ Final status is COMPLETED', () => {",
+              "        pm.expect(p.status).to.equal('COMPLETED');",
+              "    });",
+              "",
+              "    pm.test('✅ Progress is 100%', () => {",
+              "        pm.expect(p.progress).to.equal(100);",
+              "    });",
+              "",
+              "    pm.test('✅ Build status is SUCCESS', () => {",
+              "        pm.expect(p.buildStatus).to.equal('SUCCESS');",
+              "    });",
+              "",
+              "    if (p.artifact) {",
+              "        pm.test('✅ ZIP artifact exists', () => {",
+              "            pm.expect(p.artifact).to.be.an('object');",
+              "            pm.expect(p.artifact.zipPath).to.be.a('string');",
+              "        });",
+              "        pm.environment.set('zipPath', p.artifact.zipPath || '');",
+              "        pm.environment.set('zipFileName', p.artifact.zipFileName || '');",
+              "    }",
+              "",
+              "    if (p.blueprint) {",
+              "        pm.test('✅ Blueprint exists', () => {",
+              "            pm.expect(p.blueprint).to.be.an('object');",
+              "        });",
+              "    }",
+              "",
+              "    console.log('');",
+              "    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "    console.log('🎉 GENERATION COMPLETE!');",
+              "    console.log('');",
+              "    console.log('  Status:       COMPLETED ✅');",
+              "    console.log('  Progress:     100%');",
+              "    console.log('  Build:        ' + p.buildStatus);",
+              "    console.log('  ZIP File:     ' + (p.artifact?.zipFileName || 'N/A'));",
+              "    console.log('  ZIP Path:     ' + (p.artifact?.zipPath || 'N/A'));",
+              "    console.log('  ZIP Size:     ' + (p.artifact?.zipSize ? (p.artifact.zipSize / 1024).toFixed(1) + ' KB' : 'N/A'));",
+              "    console.log('  Started:      ' + (p.startedAt || 'N/A'));",
+              "    console.log('  Completed:    ' + (p.completedAt || 'N/A'));",
+              "    console.log('  Poll Count:   ' + pollNum);",
+              "    console.log('');",
+              "    console.log('  ✅ Pipeline finished. Stop polling.');",
+              "    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "",
+              "} else if (p.status === 'FAILED') {",
+              "    pm.test('❌ Project FAILED', () => {",
+              "        pm.expect.fail('Project generation failed: ' + (p.error?.message || 'Unknown'));",
+              "    });",
+              "",
+              "    console.log('');",
+              "    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "    console.log('❌ GENERATION FAILED');",
+              "    console.log('');",
+              "    console.log('  Status:       FAILED');",
+              "    console.log('  Progress:     ' + p.progress + '%');",
+              "    console.log('  Failed Stage: ' + (p.failedStage || 'N/A'));",
+              "    console.log('  Error:        ' + (p.error?.message || 'N/A'));",
+              "    console.log('  Error Type:   ' + (p.error?.errorType || 'N/A'));",
+              "    console.log('  Error Code:   ' + (p.error?.code || 'N/A'));",
+              "    console.log('  Build Status: ' + (p.buildStatus || 'N/A'));",
+              "    console.log('  Build Logs:   ' + (p.buildLogs ? 'Available' : 'N/A'));",
+              "    console.log('  Poll Count:   ' + pollNum);",
+              "    console.log('');",
+              "    console.log('  ❌ Pipeline failed. Stop polling.');",
+              "    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "} else {",
+              "    // Still in progress — continue polling",
+              "    pm.test('⏳ Generation in progress (' + p.progress + '%)', () => {",
+              "        pm.expect(['PENDING', 'PROCESSING', 'REPAIRING', 'BUILDING']).to.include(p.status);",
+              "    });",
+              "}"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "9. Verify ZIP Artifact",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "projects", "{{projectId}}"]
+        },
+        "description": "## Verify the completed project has a ZIP artifact\n\n**Method:** GET  \n**URL:** `{{baseUrl}}/api/projects/{{projectId}}`  \n**Auth:** Bearer `{{jwt}}`  \n\nRun this AFTER polling shows COMPLETED.  \nThis step verifies the ZIP artifact metadata exists in the project document.\n\n**Expected:** `artifact.zipPath` should point to a valid file path on the server filesystem.\n\n> **Note:** The current backend does not expose a `/download` HTTP endpoint.  \n> The ZIP is stored on the server's filesystem at `artifact.zipPath`.  \n> To download, you would need either:\n> - Direct filesystem access to the server\n> - A static file serving route (not yet implemented)\n> - An S3/cloud storage URL (not yet implemented)"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ─── Verify ZIP Artifact Tests ───",
+              "",
+              "const res = pm.response.json();",
+              "const p = res.data;",
+              "",
+              "pm.test('✅ Project retrieved (200)', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('✅ Status is COMPLETED', () => {",
+              "    pm.expect(p.status).to.equal('COMPLETED');",
+              "});",
+              "",
+              "pm.test('✅ Artifact object exists', () => {",
+              "    pm.expect(p.artifact).to.be.an('object');",
+              "});",
+              "",
+              "if (p.artifact) {",
+              "    pm.test('✅ ZIP path exists', () => {",
+              "        pm.expect(p.artifact.zipPath).to.be.a('string').and.not.empty;",
+              "    });",
+              "",
+              "    pm.test('✅ ZIP filename exists', () => {",
+              "        pm.expect(p.artifact.zipFileName).to.be.a('string').and.not.empty;",
+              "    });",
+              "",
+              "    pm.test('✅ ZIP size is positive', () => {",
+              "        pm.expect(p.artifact.zipSize).to.be.a('number').and.to.be.greaterThan(0);",
+              "    });",
+              "",
+              "    pm.environment.set('zipPath', p.artifact.zipPath);",
+              "    pm.environment.set('zipFileName', p.artifact.zipFileName);",
+              "}",
+              "",
+              "pm.test('✅ Blueprint was stored', () => {",
+              "    pm.expect(p.blueprint).to.be.an('object');",
+              "});",
+              "",
+              "pm.test('✅ Build status is SUCCESS', () => {",
+              "    pm.expect(p.buildStatus).to.equal('SUCCESS');",
+              "});",
+              "",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🟢 ZIP ARTIFACT VERIFICATION');",
+              "console.log('');",
+              "console.log('  Project ID:    ' + p._id);",
+              "console.log('  Status:        ' + p.status);",
+              "console.log('  Build Status:  ' + p.buildStatus);",
+              "console.log('');",
+              "console.log('  ── Artifact ──');",
+              "console.log('  ZIP Path:      ' + (p.artifact?.zipPath || 'MISSING'));",
+              "console.log('  ZIP File:      ' + (p.artifact?.zipFileName || 'MISSING'));",
+              "console.log('  ZIP Size:      ' + (p.artifact?.zipSize ? (p.artifact.zipSize / 1024).toFixed(1) + ' KB' : 'MISSING'));",
+              "console.log('  Generated At:  ' + (p.artifact?.generatedAt || 'MISSING'));",
+              "console.log('');",
+              "console.log('  ── Blueprint ──');",
+              "console.log('  Version:       ' + (p.blueprint?.version || 'N/A'));",
+              "console.log('  Brand Name:    ' + (p.blueprint?.brand?.name || p.blueprint?.website_name || 'N/A'));",
+              "console.log('  Sections:      ' + (p.blueprint?.sections?.length || 'N/A'));",
+              "console.log('');",
+              "console.log('  ── Repair ──');",
+              "console.log('  Attempts:      ' + (p.repair?.totalAttempts || 0));",
+              "console.log('  Success:       ' + (p.repair?.success !== undefined ? p.repair.success : 'N/A'));",
+              "console.log('');",
+              "console.log('  ── Timing ──');",
+              "console.log('  Started:       ' + (p.startedAt || 'N/A'));",
+              "console.log('  Completed:     ' + (p.completedAt || 'N/A'));",
+              "console.log('  Build Started: ' + (p.buildStartedAt || 'N/A'));",
+              "console.log('  Build Done:    ' + (p.buildCompletedAt || 'N/A'));",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('');",
+              "console.log('📁 To access the ZIP file, check the server filesystem at:');",
+              "console.log('   ' + (p.artifact?.zipPath || 'N/A'));",
+              "console.log('');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "── AI Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/ai/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "ai", "health"]
+        },
+        "description": "## AI Health Check (utility)\n\n**Method:** GET  \n**URL:** `{{baseUrl}}/api/ai/health`  \n**Auth:** None  \n\nReturns server status, configured AI providers, Node version, MongoDB status."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const res = pm.response.json();",
+              "",
+              "pm.test('✅ Health check OK', () => {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(res.status).to.equal('ok');",
+              "});",
+              "",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🟢 AI HEALTH CHECK');",
+              "console.log('  Status:    ' + res.status);",
+              "console.log('  Node:      ' + res.env?.node);",
+              "console.log('  Port:      ' + res.env?.port);",
+              "console.log('  MongoDB:   ' + res.env?.mongodb);",
+              "console.log('  Providers: ' + (res.config?.providers?.join(', ') || 'None'));",
+              "console.log('  Has AI:    ' + res.config?.hasAnyAI);",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "── Server Root",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        },
+        "description": "## Server Root (utility)\n\n**Method:** GET  \n**URL:** `{{baseUrl}}/`  \n**Auth:** None  \n\nReturns the API root message and available endpoint listing."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const res = pm.response.json();",
+              "",
+              "pm.test('✅ Server is alive', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🟢 SERVER ROOT');",
+              "console.log('  Message: ' + res.message);",
+              "console.log('  Endpoints:');",
+              "Object.entries(res.endpoints || {}).forEach(([k, v]) => {",
+              "    console.log('    ' + k + ': ' + v);",
+              "});",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "── Delete Project (cleanup)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "projects", "{{projectId}}"]
+        },
+        "description": "## Delete a project (cleanup utility)\n\n**Method:** DELETE  \n**URL:** `{{baseUrl}}/api/projects/{{projectId}}`  \n**Auth:** Bearer `{{jwt}}`  \n\nUse this to clean up test projects after debugging."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const res = pm.response.json();",
+              "",
+              "pm.test('✅ Project deleted (200)', () => {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(res.success).to.be.true;",
+              "});",
+              "",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+              "console.log('🗑️ PROJECT DELETED');",
+              "console.log('  ID: ' + pm.environment.get('projectId'));",
+              "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');"
+            ]
+          }
+        }
+      ],
+      "response": []
+    }
+  ]
+}

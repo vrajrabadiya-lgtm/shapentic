@@ -8,6 +8,8 @@
  * Each archetype produces a structurally different Hero, Scene, and Section.
  */
 
+import { getIndustryHeroData, inferBusinessType } from './BlueprintGenerator.js'
+
 // ─── Colour helpers ────────────────────────────────────────────────────────────
 
 function hex2rgb(hex) {
@@ -552,9 +554,9 @@ function detectSceneType(subject, concept) {
 
 function buildSceneJSX(blueprint) {
   const scene   = blueprint?.cinematic_3d_scene ?? {}
-  const ds      = blueprint?.design_system?.color_palette ?? {}
-  const primary = ds.primary ?? '#6366f1'
-  const accent  = ds.accent  ?? '#a78bfa'
+  const ds      = blueprint?.palette ?? blueprint?.design_system?.color_palette ?? blueprint?.designSystem ?? {}
+  const primary = ds.primary ?? ds.primaryColor ?? '#6366f1'
+  const accent  = ds.accent  ?? ds.accentColor  ?? '#a78bfa'
   const subject = scene.main_3d_subject ?? scene.scene_type ?? ''
   const concept = blueprint?.creative_concept?.business_type ?? ''
 
@@ -587,16 +589,37 @@ export default function Cinematic3DScene({ style = {} }) {
 
 // ─── Hero builders per archetype ───────────────────────────────────────────────
 
+function getMasterHeroData(blueprint) {
+  const ds = blueprint?.palette ?? blueprint?.design_system?.color_palette ?? blueprint?.designSystem ?? {}
+  const bg = ds.background ?? ds.backgroundColor ?? '#0a0a0f'
+  const primary = ds.primary ?? ds.primaryColor ?? '#6366f1'
+  const accent = ds.accent ?? ds.accentColor ?? '#a78bfa'
+  const surface = ds.surface ?? ds.surfaceColor ?? '#14141a'
+  const text = ds.text ?? ds.textColor ?? '#ffffff'
+
+  const prompt = blueprint?.meta?.prompt || blueprint?.creative_concept?.business_type || ''
+  const bt = blueprint?.creative_concept?.business_type ?? blueprint?.concept?.businessType ?? inferBusinessType(prompt)
+  const name = blueprint?.creative_concept?.website_name ?? blueprint?.concept?.websiteName ?? '3D Platform'
+  const defaults = getIndustryHeroData(bt, name)
+
+  const hero = blueprint?.hero ?? blueprint?.websiteBlueprint?.hero ?? {}
+  const badge = hero.badge || blueprint?.creative_concept?.business_type || defaults.badge
+  const rawHeadline = hero.heading || hero.headline || defaults.heading || ''
+  const headline = rawHeadline.replace(/\\n/g, '\n')
+  const subheadline = hero.subheading || hero.subheadline || defaults.subheading
+  const description = hero.description || defaults.description
+  const primary_cta = hero.cta || hero.cta_primary || hero.primary_cta || defaults.cta
+  const secondary_cta = hero.cta_secondary || hero.secondary_cta || defaults.cta_secondary
+
+  return { bg, primary, accent, surface, text, badge, headline, subheadline, description, primary_cta, secondary_cta }
+}
+
 function heroA(blueprint) {
   // Layout-A: Fullscreen 3D, floating glass panel overlay
-  const ds = blueprint?.design_system?.color_palette ?? {}
-  const hero = blueprint?.hero ?? {}
-  const bg = ds.background ?? '#0a0a0f'
-  const primary = ds.primary ?? '#6366f1'
-  const text = ds.text ?? '#ffffff'
+  const { bg, primary, text, badge, headline, subheadline, description, primary_cta, secondary_cta } = getMasterHeroData(blueprint)
 
   return `import { motion } from 'framer-motion'
-import Cinematic3DScene from './Cinematic3DScene'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
 
 export default function Hero() {
   return (
@@ -628,30 +651,38 @@ export default function Hero() {
           transition={{ delay: 0.2 }}
           style={{ color: '${primary}', fontSize: '0.85rem', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '1rem' }}
         >
-          ${blueprint?.creative_concept?.business_type ?? 'Next Generation Platform'}
-        </p>
+          ${badge}
+        </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)', fontWeight: 800, color: '${text}', lineHeight: 1.1, marginBottom: '1.2rem' }}
+          style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)', fontWeight: 800, color: '${text}', lineHeight: 1.1, marginBottom: '1.2rem', whiteSpace: 'pre-line' }}
         >
-          ${hero.headline ?? 'The Future Is Here'}
+          ${headline}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '2rem' }}
+          style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', fontWeight: 600, lineHeight: 1.5, marginBottom: '0.8rem' }}
         >
-          ${hero.subheadline ?? 'Powerful tools that transform the way you work.'}
+          ${subheadline}
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.55 }}
+          style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '2rem' }}
+        >
+          ${description}
         </motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }} style={{ display: 'flex', gap: '1rem' }}>
           <button style={{ background: '${primary}', color: '#fff', border: 'none', borderRadius: '50px', padding: '0.85rem 2rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
-            ${hero.primary_cta ?? 'Get Started'}
+            ${primary_cta}
           </button>
           <button style={{ background: 'transparent', color: '${text}', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '50px', padding: '0.85rem 2rem', fontWeight: 600, cursor: 'pointer', fontSize: '0.95rem' }}>
-            ${hero.secondary_cta ?? 'Watch Demo'}
+            ${secondary_cta}
           </button>
         </motion.div>
       </motion.div>
@@ -662,15 +693,10 @@ export default function Hero() {
 
 function heroB(blueprint) {
   // Layout-B: 50/50 split — left text, right 3D
-  const ds = blueprint?.design_system?.color_palette ?? {}
-  const hero = blueprint?.hero ?? {}
-  const bg = ds.background ?? '#0a0a0f'
-  const primary = ds.primary ?? '#6366f1'
-  const accent = ds.accent ?? '#a78bfa'
-  const text = ds.text ?? '#ffffff'
+  const { bg, primary, accent, text, badge, headline, subheadline, description, primary_cta, secondary_cta } = getMasterHeroData(blueprint)
 
   return `import { motion } from 'framer-motion'
-import Cinematic3DScene from './Cinematic3DScene'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
 
 export default function Hero() {
   return (
@@ -683,13 +709,16 @@ export default function Hero() {
         style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 6% 0 8%' }}
       >
         <span style={{ display: 'inline-block', background: '${primary}22', color: '${primary}', borderRadius: '4px', padding: '0.3rem 0.8rem', fontSize: '0.78rem', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '1.5rem', width: 'fit-content' }}>
-          ${blueprint?.creative_concept?.business_type ?? 'Platform'}
+          ${badge}
         </span>
-        <h1 style={{ fontSize: 'clamp(2.4rem, 4.5vw, 4rem)', fontWeight: 900, color: '${text}', lineHeight: 1.05, marginBottom: '1.5rem' }}>
-          ${hero.headline ?? 'Build the Future'}
+        <h1 style={{ fontSize: 'clamp(2.4rem, 4.5vw, 4rem)', fontWeight: 900, color: '${text}', lineHeight: 1.05, marginBottom: '1.5rem', whiteSpace: 'pre-line' }}>
+          ${headline}
         </h1>
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.05rem', lineHeight: 1.75, maxWidth: '440px', marginBottom: '2.5rem' }}>
-          ${hero.subheadline ?? 'Everything you need to launch, grow, and scale.'}
+        <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6, maxWidth: '460px', marginBottom: '0.8rem' }}>
+          ${subheadline}
+        </p>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', lineHeight: 1.75, maxWidth: '460px', marginBottom: '2.5rem' }}>
+          ${description}
         </p>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <motion.button
@@ -697,13 +726,13 @@ export default function Hero() {
             whileTap={{ scale: 0.97 }}
             style={{ background: 'linear-gradient(135deg, ${primary}, ${accent})', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.9rem 2.2rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}
           >
-            ${hero.primary_cta ?? 'Start Free'}
+            ${primary_cta}
           </motion.button>
           <motion.button
             whileHover={{ borderColor: '${primary}', color: '${primary}' }}
             style={{ background: 'transparent', color: '${text}', border: '1.5px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '0.9rem 2.2rem', fontWeight: 600, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s' }}
           >
-            ${hero.secondary_cta ?? 'See How It Works'}
+            ${secondary_cta}
           </motion.button>
         </div>
       </motion.div>
@@ -726,15 +755,10 @@ export default function Hero() {
 
 function heroC(blueprint) {
   // Layout-C: Editorial magazine — giant typography, no traditional hero
-  const ds = blueprint?.design_system?.color_palette ?? {}
-  const hero = blueprint?.hero ?? {}
-  const bg = ds.background ?? '#f5f0e8'
-  const primary = ds.primary ?? '#1a1a2e'
-  const accent = ds.accent ?? '#e94560'
-  const text = ds.text ?? '#1a1a1a'
+  const { bg, primary, accent, text, badge, headline, subheadline, description, primary_cta, secondary_cta } = getMasterHeroData(blueprint)
 
   return `import { motion } from 'framer-motion'
-import Cinematic3DScene from './Cinematic3DScene'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
 
 export default function Hero() {
   return (
@@ -746,7 +770,7 @@ export default function Hero() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
             style={{ color: '${accent}', fontSize: '0.8rem', letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 700, paddingTop: '0.5rem' }}
           >
-            ${blueprint?.creative_concept?.business_type ?? 'Editorial'}
+            ${badge}
           </motion.span>
           <motion.span
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
@@ -761,9 +785,9 @@ export default function Hero() {
 
         <motion.h1
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}
-          style={{ fontSize: 'clamp(3.5rem, 9vw, 9rem)', fontWeight: 900, color: '${primary}', lineHeight: 0.92, letterSpacing: '-0.03em', marginBottom: '3rem' }}
+          style={{ fontSize: 'clamp(3.5rem, 9vw, 9rem)', fontWeight: 900, color: '${primary}', lineHeight: 0.92, letterSpacing: '-0.03em', marginBottom: '3rem', whiteSpace: 'pre-line' }}
         >
-          ${hero.headline ?? 'The New Standard'}
+          ${headline}
         </motion.h1>
 
         {/* Asymmetric grid */}
@@ -771,16 +795,22 @@ export default function Hero() {
           <div>
             <motion.p
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
-              style={{ fontSize: '1.25rem', color: 'rgba(0,0,0,0.65)', lineHeight: 1.7, marginBottom: '2.5rem', maxWidth: '520px' }}
+              style={{ fontSize: '1.35rem', fontWeight: 600, color: 'rgba(0,0,0,0.85)', lineHeight: 1.5, marginBottom: '1rem', maxWidth: '540px' }}
             >
-              ${hero.subheadline ?? 'A new way of thinking about design, craft, and the future of digital experience.'}
+              ${subheadline}
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              style={{ fontSize: '1.05rem', color: 'rgba(0,0,0,0.65)', lineHeight: 1.7, marginBottom: '2.5rem', maxWidth: '540px' }}
+            >
+              ${description}
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} style={{ display: 'flex', gap: '1.2rem' }}>
               <button style={{ background: '${primary}', color: '#fff', border: 'none', padding: '1rem 2.5rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', letterSpacing: '0.05em' }}>
-                ${hero.primary_cta ?? 'Explore'}
+                ${primary_cta}
               </button>
               <button style={{ background: 'transparent', color: '${primary}', border: '2px solid ${primary}', padding: '1rem 2.5rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
-                ${hero.secondary_cta ?? 'Read More'}
+                ${secondary_cta}
               </button>
             </motion.div>
           </div>
@@ -798,18 +828,12 @@ export default function Hero() {
 
 function heroD(blueprint) {
   // Layout-D: Bento grid of cards
-  const ds = blueprint?.design_system?.color_palette ?? {}
-  const hero = blueprint?.hero ?? {}
-  const bg = ds.background ?? '#0c0c10'
-  const primary = ds.primary ?? '#6366f1'
-  const accent = ds.accent ?? '#f59e0b'
-  const text = ds.text ?? '#ffffff'
-  const surface = ds.surface ?? '#18181f'
+  const { bg, primary, accent, surface, text, badge, headline, subheadline, description, primary_cta, secondary_cta } = getMasterHeroData(blueprint)
   const sections = blueprint?.sections ?? []
   const features = sections.find(s => s.type === 'features' || s.type === 'services')?.content ?? []
 
   return `import { motion } from 'framer-motion'
-import Cinematic3DScene from './Cinematic3DScene'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
 
 const cards = ${JSON.stringify(features.slice(0, 4).map((f, i) => ({ title: f?.title ?? f ?? `Feature ${i + 1}`, desc: f?.description ?? '' })))}
 
@@ -829,16 +853,19 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
           style={{ gridColumn: 'span 2', background: '${surface}', borderRadius: '20px', padding: '3rem', border: '1px solid rgba(255,255,255,0.07)' }}
         >
-          <p style={{ color: '${primary}', fontSize: '0.8rem', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '1rem' }}>${blueprint?.creative_concept?.business_type ?? 'Platform'}</p>
-          <h1 style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: 900, color: '${text}', lineHeight: 1.1, marginBottom: '1.2rem' }}>
-            ${hero.headline ?? 'Everything in One Place'}
+          <p style={{ color: '${primary}', fontSize: '0.8rem', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '1rem' }}>${badge}</p>
+          <h1 style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: 900, color: '${text}', lineHeight: 1.1, marginBottom: '1.2rem', whiteSpace: 'pre-line' }}>
+            ${headline}
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: '440px', marginBottom: '2rem' }}>
-            ${hero.subheadline ?? 'Your complete toolkit, beautifully unified.'}
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', fontWeight: 600, lineHeight: 1.5, maxWidth: '460px', marginBottom: '0.6rem' }}>
+            ${subheadline}
+          </p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: '460px', marginBottom: '2rem', fontSize: '0.9rem' }}>
+            ${description}
           </p>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button style={{ background: '${primary}', color: '#fff', border: 'none', borderRadius: '10px', padding: '0.8rem 2rem', fontWeight: 700, cursor: 'pointer' }}>${hero.primary_cta ?? 'Get Started'}</button>
-            <button style={{ background: 'transparent', color: '${text}', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.8rem 2rem', cursor: 'pointer' }}>${hero.secondary_cta ?? 'Learn More'}</button>
+            <button style={{ background: '${primary}', color: '#fff', border: 'none', borderRadius: '10px', padding: '0.8rem 2rem', fontWeight: 700, cursor: 'pointer' }}>${primary_cta}</button>
+            <button style={{ background: 'transparent', color: '${text}', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.8rem 2rem', cursor: 'pointer' }}>${secondary_cta}</button>
           </div>
         </motion.div>
 
@@ -872,15 +899,10 @@ export default function Hero() {
 
 function heroE(blueprint) {
   // Layout-E: Minimal whitespace — huge centred headline
-  const ds = blueprint?.design_system?.color_palette ?? {}
-  const hero = blueprint?.hero ?? {}
-  const bg = ds.background ?? '#fafafa'
-  const primary = ds.primary ?? '#111111'
-  const accent = ds.accent ?? '#ff3b30'
-  const text = ds.text ?? '#111111'
+  const { bg, primary, accent, text, badge, headline, subheadline, description, primary_cta, secondary_cta } = getMasterHeroData(blueprint)
 
   return `import { motion } from 'framer-motion'
-import Cinematic3DScene from './Cinematic3DScene'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
 
 export default function Hero() {
   return (
@@ -889,21 +911,28 @@ export default function Hero() {
         initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
         style={{ color: '${accent}', fontSize: '0.78rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '2rem' }}
       >
-        ${blueprint?.creative_concept?.business_type ?? 'Introducing'}
+        ${badge}
       </motion.p>
 
       <motion.h1
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.1 }}
-        style={{ fontSize: 'clamp(3.5rem, 10vw, 8rem)', fontWeight: 900, color: '${text}', lineHeight: 0.9, letterSpacing: '-0.04em', maxWidth: '900px', marginBottom: '2.5rem' }}
+        style={{ fontSize: 'clamp(3.5rem, 10vw, 8rem)', fontWeight: 900, color: '${text}', lineHeight: 0.9, letterSpacing: '-0.04em', maxWidth: '900px', marginBottom: '2.5rem', whiteSpace: 'pre-line' }}
       >
-        ${hero.headline ?? 'Less is More'}
+        ${headline}
       </motion.h1>
 
       <motion.p
-        initial={{ opacity: 0 }} animate={{ opacity: 0.65 }} transition={{ delay: 0.35 }}
-        style={{ fontSize: '1.15rem', color: '${text}', lineHeight: 1.7, maxWidth: '500px', marginBottom: '3rem' }}
+        initial={{ opacity: 0 }} animate={{ opacity: 0.85 }} transition={{ delay: 0.35 }}
+        style={{ fontSize: '1.25rem', fontWeight: 600, color: '${text}', lineHeight: 1.5, maxWidth: '580px', marginBottom: '1rem' }}
       >
-        ${hero.subheadline ?? 'Beautifully simple tools for complex problems.'}
+        ${subheadline}
+      </motion.p>
+
+      <motion.p
+        initial={{ opacity: 0 }} animate={{ opacity: 0.6 }} transition={{ delay: 0.4 }}
+        style={{ fontSize: '1.05rem', color: '${text}', lineHeight: 1.7, maxWidth: '580px', marginBottom: '3rem' }}
+      >
+        ${description}
       </motion.p>
 
       <motion.button
@@ -912,7 +941,7 @@ export default function Hero() {
         whileTap={{ scale: 0.97 }}
         style={{ background: '${primary}', color: '${bg}', border: 'none', borderRadius: '50px', padding: '1rem 3rem', fontWeight: 700, cursor: 'pointer', fontSize: '1rem', letterSpacing: '0.02em' }}
       >
-        ${hero.primary_cta ?? 'Get Started'}
+        ${primary_cta}
       </motion.button>
 
       {/* 3D object floats below */}
@@ -929,17 +958,12 @@ export default function Hero() {
 
 function heroF(blueprint) {
   // Layout-F: Dashboard — left sidebar + right panels
-  const ds = blueprint?.design_system?.color_palette ?? {}
-  const hero = blueprint?.hero ?? {}
-  const bg = ds.background ?? '#0f0f13'
-  const primary = ds.primary ?? '#3b82f6'
-  const surface = ds.surface ?? '#1a1a24'
-  const text = ds.text ?? '#e2e8f0'
+  const { bg, primary, surface, text, badge, headline, subheadline, description } = getMasterHeroData(blueprint)
   const sections = blueprint?.sections ?? []
   const stats = sections.find(s => s.type === 'stats')?.content ?? []
 
   return `import { motion } from 'framer-motion'
-import Cinematic3DScene from './Cinematic3DScene'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
 
 const navItems = ['Dashboard', 'Analytics', 'Projects', 'Team', 'Settings']
 const statItems = ${JSON.stringify(stats.slice(0, 4).map((s, i) => ({ label: s?.label ?? s ?? `Metric ${i + 1}`, value: s?.value ?? `${(i + 1) * 24}K` })))}
@@ -963,8 +987,10 @@ export default function Hero() {
       {/* Main area */}
       <div style={{ flex: 1, padding: '2rem', overflow: 'auto', display: 'grid', gridTemplateRows: 'auto 1fr', gap: '1.5rem' }}>
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <h1 style={{ color: '${text}', fontSize: '1.6rem', fontWeight: 700, marginBottom: '0.3rem' }}>${hero.headline ?? 'Welcome Back'}</h1>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>${hero.subheadline ?? 'Here is what is happening today.'}</p>
+          <span style={{ display: 'inline-block', color: '${primary}', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.4rem' }}>${badge}</span>
+          <h1 style={{ color: '${text}', fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.4rem', whiteSpace: 'pre-line' }}>${headline}</h1>
+          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem', fontWeight: 600, marginBottom: '0.3rem' }}>${subheadline}</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.88rem' }}>${description}</p>
         </motion.div>
 
         {/* Panels grid */}
@@ -997,22 +1023,19 @@ export default function Hero() {
 
 function heroH(blueprint) {
   // Layout-H: Scroll-snap storytelling
-  const ds = blueprint?.design_system?.color_palette ?? {}
-  const hero = blueprint?.hero ?? {}
-  const sections = blueprint?.sections ?? []
-  const bg = ds.background ?? '#0a0a0f'
-  const primary = ds.primary ?? '#6366f1'
-  const text = ds.text ?? '#ffffff'
+  const { bg, primary, text, badge, headline, subheadline, description } = getMasterHeroData(blueprint)
+  const ds = blueprint?.design_system?.color_palette ?? blueprint?.palette ?? {}
+  const sections = blueprint?.sections ?? blueprint?.pages?.find(p => p.name === 'Home')?.sections ?? []
 
   const snapSections = [
-    { bg: bg, headline: hero.headline ?? 'Your Story Begins', sub: hero.subheadline ?? 'Scroll to discover.', color: text },
-    { bg: primary + 'cc', headline: sections[1]?.title ?? 'The Problem', sub: sections[1]?.subtitle ?? 'Old ways hold you back.', color: '#fff' },
-    { bg: ds.secondary ?? '#7c3aed', headline: sections[2]?.title ?? 'Our Solution', sub: sections[2]?.subtitle ?? 'Rebuilt from the ground up.', color: '#fff' },
-    { bg: ds.accent ?? '#f59e0b', headline: sections[3]?.title ?? 'The Outcome', sub: sections[3]?.subtitle ?? 'Results that speak for themselves.', color: '#000' },
+    { bg: bg, badge: badge, headline: headline, sub: `${subheadline}\n\n${description}`, color: text },
+    { bg: primary + 'cc', badge: 'Section 01', headline: sections[1]?.title ?? sections[1]?.content?.headline ?? 'The Problem', sub: sections[1]?.subtitle ?? sections[1]?.content?.subheadline ?? 'Old ways hold you back.', color: '#fff' },
+    { bg: ds.secondary ?? '#7c3aed', badge: 'Section 02', headline: sections[2]?.title ?? sections[2]?.content?.headline ?? 'Our Solution', sub: sections[2]?.subtitle ?? sections[2]?.content?.subheadline ?? 'Rebuilt from the ground up.', color: '#fff' },
+    { bg: ds.accent ?? '#f59e0b', badge: 'Section 03', headline: sections[3]?.title ?? sections[3]?.content?.headline ?? 'The Outcome', sub: sections[3]?.subtitle ?? sections[3]?.content?.subheadline ?? 'Results that speak for themselves.', color: '#000' },
   ]
 
   return `import { motion } from 'framer-motion'
-import Cinematic3DScene from './Cinematic3DScene'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
 
 const snapSections = ${JSON.stringify(snapSections)}
 
@@ -1032,15 +1055,20 @@ export default function Hero() {
               <Cinematic3DScene />
             </div>
           )}
+          {s.badge && (
+            <span style={{ color: s.color, opacity: 0.7, fontSize: '0.8rem', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '1.2rem', fontWeight: 700 }}>
+              {s.badge}
+            </span>
+          )}
           <motion.h2
             initial={{ y: 40, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ delay: 0.15, duration: 0.7 }}
-            style={{ fontSize: 'clamp(2.5rem, 6vw, 5.5rem)', fontWeight: 900, color: s.color, lineHeight: 1.0, letterSpacing: '-0.02em', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}
+            style={{ fontSize: 'clamp(2.5rem, 6vw, 5.5rem)', fontWeight: 900, color: s.color, lineHeight: 1.0, letterSpacing: '-0.02em', marginBottom: '1.5rem', position: 'relative', zIndex: 1, whiteSpace: 'pre-line' }}
           >
             {s.headline}
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0 }} whileInView={{ opacity: 0.7 }} transition={{ delay: 0.3 }}
-            style={{ color: s.color, fontSize: '1.1rem', maxWidth: '520px', lineHeight: 1.7, position: 'relative', zIndex: 1 }}
+            initial={{ opacity: 0 }} whileInView={{ opacity: 0.8 }} transition={{ delay: 0.3 }}
+            style={{ color: s.color, fontSize: '1.1rem', maxWidth: '560px', lineHeight: 1.7, position: 'relative', zIndex: 1, whiteSpace: 'pre-line' }}
           >
             {s.sub}
           </motion.p>
@@ -1057,6 +1085,222 @@ export default function Hero() {
 }`
 }
 
+function heroG(blueprint) {
+  // Layout-G: Fullscreen Immersive Hero
+  const { bg, primary, text, badge, headline, subheadline, description, cta1, cta2 } = getMasterHeroData(blueprint)
+  return `import { motion } from 'framer-motion'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
+
+export default function Hero() {
+  return (
+    <section style={{ background: '${bg}', minHeight: '100vh', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '5rem', paddingLeft: '2rem', paddingRight: '2rem' }}>
+      <div style={{ position: 'absolute', inset: 0, opacity: 0.85, pointerEvents: 'none' }}>
+        <Cinematic3DScene />
+      </div>
+      <div style={{ position: 'relative', zIndex: 10, maxWidth: '1000px', width: '100%', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', borderRadius: '24px', padding: '3rem', border: '1px solid rgba(255,255,255,0.12)', color: '${text}' }}>
+        <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ color: '${primary}', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 700, display: 'block', marginBottom: '1rem' }}>
+          ${badge}
+        </motion.span>
+        <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} style={{ fontSize: 'clamp(2.5rem, 5vw, 4.8rem)', fontWeight: 900, marginBottom: '1rem', lineHeight: 1.1 }}>
+          ${headline}
+        </motion.h1>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: '1.2rem', marginBottom: '1rem', opacity: 0.9 }}>
+          ${subheadline}
+        </motion.p>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: '0.95rem', marginBottom: '2rem', opacity: 0.6, maxWidth: '600px' }}>
+          ${description}
+        </motion.p>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <button style={{ background: '${primary}', color: '#fff', padding: '1rem 2rem', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>${cta1}</button>
+          <button style={{ background: 'transparent', color: '${text}', padding: '1rem 2rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', fontWeight: 600, cursor: 'pointer' }}>${cta2}</button>
+        </div>
+      </div>
+    </section>
+  )
+}`
+}
+
+function heroI(blueprint) {
+  // Layout-I: Glass Hero (Ethereal Glassmorphic)
+  const { bg, primary, text, badge, headline, subheadline, description, cta1, cta2 } = getMasterHeroData(blueprint)
+  return `import { motion } from 'framer-motion'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
+
+export default function Hero() {
+  return (
+    <section style={{ background: '${bg}', minHeight: '100vh', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem 2rem' }}>
+      <div style={{ position: 'absolute', top: '20%', left: '10%', width: '400px', height: '400px', borderRadius: '50%', background: '${primary}', filter: 'blur(140px)', opacity: 0.3, pointerEvents: 'none' }} />
+      <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }} style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', width: '100%', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(25px)', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.15)', padding: '4rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem', alignItems: 'center', boxShadow: '0 30px 60px rgba(0,0,0,0.6)' }}>
+        <div>
+          <span style={{ display: 'inline-block', padding: '0.4rem 1.2rem', borderRadius: '50px', background: 'rgba(255,255,255,0.1)', color: '${text}', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.2)' }}>${badge}</span>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)', fontWeight: 900, color: '${text}', lineHeight: 1.1, marginBottom: '1.5rem' }}>${headline}</h1>
+          <p style={{ fontSize: '1.2rem', color: '${text}', opacity: 0.9, marginBottom: '1rem', fontWeight: 500 }}>${subheadline}</p>
+          <p style={{ fontSize: '0.95rem', color: '${text}', opacity: 0.65, marginBottom: '2.5rem', lineHeight: 1.6 }}>${description}</p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <button style={{ background: '${primary}', color: '#fff', padding: '1rem 2.2rem', borderRadius: '16px', fontWeight: 700, border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.4)', cursor: 'pointer' }}>${cta1}</button>
+            <button style={{ background: 'rgba(255,255,255,0.1)', color: '${text}', padding: '1rem 2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.2)', fontWeight: 600, cursor: 'pointer' }}>${cta2}</button>
+          </div>
+        </div>
+        <div style={{ height: '480px', borderRadius: '24px', overflow: 'hidden', position: 'relative', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <Cinematic3DScene />
+        </div>
+      </motion.div>
+    </section>
+  )
+}`
+}
+
+function heroJ(blueprint) {
+  // Layout-J: 3D Right (Prominent 3D Simulation Frame)
+  const { bg, primary, text, badge, headline, subheadline, description, cta1, cta2 } = getMasterHeroData(blueprint)
+  return `import { motion } from 'framer-motion'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
+
+export default function Hero() {
+  return (
+    <section style={{ background: '${bg}', minHeight: '100vh', position: 'relative', overflow: 'hidden', padding: '5rem 5%', display: 'flex', alignItems: 'center' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '4rem', alignItems: 'center' }}>
+        <div>
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} style={{ color: '${primary}', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.25em', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '${primary}', display: 'inline-block' }} />
+            ${badge}
+          </motion.div>
+          <motion.h1 initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ fontSize: 'clamp(2.8rem, 5vw, 5.2rem)', fontWeight: 900, color: '${text}', lineHeight: 1.08, marginBottom: '1.5rem' }}>
+            ${headline}
+          </motion.h1>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} style={{ fontSize: '1.25rem', color: '${text}', opacity: 0.9, marginBottom: '1rem', fontWeight: 600 }}>
+            ${subheadline}
+          </motion.p>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} style={{ fontSize: '1rem', color: '${text}', opacity: 0.6, marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '540px' }}>
+            ${description}
+          </motion.p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} style={{ display: 'flex', gap: '1.2rem', flexWrap: 'wrap' }}>
+            <button style={{ background: '${primary}', color: '#fff', padding: '1.1rem 2.4rem', borderRadius: '14px', fontWeight: 700, fontSize: '0.95rem', border: 'none', cursor: 'pointer', boxShadow: '0 10px 30px -5px ${primary}88' }}>${cta1}</button>
+            <button style={{ background: 'transparent', color: '${text}', padding: '1.1rem 2.2rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.2)', fontWeight: 600, fontSize: '0.95rem', cursor: 'pointer' }}>${cta2}</button>
+          </motion.div>
+        </div>
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} style={{ height: '640px', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(10,12,20,0.8)', overflow: 'hidden', position: 'relative', boxShadow: '0 25px 70px rgba(0,0,0,0.7)' }}>
+          <Cinematic3DScene />
+        </motion.div>
+      </div>
+    </section>
+  )
+}`
+}
+
+function heroK(blueprint) {
+  // Layout-K: Asymmetric Architectural Framework
+  const { bg, primary, text, badge, headline, subheadline, description, cta1, cta2 } = getMasterHeroData(blueprint)
+  return `import { motion } from 'framer-motion'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
+
+export default function Hero() {
+  return (
+    <section style={{ background: '${bg}', minHeight: '100vh', position: 'relative', overflow: 'hidden', display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: '1fr 2fr', minHeight: '100vh', borderLeft: '1px solid rgba(255,255,255,0.1)', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ padding: '4rem 3rem', borderRight: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: 'rgba(0,0,0,0.3)' }}>
+          <div>
+            <span style={{ fontFamily: 'monospace', color: '${primary}', fontSize: '0.8rem', letterSpacing: '0.25em', textTransform: 'uppercase', display: 'block', marginBottom: '2rem', fontWeight: 700 }}>01 // SPECIFICATION</span>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '${text}', textTransform: 'uppercase', marginBottom: '1.5rem', borderLeft: '3px solid ${primary}', paddingLeft: '1rem' }}>${badge}</div>
+            <p style={{ fontSize: '0.95rem', color: '${text}', opacity: 0.6, lineHeight: 1.7 }}>${description}</p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '3rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <button style={{ background: '${primary}', color: '#fff', padding: '1.2rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', border: 'none', cursor: 'pointer' }}>${cta1}</button>
+            <button style={{ background: 'transparent', color: '${text}', padding: '1.2rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}>${cta2}</button>
+          </div>
+        </div>
+        <div style={{ padding: '4rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' }}>
+          <div>
+            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} style={{ fontSize: 'clamp(3rem, 6vw, 6.2rem)', fontWeight: 900, color: '${text}', lineHeight: 1.0, letterSpacing: '-0.03em', marginBottom: '1.5rem' }}>${headline}</motion.h1>
+            <p style={{ fontSize: '1.4rem', color: '${text}', opacity: 0.85, fontWeight: 300, maxWidth: '700px' }}>${subheadline}</p>
+          </div>
+          <div style={{ height: '440px', borderRadius: '20px', overflow: 'hidden', position: 'relative', border: '1px solid rgba(255,255,255,0.15)', marginTop: '3rem', background: 'rgba(0,0,0,0.5)' }}>
+            <Cinematic3DScene />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}`
+}
+
+function heroL(blueprint) {
+  // Layout-L: Editorial Magazine Masthead
+  const { bg, primary, text, badge, headline, subheadline, description, cta1, cta2 } = getMasterHeroData(blueprint)
+  return `import { motion } from 'framer-motion'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
+
+export default function Hero() {
+  return (
+    <section style={{ background: '${bg}', minHeight: '100vh', position: 'relative', overflow: 'hidden', padding: '6rem 5% 4rem' }}>
+      <div style={{ maxWidth: '1300px', margin: '0 auto', borderBottom: '2px solid ${primary}', paddingBottom: '2rem', marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
+        <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '${text}', textTransform: 'uppercase', letterSpacing: '0.3em' }}>${badge}</span>
+        <span style={{ fontFamily: 'monospace', color: '${text}', opacity: 0.5, fontSize: '0.8rem' }}>EDITORIAL ISSUE // VOL. 01</span>
+      </div>
+      <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '4rem', alignItems: 'start' }}>
+        <div>
+          <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} style={{ fontSize: 'clamp(3.2rem, 6.5vw, 6.8rem)', fontWeight: 900, color: '${text}', lineHeight: 0.96, letterSpacing: '-0.04em', marginBottom: '2rem' }}>${headline}</motion.h1>
+          <p style={{ fontSize: '1.4rem', fontWeight: 600, color: '${primary}', marginBottom: '1.5rem', lineHeight: 1.3 }}>${subheadline}</p>
+          <p style={{ fontSize: '1rem', color: '${text}', opacity: 0.7, lineHeight: 1.8, marginBottom: '2.5rem' }}>${description}</p>
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            <button style={{ background: '${text}', color: '${bg}', padding: '1.1rem 2.5rem', borderRadius: '4px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', border: 'none', cursor: 'pointer' }}>${cta1}</button>
+            <button style={{ background: 'transparent', color: '${text}', padding: '1.1rem 2rem', borderRadius: '4px', border: '1px solid ${text}66', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer' }}>${cta2}</button>
+          </div>
+        </div>
+        <div style={{ height: '620px', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: '1px solid rgba(255,255,255,0.15)', background: '#000', boxShadow: '0 30px 60px rgba(0,0,0,0.6)' }}>
+          <Cinematic3DScene />
+        </div>
+      </div>
+    </section>
+  )
+}`
+}
+
+function heroM(blueprint) {
+  // Layout-M: High-Converting Product Landing Hero with Mockup
+  const { bg, primary, text, badge, headline, subheadline, description, cta1, cta2 } = getMasterHeroData(blueprint)
+  return `import { motion } from 'framer-motion'
+import Cinematic3DScene from '../../3d/Cinematic3DScene'
+
+export default function Hero() {
+  return (
+    <section style={{ background: '${bg}', minHeight: '100vh', position: 'relative', overflow: 'hidden', padding: '7rem 5% 5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 1.2rem', borderRadius: '50px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: '2.5rem' }}>
+        <span style={{ padding: '0.2rem 0.6rem', borderRadius: '50px', background: '${primary}', color: '#fff', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>New</span>
+        <span style={{ color: '${text}', fontSize: '0.85rem', fontWeight: 600 }}>${badge}</span>
+      </motion.div>
+      <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ fontSize: 'clamp(3rem, 6.2vw, 6.5rem)', fontWeight: 900, color: '${text}', lineHeight: 1.05, letterSpacing: '-0.03em', maxWidth: '1000px', margin: '0 auto 1.5rem' }}>
+        ${headline}
+      </motion.h1>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} style={{ fontSize: '1.4rem', color: '${text}', opacity: 0.9, maxWidth: '760px', margin: '0 auto 1rem', fontWeight: 500 }}>
+        ${subheadline}
+      </motion.p>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} style={{ fontSize: '1rem', color: '${text}', opacity: 0.6, maxWidth: '640px', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
+        ${description}
+      </motion.p>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} style={{ display: 'flex', gap: '1.2rem', justifyContent: 'center', marginBottom: '4rem', flexWrap: 'wrap' }}>
+        <button style={{ background: '${primary}', color: '#fff', padding: '1.2rem 3rem', borderRadius: '16px', fontWeight: 800, fontSize: '1rem', border: 'none', boxShadow: '0 15px 35px -5px ${primary}88', cursor: 'pointer' }}>${cta1}</button>
+        <button style={{ background: 'rgba(255,255,255,0.08)', color: '${text}', padding: '1.2rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.2)', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}>${cta2}</button>
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.9 }} style={{ maxWidth: '1200px', width: '100%', height: '600px', borderRadius: '28px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(12,15,25,0.9)', boxShadow: '0 30px 90px rgba(0,0,0,0.8)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ height: '44px', borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', flexShrink: 0 }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ef4444', opacity: 0.8 }} />
+            <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#f59e0b', opacity: 0.8 }} />
+            <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10b981', opacity: 0.8 }} />
+          </div>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', background: 'rgba(0,0,0,0.4)', padding: '0.2rem 1rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }}>https://platform.app/interactive-3d-viewport</span>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '${primary}' }}>v3.0 LIVE</span>
+        </div>
+        <div style={{ flex: 1, position: 'relative', width: '100%', height: '100%' }}>
+          <Cinematic3DScene />
+        </div>
+      </motion.div>
+    </section>
+  )
+}`
+}
+
 function heroGeneric(blueprint) {
   // Generic fallback — clean centred dark hero
   return heroA(blueprint)
@@ -1065,12 +1309,12 @@ function heroGeneric(blueprint) {
 // ─── Section builder ───────────────────────────────────────────────────────────
 
 function buildSampleSection(blueprint) {
-  const ds = blueprint?.design_system?.color_palette ?? {}
-  const bg = ds.background ?? '#0a0a0f'
-  const primary = ds.primary ?? '#6366f1'
-  const accent = ds.accent ?? '#a78bfa'
-  const surface = ds.surface ?? '#14141a'
-  const text = ds.text ?? '#ffffff'
+  const ds = blueprint?.palette ?? blueprint?.design_system?.color_palette ?? blueprint?.designSystem ?? {}
+  const bg = ds.background ?? ds.backgroundColor ?? '#0a0a0f'
+  const primary = ds.primary ?? ds.primaryColor ?? '#6366f1'
+  const accent = ds.accent ?? ds.accentColor ?? '#a78bfa'
+  const surface = ds.surface ?? ds.surfaceColor ?? '#14141a'
+  const text = ds.text ?? ds.textColor ?? '#ffffff'
 
   const sections = blueprint?.sections ?? []
   const featSection = sections.find(s => ['features', 'services', 'about', 'benefits'].includes(s.type)) ?? sections[1] ?? {}
@@ -1150,13 +1394,19 @@ export default function FeaturesSection() {
 // ─── Main dispatcher ───────────────────────────────────────────────────────────
 
 const HERO_BUILDERS = {
-  'Layout-A': heroA,
-  'Layout-B': heroB,
-  'Layout-C': heroC,
-  'Layout-D': heroD,
-  'Layout-E': heroE,
-  'Layout-F': heroF,
-  'Layout-H': heroH,
+  'Layout-A': heroA, 'centered': heroA,
+  'Layout-B': heroB, 'split': heroB,
+  'Layout-C': heroC, 'image-left': heroC,
+  'Layout-D': heroD, 'image-right': heroD,
+  'Layout-E': heroE, '3d-left': heroE,
+  'Layout-F': heroF, 'minimal': heroF,
+  'Layout-G': heroG, 'fullscreen': heroG,
+  'Layout-H': heroH, 'card': heroH,
+  'Layout-I': heroI, 'glass': heroI,
+  'Layout-J': heroJ, '3d-right': heroJ,
+  'Layout-K': heroK, 'asymmetric': heroK,
+  'Layout-L': heroL, 'magazine': heroL,
+  'Layout-M': heroM, 'landing': heroM,
 }
 
 /**
@@ -1166,11 +1416,12 @@ const HERO_BUILDERS = {
  * @returns {{ heroJSX: string, sceneJSX: string, sampleSection: string }}
  */
 export function generateFromBlueprint(blueprint) {
-  const archetype = blueprint?.creative_concept?.layout_archetype ?? 'Layout-A'
+  let archetype = blueprint?.creative_concept?.layout_archetype ?? blueprint?.hero?.layout ?? 'Layout-A'
+  if (typeof archetype !== 'string') archetype = 'Layout-A'
+  archetype = archetype.trim()
 
-  // Match archetype key from text like "Layout-B: ..."
-  const archetypeKey = Object.keys(HERO_BUILDERS).find(k => archetype.startsWith(k)) ?? 'Layout-A'
-  const heroBuilder = HERO_BUILDERS[archetypeKey] ?? heroGeneric
+  const archetypeKey = Object.keys(HERO_BUILDERS).find(k => archetype.toLowerCase().startsWith(k.toLowerCase())) ?? 'Layout-A'
+  const heroBuilder = HERO_BUILDERS[archetypeKey] ?? heroA
 
   return {
     heroJSX: heroBuilder(blueprint),
@@ -1181,9 +1432,9 @@ export function generateFromBlueprint(blueprint) {
 
 /**
  * Detect layout archetype from a prompt seed (used when no blueprint is available).
- * Returns one of Layout-A through Layout-J deterministically.
+ * Returns one of Layout-A through Layout-M deterministically.
  */
 export function pickArchetypeFromSeed(seed) {
-  const archetypes = ['Layout-A', 'Layout-B', 'Layout-C', 'Layout-D', 'Layout-E', 'Layout-F', 'Layout-G', 'Layout-H', 'Layout-I', 'Layout-J']
+  const archetypes = ['Layout-A', 'Layout-B', 'Layout-C', 'Layout-D', 'Layout-E', 'Layout-F', 'Layout-G', 'Layout-H', 'Layout-I', 'Layout-J', 'Layout-K', 'Layout-L', 'Layout-M']
   return archetypes[seed % archetypes.length]
 }

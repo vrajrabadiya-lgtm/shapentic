@@ -1,0 +1,111 @@
+EXAMPLE VALID BLUEPRINT V2 JSON FORMAT:
+{
+  "brand": {
+    "name": "Starlight Observatory",
+    "logoUrl": "/logo.svg",
+    "tagline": "Unlock the mysteries of the deep cosmos."
+  },
+  "theme": {
+    "colors": {
+      "primary": "#3b82f6",
+      "secondary": "#10b981",
+      "background": "#0b0f19",
+      "surface": "#161d30",
+      "text": "#f8fafc",
+      "accent": "#f43f5e",
+      "textMuted": "#94a3b8"
+    },
+    "typography": {
+      "headingFont": "Syne",
+      "bodyFont": "Inter"
+    },
+    "borderRadius": "0.5rem",
+    "shadows": "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+  },
+  "navigation": {
+    "logo": "Starlight",
+    "links": [
+      { "label": "Home", "path": "/" },
+      { "label": "Telescopes", "path": "/telescopes" },
+      { "label": "Contact", "path": "/contact" }
+    ],
+    "cta": {
+      "label": "Book Tour",
+      "path": "/contact"
+    }
+  },
+  "hero": {
+    "heading": "Explore the Frontiers of Space",
+    "description": "Engage with live galactic spatial visualizations and clean digital coordinate feeds directly inside your browser window.",
+    "badge": "Interactive Deep-Space Analytics",
+    "ctas": [
+      { "label": "Start Scanning", "path": "/telescopes", "variant": "primary" },
+      { "label": "View Gallery", "path": "/contact", "variant": "secondary" }
+    ],
+    "layout": "3d-right"
+  },
+  "heroScene": {
+    "type": "ParticleGalaxyScene",
+    "style": "premium",
+    "mood": "dark-tech",
+    "colors": ["#3b82f6", "#10b981"],
+    "motion": "orbiting",
+    "lighting": "neon glow"
+  },
+  "pages": [
+    {
+      "name": "Home",
+      "path": "/",
+      "sections": [
+        {
+          "id": "observatory-features",
+          "type": "features",
+          "name": "Core Technologies",
+          "componentName": "CoreTechnologiesSection",
+          "layout": "default",
+          "animation": "slide-up",
+          "content": {
+            "heading": "Our Astronomical Infrastructure",
+            "subheading": "Precision instrumentation built for live cosmic observations.",
+            "items": [
+              {
+                "title": "Cryogenic Optical Matrix",
+                "desc": "Sub-Kelvin thermal cooling loops optimizing focal plane CCD arrays.",
+                "icon": "❄️"
+              },
+              {
+                "title": "Real-time Coordinate Stream",
+                "desc": "Low-jitter telemetry pipelines broadcasting right ascension coordinates.",
+                "icon": "📡"
+              }
+            ]
+          }
+        },
+        {
+          "id": "faq",
+          "type": "faq",
+          "name": "FAQ",
+          "componentName": "FAQSection",
+          "layout": "default",
+          "animation": "fade-in",
+          "content": {
+            "heading": "Common Cosmic Inquiries",
+            "items": [
+              {
+                "title": "When is the live star broadcast active?",
+                "desc": "Feed connections start nightly at 20:00 UTC, weather permitting."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "footer": {
+    "copyright": "© 2026 Starlight Observatory. All rights reserved.",
+    "links": [
+      { "label": "Home", "path": "/" },
+      { "label": "Terms of Service", "path": "/terms" }
+    ]
+  }
+}

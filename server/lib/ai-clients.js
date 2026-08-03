@@ -1,38 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { GoogleGenAI } from "@google/genai";
-import { GoogleAuth } from "google-auth-library";
 import Groq from "groq-sdk";
 import User from "../models/User.js";
+import { AIProvider } from "../core/AIProvider.js";
 
 export const claude = process.env.ANTHROPIC_API_KEY
   ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   : null;
-
-let _googleAI = null;
-let _gauth = null;
-
-function getGoogleAI() {
-  if (!_googleAI && process.env.GOOGLE_PROJECT_ID && process.env.GOOGLE_LOCATION) {
-    _googleAI = new GoogleGenAI({
-      vertexai: true,
-      project: process.env.GOOGLE_PROJECT_ID,
-      location: process.env.GOOGLE_LOCATION,
-    });
-  }
-  return _googleAI;
-}
-
-function getGAuth() {
-  if (!_gauth) {
-    _gauth = new GoogleAuth({
-      scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-    });
-  }
-  return _gauth;
-}
-
-export const googleAI = getGoogleAI();
-export const gauth = getGAuth();
 
 export const groq = process.env.GROQ_API_KEY
   ? new Groq({ apiKey: process.env.GROQ_API_KEY })
@@ -122,48 +95,6 @@ async function generateGroq(systemPrompt, userPrompt, isJson) {
   return completion.choices[0].message.content.trim();
 }
 
-async function generateGeminiWithRetry(
-  userPrompt,
-  config,
-  retries = 2,
-  delay = 1000,
-) {
-  const ai = getGoogleAI();
-  if (!ai) {
-    throw new Error("Google AI not configured. Set GOOGLE_PROJECT_ID and GOOGLE_LOCATION in .env");
-  }
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: userPrompt,
-      config,
-    });
-    return response.text.trim();
-  } catch (err) {
-    const isRateLimit =
-      err.status === "RESOURCE_EXHAUSTED" ||
-      err.statusCode === 429 ||
-      String(err.status || "").includes("429") ||
-      String(err.message || "").includes("429") ||
-      String(err.message || "").includes("RESOURCE_EXHAUSTED") ||
-      String(err.message || "").includes("Resource exhausted");
-
-    if (isRateLimit && retries > 0) {
-      console.warn(
-        `[generateWithModel] Gemini rate limited (RESOURCE_EXHAUSTED). Retrying in ${delay}ms... (${retries} retries left)`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      return generateGeminiWithRetry(
-        userPrompt,
-        config,
-        retries - 1,
-        delay * 2,
-      );
-    }
-    throw err;
-  }
-}
-
 export async function generateWithModel(plan, systemPrompt, userPrompt) {
   const model = PLAN_MODEL[plan] ?? "groq";
   const isJson =
@@ -184,21 +115,17 @@ export async function generateWithModel(plan, systemPrompt, userPrompt) {
   }
 
   if (model === "gemini") {
-    const config = {
-      systemInstruction: systemPrompt,
-      temperature: 0.9,
-      maxOutputTokens: isJson ? 8192 : 4096,
-    };
-    if (isJson) {
-      config.responseMimeType = "application/json";
-    }
-
     try {
-      return await generateGeminiWithRetry(userPrompt, config, 2);
-    } catch (geminiErr) {
+      if (isJson) {
+        const jsonResult = await AIProvider.generateJSON(systemPrompt, userPrompt, plan);
+        return JSON.stringify(jsonResult);
+      } else {
+        return await AIProvider.generateText(systemPrompt, userPrompt, plan);
+      }
+    } catch (bedrockErr) {
       console.warn(
-        "[generateWithModel] Gemini exhausted or failed, falling back to Groq:",
-        geminiErr.message,
+        "[generateWithModel] AWS Bedrock exhausted or failed, falling back to Groq:",
+        bedrockErr.message,
       );
       return await generateGroq(systemPrompt, userPrompt, isJson);
     }

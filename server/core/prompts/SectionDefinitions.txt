@@ -1,0 +1,10 @@
+The website landing page must contain at least 4 custom sections. Resolve and populate custom entries for the following section types matching the user prompt:
+
+1. "features": List unique offerings, product capabilities, or team properties.
+2. "testimonials": Client or user reviews with name, quote, and professional role.
+3. "pricing": Structured tier cards (e.g. Free, Pro, Enterprise) with price values and features.
+4. "faq": Frequently asked questions and detailed answers.
+5. "gallery": Images demonstrating product/service visual design details.
+6. "services": Explicit list of solutions provided by the platform.
+7. "stats": Achievement metrics (e.g., number value and description label).
+8. "contact": Main interface for user inquiry inputs.

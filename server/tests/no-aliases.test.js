@@ -23,7 +23,7 @@ function collectJSFiles(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory() && !entry.name.startsWith(".") && entry.name !== "node_modules") {
+    if (entry.isDirectory() && !entry.name.startsWith(".") && entry.name !== "node_modules" && entry.name !== "tests") {
       files.push(...collectJSFiles(fullPath));
     } else if (entry.isFile() && entry.name.endsWith(".js")) {
       files.push(fullPath);

@@ -186,7 +186,9 @@ Rules:
 - TSX only
 - Tailwind classes
 - Use Framer Motion where relevant
-- Use React Three Fiber in HeroScene`;
+- Use React Three Fiber in HeroScene
+- Intelligent Content Generation: Generate distinct, industry-specific Feature titles, Descriptions, Testimonials, Pricing plans, FAQs, Statistics, Mission statement, and Company values that match the domain and user intent.
+- NEVER generate placeholder content or generic copy such as 'Lorem Ipsum', 'Feature One', 'Feature Two', 'The Future of...', or simple filler copy.`;
 
   const raw = await generateWithModel(plan, system, user);
   return parseJsonResponse(raw, "Code Agent");
