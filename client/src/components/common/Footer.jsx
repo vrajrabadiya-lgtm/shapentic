@@ -86,10 +86,10 @@ export default function Footer() {
                         Next-generation 3D Website Builder for cinematic scroll experiences — powered by AI frame sequences.
                     </p>
 
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1c1c1e] border border-white/10 text-[10px] font-mono text-[#86868b] w-fit">
+                    {/* <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1c1c1e] border border-white/10 text-[10px] font-mono text-[#86868b] w-fit">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#30d158] animate-pulse" />
                         <span>All Engine Nodes Operational</span>
-                    </div>
+                    </div> */}
 
                     {/* Social Icons Array */}
                     <div className="flex items-center gap-2.5 mt-2">

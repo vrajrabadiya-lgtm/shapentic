@@ -63,13 +63,13 @@ export default function ContactSection() {
                   <div className="h-8 w-8 rounded-lg bg-[#2c2c2e] border border-white/10 flex items-center justify-center text-[#2997ff]">
                     <Mail className="h-4 w-4" />
                   </div>
-                  <span>support@Shapentic.space</span>
+                  <span>support@Shapentic.com</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-[#2c2c2e] border border-white/10 flex items-center justify-center text-[#2997ff]">
                     <MessageSquare className="h-4 w-4" />
                   </div>
-                  <span>24/7 MERN Stack Support Enabled</span>
+                  <span>24/7 Support Enabled</span>
                 </div>
               </div>
             </div>
