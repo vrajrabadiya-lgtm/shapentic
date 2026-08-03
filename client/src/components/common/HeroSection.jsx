@@ -129,31 +129,31 @@ export default function HeroSection() {
                     <div className="flex items-center justify-between pt-3 border-t border-white/10 mt-2">
                         <div className="flex items-center gap-2">
                             {/* Voice Prompt Icon */}
-                            <Button
+                            {/* <Button
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
                             >
                                 <Mic className="h-4 w-4" />
-                            </Button>
+                            </Button> */}
 
                             {/* Build Dropdown Pill */}
-                            <Button
+                            {/* <Button
                                 variant="outline"
                                 className="h-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-zinc-200 hover:bg-white/10 hover:text-white transition-colors shadow-none"
                             >
                                 <span>Build</span>
                                 <ChevronDown className="h-3 w-3 text-zinc-400" />
-                            </Button>
+                            </Button> */}
 
                             {/* Asset Mode Dropdown Pill */}
-                            <Button
+                            {/* <Button
                                 variant="outline"
                                 className="h-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-zinc-200 hover:bg-white/10 hover:text-white transition-colors shadow-none"
                             >
                                 <span>Image and Video</span>
                                 <ChevronDown className="h-3 w-3 text-zinc-400" />
-                            </Button>
+                            </Button> */}
                         </div>
 
                         {/* Submit Start Button */}
