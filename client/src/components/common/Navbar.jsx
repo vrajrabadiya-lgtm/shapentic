@@ -213,9 +213,9 @@ export default function Navbar() {
     <>
       <Toast toasts={toasts} />
 
-      <div className="fixed top-4 md:top-6 left-0 right-0 z-50 flex justify-center px-4 w-full pointer-events-none">
+      <div className="fixed top-4 md:top-6 left-0 right-0 z-50 flex justify-center px-4 w-full pointer-events-none min-h-[80px]">
         {/* Container with pointer-events-auto for children */}
-        <nav className="pointer-events-auto flex items-center justify-between w-full max-w-5xl md:max-w-fit px-4 py-2 rounded-full border border-white/10 bg-zinc-950/85 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)]">
+        <nav className="pointer-events-auto flex items-center justify-between w-full max-w-5xl md:max-w-fit px-4 py-3 md:py-2 rounded-full border border-white/10 bg-zinc-950/85 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)]">
 
           {/* Logo */}
           <div className="flex items-center gap-2.5 pr-2 md:pr-4 md:border-r border-white/10 cursor-pointer" onClick={() => { window.location.hash = ""; window.location.href = "/"; }}>
@@ -332,7 +332,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Dropdown Drawer Overlay */}
         {mobileMenuOpen && (
-          <div className="pointer-events-auto fixed top-16 left-4 right-4 z-40 bg-zinc-950/95 border border-white/10 rounded-2xl p-4 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="pointer-events-auto fixed top-[80px] left-4 right-4 z-40 bg-zinc-950/95 border border-white/10 rounded-2xl p-4 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex flex-col gap-1.5">
               {navItems.map((item) => {
                 const isActive = activeTab === item.name;
