@@ -1,4 +1,6 @@
 import { generateWithModel } from "../lib/ai-clients.js";
+import { ReasoningEngine } from "./planner/v3/ReasoningEngine.js";
+import { BlueprintValidator } from "./BlueprintValidator.js";
 
 function parseJsonResponse(raw, agentName) {
   const cleaned = raw
@@ -12,6 +14,8 @@ function parseJsonResponse(raw, agentName) {
   }
 }
 
+// NOTE: runPlannerAgent is deprecated and will be removed.
+// It is replaced by the V3 ReasoningEngine.
 async function runPlannerAgent(plan, prompt) {
   const system = `You are Planner Agent.
 Return only JSON. No markdown.
@@ -246,16 +250,37 @@ export async function runAgenticWebsitePipeline({ plan, prompt }) {
     }
   }
 
-  const intent = await safeRun("Planner Agent", () => runPlannerAgent(plan, prompt));
+  // =================================================================
+  // == V3 PLANNER: AI REASONING ENGINE                           ==
+  // =================================================================
+  // This is the new, primary planning step. It generates a rich,
+  // comprehensive blueprint directly from the user prompt.
+  const v3Blueprint = await safeRun("Reasoning Engine", () => ReasoningEngine.generateBlueprintV3(prompt));
 
-  // If the planner failed, we can't proceed meaningfully — throw a clear error
-  if (!intent) {
+  // If the new planner failed, we cannot proceed.
+  if (!v3Blueprint) {
     throw new Error(
-      "AI Planner Agent failed. This is likely because no AI API keys are configured. " +
-      "Set ANTHROPIC_API_KEY, GROQ_API_KEY, or GOOGLE_PROJECT_ID+GOOGLE_LOCATION in your .env file, " +
-      "or use the local fallback path via /api/generate-blueprint."
+      "AI Reasoning Engine failed. This is likely because no AI API keys are configured. " +
+      "Set AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY in your .env file."
     );
   }
+
+  // =================================================================
+  // == V3 BLUEPRINT VALIDATION                                   ==
+  // =================================================================
+  const validationReport = BlueprintValidator.validate(v3Blueprint);
+  console.log(`[BlueprintValidator] ${validationReport.summary}`);
+
+  if (validationReport.errors.length > 0) {
+    // TODO: In the future, trigger the RepairEngine here.
+    // For now, we stop execution as requested.
+    throw new Error(`Blueprint validation failed with ${validationReport.errors.length} errors. Halting pipeline.`);
+  }
+
+  // Adapt the rich V3 blueprint to the simple `intent` object required by legacy agents.
+  const intent = ReasoningEngine.adaptV3BlueprintToLegacyIntent(v3Blueprint);
+  // =================================================================
+
 
   const designSystem = await safeRun("UI Designer Agent", () =>
     runUiDesignerAgent(plan, prompt, intent)
@@ -284,125 +309,51 @@ export async function runAgenticWebsitePipeline({ plan, prompt }) {
   const deployment = runDeployAgent(debugReport);
 
   // =================================================================
-  // == Assemble the Canonical Blueprint V2 from AI Phases          ==
+  // == V3 Blueprint Assembly                                     ==
   // =================================================================
-  const pagesList = intent.pages || ["Home", "About", "Pricing", "Contact"];
-  const canonicalSceneId = scenePlan?.sceneName || "FloatingBlobScene";
-  
-  const sectionsForLayout = componentPlan?.components
-    ?.filter((component) => !["Navbar", "Footer"].includes(component.name))
-    .map((component) => ({
-      id: component.name.toLowerCase().replace(/\s+/g, "-"),
-      name: component.name,
-      componentName: component.name,
-      purpose: "Custom section planned by AI Agent",
-      animation: "slide-up",
-      threeObject: scenePlan?.heroObject ?? "floating-sphere",
-      content: { heading: component.name },
-    })) ?? [];
+  // Start with the rich V3 blueprint and enrich it with details from other agents.
+  const finalBlueprint = v3Blueprint;
 
-  const blueprint = {
-    version: "2.0.0",
-    meta: {
-      source: "AgenticWebsitePipeline",
+  // Merge Design System from the UI Designer Agent
+  if (designSystem) {
+    finalBlueprint.brand.colors = {
+      primary:    designSystem.primary    || finalBlueprint.brand.colors.primary,
+      secondary:  designSystem.secondary  || finalBlueprint.brand.colors.secondary,
+      accent:     designSystem.accent     || finalBlueprint.brand.colors.accent,
+      background: designSystem.background || finalBlueprint.brand.colors.background,
+      text:       designSystem.text       || finalBlueprint.brand.colors.text,
+    };
+    finalBlueprint.brand.fonts = {
+        heading: designSystem.fontHeading || finalBlueprint.brand.fonts.heading,
+        body: designSystem.fontBody || finalBlueprint.brand.fonts.body,
+    };
+  }
+
+  // Merge Scene Plan from the 3D Scene Agent
+  if (scenePlan) {
+    finalBlueprint.requirements.scene = finalBlueprint.requirements.scene || [];
+    finalBlueprint.requirements.scene.push(
+        `Hero Object: ${scenePlan.heroObject}`,
+        `Camera: ${JSON.stringify(scenePlan.camera)}`,
+        `Lights: ${JSON.stringify(scenePlan.lights)}`,
+        `Effects: ${scenePlan.effects.join(', ')}`
+    );
+  }
+
+  // Ensure the final object has a version number for compatibility
+  finalBlueprint.version = "3.0.0";
+  finalBlueprint.meta = {
+      source: "V3ReasoningEnginePipeline",
       generatedAt: new Date().toISOString(),
       prompt: prompt,
-    },
-    brand: {
-      name: intent.notes?.[0] || 'AI Website',
-      industry: intent.projectType,
-      tagline: `Next-Gen ${intent.notes?.[0] || 'Innovation'}`,
-      palette: {
-        primary:    designSystem?.primary    ?? "#3d5eff",
-        secondary:  designSystem?.secondary  ?? "#00d4ff",
-        accent:     designSystem?.accent     ?? "#bf5fff",
-        background: designSystem?.background ?? "#0a0a14",
-        surface:    designSystem?.background ?? "#0a0a14",
-        text:       designSystem?.text       ?? "#f0f0ff",
-      }
-    },
-    navigation: {
-      logo: intent.notes?.[0] || 'AI Website',
-      links: pagesList.map(p => {
-        const normalized = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
-        return {
-          label: normalized,
-          name: normalized,
-          path: normalized === "Home" ? "/" : `/${normalized.toLowerCase()}`
-        };
-      })
-    },
-    hero: {
-      headline:      `Next-Gen ${intent.notes?.[0] || 'Innovation'}`,
-      description:   prompt,
-      buttons: [
-        { label: "Launch Experience", path: "/contact" },
-        { label: "Explore Platform", path: "/about" },
-      ],
-      layout:        designSystem?.layout?.heroMode ?? "split",
-      scene:         canonicalSceneId,
-    },
-    theme: {
-      name: intent.style || 'futuristic',
-      colors: {
-        background: designSystem?.background ?? "#0a0a14",
-        primary:    designSystem?.primary    ?? "#3d5eff",
-        secondary:  designSystem?.secondary  ?? "#00d4ff",
-        accent:     designSystem?.accent     ?? "#bf5fff",
-        text:       designSystem?.text       ?? "#f0f0ff",
-      },
-      typography: {
-        headingFont: designSystem?.fontHeading || 'Inter',
-        bodyFont: designSystem?.fontBody || 'Inter'
-      },
-      layout: {
-        cardStyle: designSystem?.cardStyle ?? "futuristic",
-        radius: designSystem?.radius ?? '16px',
-        shadow: designSystem?.shadowStyle ?? 'soft'
-      }
-    },
-    scene: {
-      sceneId: canonicalSceneId,
-      cameraPreset: scenePlan?.camera?.position?.[2] >= 6 ? "Hero Camera" : "Orbit Camera",
-      lightingPreset: Array.isArray(scenePlan?.lights) && scenePlan.lights.length > 1 ? "Studio" : "Ambient",
-      interactionPreset: scenePlan?.effects?.includes("mouse-follow")
-        ? "Mouse Follow"
-        : scenePlan?.effects?.[0] || "Hover Rotation",
-      qualityProfile: scenePlan?.performance?.adaptiveQuality === false ? "Standard" : "High",
-      heroObject: scenePlan?.heroObject ?? "floating-sphere",
-      effects: scenePlan?.effects || [],
-      r3fDependencies: scenePlan?.r3fDependencies || ["three", "@react-three/fiber", "@react-three/drei"],
-    },
-    pages: pagesList.map(pageName => {
-      const normalizedPage = pageName.charAt(0).toUpperCase() + pageName.slice(1).toLowerCase();
-      const isHomePage = normalizedPage === "Home";
-      return {
-        name: normalizedPage,
-        path: isHomePage ? "/" : `/${normalizedPage.toLowerCase()}`,
-        sections: isHomePage ? sectionsForLayout : [{
-          id: `${normalizedPage.toLowerCase()}-content`,
-          name: `${normalizedPage} Content`,
-          componentName: `${normalizedPage}ContentSection`,
-          content: { heading: normalizedPage, description: `Details about ${normalizedPage}.` }
-        }]
-      };
-    }),
-    // The sections array is a flattened list of sections for the HOME page for V2.
-    sections: sectionsForLayout,
-    footer: {
-      text: `© ${new Date().getFullYear()} ${intent.notes?.[0] || 'AI Website'}. All rights reserved.`
-    },
-    seo: {
-      title: `${intent.notes?.[0] || 'AI Website'} - ${intent.projectType}`,
-      description: prompt
-    },
-    assets: [],
   };
 
+
   return {
-    blueprint, // <-- The new canonical V2 blueprint
+    blueprint: finalBlueprint, // <-- The new canonical V3 blueprint
     phases: {
-      planner: intent,
+      planner: intent, // The legacy intent for compatibility
+      v3Planner: v3Blueprint, // The new rich blueprint
       designer: designSystem,
       threeDScene: scenePlan,
       componentPlanner: componentPlan,
@@ -412,7 +363,7 @@ export async function runAgenticWebsitePipeline({ plan, prompt }) {
     },
     summary: {
       architecture:
-        "Planner → UI Designer → 3D Scene → Component Planner → Code → Debugger → Deployer",
+        "V3_Reasoning_Engine → UI Designer → 3D Scene → Component Planner → Code → Debugger → Deployer",
       readyForDeploy: deployment.readyForDeploy,
     },
   };

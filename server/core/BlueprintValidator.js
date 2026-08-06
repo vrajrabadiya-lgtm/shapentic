@@ -1,187 +1,216 @@
 import { SCENE_REGISTRY } from "../src/3d/sceneRegistry.js";
+import { SECTION_REGISTRY } from "../src/planner/LayoutPlanner.js";
 
 /**
- * BlueprintValidator
- * 
- * Performs structural, types, and schema checks against standard Blueprint V2 requirements.
+ * BlueprintValidator - Phase 5
+ *
+ * Performs production-grade validation on a Blueprint V3 object.
+ * It checks for schema compliance, consistency, and completeness.
  */
 export class BlueprintValidator {
   /**
-   * Validate a blueprint payload.
-   * @param {any} bp 
-   * @returns {{ valid: boolean, errors: string[] }}
+   * Orchestrates the validation process and returns a comprehensive report.
+   * @param {any} bp The blueprint object to validate.
+   * @returns {{errors: string[], warnings: string[], score: number, summary: string}}
    */
   static validate(bp) {
     const errors = [];
+    const warnings = [];
 
     if (!bp || typeof bp !== "object") {
-      return { valid: false, errors: ["Blueprint must be a non-null object."] };
+      return {
+        errors: ["Blueprint must be a non-null object."],
+        warnings: [],
+        score: 0,
+        summary: "Fatal error: Blueprint is not a valid object.",
+      };
     }
 
-    // 1. Check for legacy/disallowed fields
-    const legacyKeys = ["landingPage", "heroSection", "navigationLinks", "visualStyling", "layoutArchetype"];
-    legacyKeys.forEach(k => {
-      if (k in bp) {
-        errors.push(`Disallowed legacy field found: "${k}". LLM should produce Blueprint V2 structure.`);
-      }
-    });
+    // --- Run All Validation Checks ---
+    errors.push(...this.#validateSchema(bp));
+    errors.push(...this.#validateThemeCompleteness(bp));
+    errors.push(...this.#checkForDuplicateIDs(bp));
+    errors.push(...this.#checkForDuplicateRoutes(bp));
+    
+    const navResult = this.#validateNavigationConsistency(bp);
+    errors.push(...navResult.errors);
+    warnings.push(...navResult.warnings);
+    
+    errors.push(...this.#validatePageAndSectionReferences(bp));
+    errors.push(...this.#validateSceneReferences(bp));
+    errors.push(...this.#validateCTAIntegrity(bp));
 
-    // 2. Check top-level required fields
-    const requiredTop = ["brand", "theme", "navigation", "hero", "heroScene", "pages", "footer"];
-    requiredTop.forEach(f => {
-      if (!(f in bp) || !bp[f] || typeof bp[f] !== "object") {
-        errors.push(`Missing or invalid required top-level object: "${f}"`);
-      }
-    });
+    warnings.push(...this.#validateSEOMetadata(bp));
+    warnings.push(...this.#validateAccessibilityMetadata(bp));
+    warnings.push(...this.#validateAnimationDefinitions(bp));
 
+    // --- Calculate Score & Summary ---
+    let score = 100;
+    score -= errors.length * 10;
+    score -= warnings.length * 2;
+    score = Math.max(0, score);
+
+    let summary = `Validation complete. Score: ${score}.`;
     if (errors.length > 0) {
-      return { valid: false, errors };
-    }
-
-    // 3. Validate Brand
-    if (typeof bp.brand.name !== "string" || !bp.brand.name.trim()) {
-      errors.push("brand.name must be a non-empty string.");
-    }
-    if (typeof bp.brand.tagline !== "string" || !bp.brand.tagline.trim()) {
-      errors.push("brand.tagline must be a non-empty string.");
-    }
-
-    // 4. Validate Theme
-    const colors = bp.theme.colors;
-    if (!colors || typeof colors !== "object") {
-      errors.push("theme.colors must be an object.");
+      summary += ` ${errors.length} error(s) found. Blueprint is NOT safe for generation.`;
+    } else if (warnings.length > 0) {
+      summary += ` ${warnings.length} warning(s) found. Blueprint is valid but could be improved.`;
     } else {
-      const requiredColors = ["primary", "secondary", "background", "surface", "text"];
-      requiredColors.forEach(c => {
-        if (typeof colors[c] !== "string" || !colors[c].startsWith("#")) {
-          errors.push(`theme.colors.${c} must be a valid hex color starting with "#"`);
-        }
-      });
+      summary += " Blueprint is valid and ready for generation.";
     }
 
-    const typography = bp.theme.typography;
-    if (!typography || typeof typography !== "object") {
-      errors.push("theme.typography must be an object.");
-    } else {
-      if (typeof typography.headingFont !== "string" || !typography.headingFont.trim()) {
-        errors.push("theme.typography.headingFont must be a non-empty string.");
+    return { errors, warnings, score, summary };
+  }
+
+  // ----------------------------------------------------
+  // PRIVATE VALIDATION HELPERS
+  // ----------------------------------------------------
+
+  static #validateSchema(bp) {
+    const errors = [];
+    const requiredTopLevel = ["brand", "visual", "structure", "seo", "accessibility"];
+    requiredTopLevel.forEach(key => {
+      if (!bp[key] || typeof bp[key] !== 'object') {
+        errors.push(`Missing or invalid required top-level object: "${key}"`);
       }
-      if (typeof typography.bodyFont !== "string" || !typography.bodyFont.trim()) {
-        errors.push("theme.typography.bodyFont must be a non-empty string.");
+    });
+    if (errors.length) return errors;
+
+    if (!bp.structure.pages || !Array.isArray(bp.structure.pages) || bp.structure.pages.length === 0) {
+      errors.push("`structure.pages` must be a non-empty array.");
+    }
+    return errors;
+  }
+  
+  static #validateThemeCompleteness(bp) {
+    const errors = [];
+    const { colors, fonts } = bp.brand || {};
+    if (!colors || typeof colors !== 'object') {
+      errors.push("`brand.colors` object is missing.");
+      return errors;
+    }
+    const requiredColors = ["primary", "secondary", "accent", "background"];
+    requiredColors.forEach(c => {
+      if (typeof colors[c] !== "string" || !colors[c].trim()) {
+        errors.push(`brand.colors.${c} must be a non-empty string.`);
       }
-    }
+    });
 
-    // 5. Validate Navigation
-    if (typeof bp.navigation.logo !== "string" || !bp.navigation.logo.trim()) {
-      errors.push("navigation.logo must be a non-empty string.");
-    }
-    if (!Array.isArray(bp.navigation.links)) {
-      errors.push("navigation.links must be an array.");
+    if (!fonts || typeof fonts !== 'object') {
+        errors.push("`brand.fonts` object is missing.");
     } else {
-      bp.navigation.links.forEach((l, idx) => {
-        if (typeof l.label !== "string" || typeof l.path !== "string") {
-          errors.push(`navigation.links[${idx}] must contain "label" and "path" string fields.`);
+        if(!fonts.heading || !fonts.body){
+            errors.push("`brand.fonts` requires `heading` and `body` properties.");
         }
-      });
     }
-    if (!bp.navigation.cta || typeof bp.navigation.cta !== "object") {
-      errors.push("navigation.cta must be an object.");
-    } else {
-      if (typeof bp.navigation.cta.label !== "string" || typeof bp.navigation.cta.path !== "string") {
-        errors.push("navigation.cta must contain 'label' and 'path' string fields.");
-      }
-    }
+    return errors;
+  }
 
-    // 6. Validate Hero
-    if (typeof bp.hero.heading !== "string" || !bp.hero.heading.trim()) {
-      errors.push("hero.heading must be a non-empty string.");
-    }
-    if (typeof bp.hero.description !== "string" || !bp.hero.description.trim()) {
-      errors.push("hero.description must be a non-empty string.");
-    }
-    if (!Array.isArray(bp.hero.ctas)) {
-      errors.push("hero.ctas must be an array.");
-    } else {
-      bp.hero.ctas.forEach((c, idx) => {
-        if (typeof c.label !== "string" || typeof c.path !== "string") {
-          errors.push(`hero.ctas[${idx}] must contain "label" and "path" string fields.`);
+  static #checkForDuplicateIDs(bp) { 
+    const errors = [];
+    const ids = new Set();
+    
+    bp.structure?.pages?.forEach(p => {
+        p.sections?.forEach(s => {
+            if (ids.has(s.id)) {
+                errors.push(`Duplicate section ID found: "${s.id}". IDs must be unique.`);
+            }
+            ids.add(s.id);
+        });
+    });
+    return errors;
+  }
+  
+  static #checkForDuplicateRoutes(bp) {
+    const errors = [];
+    const paths = new Set();
+    bp.structure?.pages?.forEach(p => {
+        if (paths.has(p.path)) {
+            errors.push(`Duplicate page path found: "${p.path}". Paths must be unique.`);
         }
-      });
-    }
-    const allowedHeroLayouts = ["3d-right", "3d-left", "split", "centered", "fullscreen"];
-    if (!allowedHeroLayouts.includes(bp.hero.layout)) {
-      errors.push(`hero.layout must be one of: ${allowedHeroLayouts.join(", ")}`);
-    }
+        paths.add(p.path);
+    });
+    return errors;
+  }
 
-    // 7. Validate Hero Scene
-    const allowedSceneIds = Object.keys(SCENE_REGISTRY);
-    if (!allowedSceneIds.includes(bp.heroScene.type)) {
-      errors.push(`heroScene.type must be one of the supported scene types in the registry.`);
-    }
-    if (typeof bp.heroScene.style !== "string") {
-      errors.push("heroScene.style must be a string.");
-    }
-    if (typeof bp.heroScene.mood !== "string") {
-      errors.push("heroScene.mood must be a string.");
-    }
-    if (!Array.isArray(bp.heroScene.colors)) {
-      errors.push("heroScene.colors must be an array of strings.");
-    }
-
-    // 8. Validate Pages and Sections
-    if (!Array.isArray(bp.pages) || bp.pages.length === 0) {
-      errors.push("pages must be a non-empty array.");
-    } else {
-      bp.pages.forEach((p, idx) => {
-        if (typeof p.name !== "string" || typeof p.path !== "string") {
-          errors.push(`pages[${idx}] must contain name and path string properties.`);
+  static #validateNavigationConsistency(bp) {
+    const errors = [];
+    const warnings = [];
+    const pagePaths = new Set(bp.structure?.pages?.map(p => p.path) || []);
+    
+    bp.structure?.navigation?.links?.forEach(link => {
+        if (link.url.startsWith('/') && !pagePaths.has(link.url)) {
+            warnings.push(`Navigation link "${link.text}" points to a non-existent page path: "${link.url}".`);
         }
-        if (!Array.isArray(p.sections)) {
-          errors.push(`pages[${idx}].sections must be an array.`);
-        } else {
-          // Landing page (typically index 0 or Home) sections must be non-empty
-          if (idx === 0 && p.sections.length === 0) {
-            errors.push("Home page sections list must contain at least one section.");
-          }
-          p.sections.forEach((sec, sIdx) => {
-            const prefix = `pages[${idx}].sections[${sIdx}]`;
-            if (typeof sec.id !== "string" || !sec.id.trim()) {
-              errors.push(`${prefix}.id must be a non-empty string.`);
-            }
-            if (typeof sec.type !== "string" || !sec.type.trim()) {
-              errors.push(`${prefix}.type must be a non-empty string.`);
-            }
-            if (typeof sec.componentName !== "string" || !sec.componentName.trim()) {
-              errors.push(`${prefix}.componentName must be a non-empty string.`);
-            }
-            if (!sec.content || typeof sec.content !== "object") {
-              errors.push(`${prefix}.content must be an object.`);
-            } else {
-              if (typeof sec.content.heading !== "string" || !sec.content.heading.trim()) {
-                errors.push(`${prefix}.content.heading must be a non-empty string.`);
+    });
+    return { errors, warnings };
+  }
+  
+  static #validatePageAndSectionReferences(bp) { 
+      const errors = [];
+      const availableComponents = Object.keys(SECTION_REGISTRY);
+      bp.structure?.pages?.forEach(page => {
+          page.sections?.forEach(section => {
+              if(!availableComponents.includes(section.componentName)){
+                  errors.push(`Section "${section.id}" uses an unknown component: "${section.componentName}".`);
               }
-              if (sec.content.items && !Array.isArray(sec.content.items)) {
-                errors.push(`${prefix}.content.items must be an array.`);
+          })
+      })
+      return errors;
+  }
+
+  static #validateSceneReferences(bp) {
+    const errors = [];
+    const availableScenes = Object.keys(SCENE_REGISTRY);
+    const sceneId = bp.requirements?.scene?.[0]; // Assuming scene is defined here
+    if(sceneId && !availableScenes.includes(sceneId)) {
+        errors.push(`Blueprint requires a scene ("${sceneId}") that does not exist in the SCENE_REGISTRY.`);
+    }
+    return errors;
+   }
+  
+  static #validateCTAIntegrity(bp) {
+      const errors = [];
+      const pagePaths = new Set(bp.structure?.pages?.map(p => p.path) || []);
+      bp.structure?.pages?.forEach(page => {
+          page.sections?.forEach(section => {
+              if (section.content?.cta && section.content?.cta.startsWith('/') && !pagePaths.has(section.content.cta)) {
+                errors.push(`CTA in section "${section.id}" points to a non-existent page path: "${section.content.cta}".`);
               }
-            }
-          });
-        }
-      });
+          })
+      })
+      return errors;
+  }
+  
+  static #validateSEOMetadata(bp) {
+    const warnings = [];
+    if (!bp.seo || !bp.seo.title || !bp.seo.description) {
+        warnings.push("SEO metadata (title, description) is missing or incomplete.");
     }
-
-    // 9. Validate Footer
-    if (typeof bp.footer.copyright !== "string" || !bp.footer.copyright.trim()) {
-      errors.push("footer.copyright must be a non-empty string.");
+    if(bp.seo?.keywords && (!Array.isArray(bp.seo.keywords) || bp.seo.keywords.length === 0)){
+        warnings.push("SEO keywords are present but empty.")
     }
-    if (!Array.isArray(bp.footer.links)) {
-      errors.push("footer.links must be an array.");
+    return warnings;
+  }
+  
+  static #validateAccessibilityMetadata(bp) {
+    const warnings = [];
+    if (!bp.accessibility || !bp.accessibility.level) {
+        warnings.push("Accessibility level (e.g., 'AA') is not defined.");
     }
-
-    return {
-      valid: errors.length === 0,
-      errors
-    };
+    return warnings;
+  }
+  
+  static #validateAnimationDefinitions(bp) {
+    // Stub: Implement logic to check if animations are valid
+    return [];
+  }
+  
+  static #validateResponsiveConfiguration(bp) {
+    // Stub: Implement logic for responsive checks
+    return [];
   }
 }
 
 export default BlueprintValidator;
+
