@@ -29,6 +29,33 @@ import { get3DExperienceComponents } from './3dExperienceEngine.js'
 import { ComponentRegistry } from './ComponentRegistry.js'
 import { BlueprintAdapterV1 } from './BlueprintAdapterV1.js'
 import { SCENE_REGISTRY } from "../src/3d/sceneRegistry.js";
+import { 
+  getButtonComponentString, 
+  getFeatureCardComponentString, 
+  getTestimonialCardComponentString, 
+  getFAQAccordionComponentString, 
+  getStatCardComponentString, 
+  getPricingCardComponentString 
+} from './renderers/ComponentRenderer.js';
+
+import { 
+  getHeroLayoutComponentString, 
+  getContainerComponentString, 
+  getSectionComponentString, 
+  getGridComponentString, 
+  getStackComponentString 
+} from './renderers/LayoutRenderer.js';
+
+import { PageRenderer } from './renderers/PageRenderer.js';
+import { HeroRenderer } from './renderers/HeroRenderer.js';
+import { AppRenderer } from './renderers/AppRenderer.js';
+import { NavbarRenderer } from './renderers/NavbarRenderer.js';
+import { FooterRenderer } from './renderers/FooterRenderer.js';
+
+import { 
+  formatHeadline, 
+  validateBlueprintForGeneration 
+} from './renderers/RendererUtils.js';
 
 
 
@@ -1003,698 +1030,29 @@ export default function Cinematic3DScene({ sceneId, style = {} }) {
 
 // ─── Hero Component (layout-aware & data-driven) ──────────────────────────────
 
-function formatHeadline(headline, isSplitColor = false, priColor = '#3d5eff') {
-  const clean = (headline || '').replace(/\\n/g, '\n')
-  if (!isSplitColor) {
-    return clean.replace(/\n/g, '<br />\n          ')
-  }
-  const tokens = clean.split(/\s+/).filter(Boolean)
-  const mid = Math.ceil(tokens.length / 2)
-  const firstPart = tokens.slice(0, mid).join(' ').replace(/\n/g, '<br />\n          ')
-  const secondPart = tokens.slice(mid).join(' ').replace(/\n/g, '<br />\n            ')
-  return `${firstPart}\n          <span style={{ color: '${priColor}' }}>\n            {' '}${secondPart}\n          </span>`
-}
+
 
 // ─── Phase 9.1A: Reusable Component Strings ──────────────────────────────────
 
-function getButtonComponentString() {
-  return `import { motion } from 'framer-motion'
-import { useTheme } from '../../theme/ThemeProvider'
 
-const sizes = {
-  sm: 'text-xs px-4 py-2',
-  md: 'text-sm px-6 py-3',
-  lg: 'text-base px-8 py-4',
-}
 
-export default function Button({
-  text = '',
-  children,
-  variant = 'primary',
-  size = 'md',
-  onClick,
-  href,
-  icon,
-  loading = false,
-  disabled = false,
-  fullWidth = false,
-  animation = true,
-  className = '',
-  ...props
-}) {
-  const { themeTokens } = useTheme();
 
-  const getVariantStyle = () => {
-    if (variant === 'primary') {
-      return {
-        backgroundColor: themeTokens.colors.primary,
-        color: '#ffffff',
-        boxShadow: themeTokens.shadows[themeTokens.button?.shadow || 'md'],
-        border: 'none',
-      };
-    }
-    if (variant === 'secondary') {
-      return {
-        backgroundColor: themeTokens.colors.surface,
-        color: themeTokens.colors.text,
-        border: \`1px solid \${themeTokens.colors.border}\`,
-      };
-    }
-    if (variant === 'outline') {
-      return {
-        backgroundColor: 'transparent',
-        color: themeTokens.colors.primary,
-        border: \`2px solid \${themeTokens.colors.primary}\`,
-      };
-    }
-    return {
-      backgroundColor: 'transparent',
-      color: themeTokens.colors.text,
-      border: 'none',
-    };
-  };
 
-  const buttonRadius = themeTokens.button?.radius ? (themeTokens.radius[themeTokens.button.radius] || themeTokens.button.radius) : themeTokens.radius.xl;
 
-  const baseClasses = [
-    'inline-flex items-center justify-center gap-2 font-bold tracking-wide transition-all duration-200',
-    themeTokens.button?.className || '',
-    sizes[size] || sizes.md,
-    fullWidth ? 'w-full' : '',
-    disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer',
-    className,
-  ].filter(Boolean).join(' ')
 
-  const content = (
-    <>
-      {loading && (
-        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
-      )}
-      {icon && !loading && <span className="text-lg">{icon}</span>}
-      {children || text}
-    </>
-  )
 
-  const motionProps = animation ? {
-    whileHover: { scale: disabled ? 1 : 1.03 },
-    whileTap: { scale: disabled ? 1 : 0.97 },
-    transition: { type: 'spring', stiffness: 400, damping: 17 },
-  } : {}
 
-  const mergedStyle = { ...getVariantStyle(), borderRadius: buttonRadius, ...props.style };
 
-  if (href && !disabled) {
-    return (
-      <motion.a
-        href={href}
-        className={baseClasses}
-        style={mergedStyle}
-        {...motionProps}
-        {...props}
-      >
-        {content}
-      </motion.a>
-    )
-  }
 
-  return (
-    <motion.button
-      className={baseClasses}
-      style={mergedStyle}
-      onClick={disabled ? undefined : onClick}
-      disabled={disabled}
-      {...motionProps}
-      {...props}
-    >
-      {content}
-    </motion.button>
-  )
-}
-`
-}
 
-function getFeatureCardComponentString() {
-  return `import { motion } from 'framer-motion'
-import { useTheme } from '../../theme/ThemeProvider'
 
-export default function FeatureCard({
-  icon = '⚡',
-  title = 'Feature',
-  description = '',
-  accentColor,
-  animation = {},
-  hoverEffect = true,
-}) {
-  const { themeTokens } = useTheme();
-  const accent = accentColor || themeTokens.colors.primary;
-  const delay = animation.delay || 0;
-  const cardRadius = themeTokens.card?.radius ? (themeTokens.radius[themeTokens.card.radius] || themeTokens.card.radius) : themeTokens.radius.lg;
 
-  return (
-    <motion.div
-      className={[
-        'group p-8 transition-all duration-300 flex items-start gap-6',
-        themeTokens.card?.className || 'bg-neutral-900 border border-neutral-800 shadow-xl',
-        hoverEffect ? 'hover:shadow-2xl hover:brightness-110' : '',
-      ].filter(Boolean).join(' ')}
-      style={{
-        backgroundColor: themeTokens.colors.surface,
-        borderColor: themeTokens.colors.border,
-        borderRadius: cardRadius,
-        boxShadow: themeTokens.shadows[themeTokens.card?.shadow || 'md'],
-      }}
-      initial={themeTokens.animations.fadeUp?.initial || { opacity: 0, y: 24 }}
-      whileInView={themeTokens.animations.fadeUp?.whileInView || { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.5, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
-    >
-      <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 border transition-colors duration-300"
-        style={{
-          background: accent + '15',
-          borderColor: accent + '40',
-        }}
-      >
-        {icon}
-      </div>
-      <div>
-        <h3 
-          className="text-xl font-bold mb-2 tracking-tight"
-          style={{ color: themeTokens.colors.text }}
-        >
-          {title}
-        </h3>
-        <p 
-          className="text-sm leading-relaxed"
-          style={{ color: themeTokens.colors.textMuted }}
-        >
-          {description}
-        </p>
-      </div>
-    </motion.div>
-  )
-}
-`
-}
 
-function getHeroLayoutComponentString() {
-  return `import { Suspense } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { motion } from 'framer-motion'
-import Button from '../ui/Button'
-import { useTheme } from '../../theme/ThemeProvider'
 
-function FormatTitle({ text }) {
-  if (!text) return null
-  const parts = String(text).split(/\\\\n|\\n/)
-  return parts.map((part, i) => (
-    <span key={i}>
-      {i > 0 && <br />}
-      {part}
-    </span>
-  ))
-}
 
-export default function HeroLayout({
-  title = '',
-  subtitle = '',
-  description = '',
-  badge = '',
-  buttons = [],
-  background,
-  alignment = 'left',
-  theme = {},
-  scene = null,
-}) {
-  const { themeTokens } = useTheme();
-  const align = themeTokens.hero?.align || alignment;
-  const isCenter = align === 'center' || alignment === 'center';
-  const hasScene = !!scene;
-  
-  const primary = theme.primary || themeTokens.colors.primary;
-  const secondary = theme.secondary || themeTokens.colors.secondary;
-  const textColor = theme.text || themeTokens.colors.text;
-  const bg = background || themeTokens.colors.background;
-  const badgeBg = themeTokens.hero?.badgeBg || (primary + '20');
-  const badgeText = themeTokens.hero?.badgeText || secondary;
 
-  return (
-    <section
-      className={\`relative min-h-screen overflow-hidden \${hasScene && !isCenter ? 'grid lg:grid-cols-2' : 'flex flex-col'}\`}
-      style={{ background: bg }}
-    >
-      {/* ── Content Column ───────────────────────────────────── */}
-      <div className={\`flex flex-col justify-center z-10 px-8 lg:px-20 py-32 \${isCenter ? 'items-center text-center mx-auto max-w-4xl' : ''}\`}>
 
-        {badge && (
-          <motion.div
-            className="mb-6 inline-flex items-center gap-2 self-start px-4 py-1.5 rounded-full text-sm font-medium"
-            style={{
-              background: badgeBg,
-              border: '1px solid ' + primary + '44',
-              color: badgeText,
-              ...(isCenter ? { alignSelf: 'center' } : {}),
-            }}
-            initial={{ opacity: 0, x: isCenter ? 0 : -20, y: isCenter ? -10 : 0 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: badgeText }} />
-            {badge}
-          </motion.div>
-        )}
 
-        <motion.h1
-          className="font-bold leading-[1.05] mb-6"
-          style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', color: textColor }}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <FormatTitle text={title} />
-        </motion.h1>
-
-        {subtitle && (
-          <motion.p
-            className="text-lg lg:text-xl font-medium mb-3 max-w-xl"
-            style={{ color: textColor + 'dd' }}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
-            {subtitle}
-          </motion.p>
-        )}
-
-        {description && (
-          <motion.p
-            className="text-sm lg:text-base mb-10 max-w-xl leading-relaxed"
-            style={{ color: themeTokens.colors.textMuted }}
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.28 }}
-          >
-            {description}
-          </motion.p>
-        )}
-
-        {buttons.length > 0 && (
-          <motion.div
-            className={\`flex flex-wrap gap-4 \${isCenter ? 'justify-center' : ''}\`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35 }}
-          >
-            {buttons.map((btn, idx) => (
-              <Button key={idx} {...btn} size={btn.size || 'lg'} />
-            ))}
-          </motion.div>
-        )}
-      </div>
-
-      {/* ── 3D Scene Column ──────────────────────────────────── */}
-      {hasScene && (
-        <div className={\`\${isCenter ? 'absolute inset-0 opacity-40' : 'hidden lg:block relative'}\`}>
-          <div className="absolute inset-0">
-            <Canvas camera={{ position: [0, 0, 5], fov: 60 }} dpr={[1, 2]}>
-              <Suspense fallback={null}>
-                {scene}
-              </Suspense>
-            </Canvas>
-          </div>
-        </div>
-      )}
-
-      {/* Bottom gradient fade */}
-      <div
-        className="absolute bottom-0 inset-x-0 h-28 pointer-events-none z-10"
-        style={{ background: 'linear-gradient(to top, ' + bg + ', transparent)' }}
-      />
-    </section>
-  )
-}
-`
-}
-
-function getTestimonialCardComponentString() {
-  return `import { motion } from 'framer-motion'
-import { useTheme } from '../../theme/ThemeProvider'
-
-export default function TestimonialCard({
-  name = 'Anonymous',
-  role = '',
-  company = '',
-  avatar,
-  rating = 5,
-  quote = '',
-  theme = {},
-  animation = {}
-}) {
-  const { themeTokens } = useTheme();
-  const primary = theme.primary || themeTokens.colors.primary;
-  const secondary = theme.secondary || themeTokens.colors.secondary;
-  const delay = animation.delay || 0;
-  const cardRadius = themeTokens.card?.radius ? (themeTokens.radius[themeTokens.card.radius] || themeTokens.card.radius) : themeTokens.radius.lg;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay }}
-      whileHover={{ y: -6, transition: { duration: 0.2 } }}
-      className={[
-        "group p-8 transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between",
-        themeTokens.card?.className || "bg-neutral-900/70 border border-white/[0.08] hover:border-[var(--color-secondary,#00d4ff)]/50"
-      ].filter(Boolean).join(' ')}
-      style={{
-        backgroundColor: themeTokens.colors.surface,
-        borderColor: themeTokens.colors.border,
-        borderRadius: cardRadius,
-        boxShadow: themeTokens.shadows[themeTokens.card?.shadow || 'xl']
-      }}
-    >
-      <div 
-        className="absolute top-0 left-0 right-0 h-1 opacity-20 group-hover:opacity-100 transition-opacity duration-300"
-        style={{ background: \`linear-gradient(90deg, \${primary}, \${secondary})\` }}
-      />
-
-      <div>
-        <div className="flex items-center gap-1 mb-6 text-amber-400 text-sm font-bold">
-          {Array.from({ length: Math.min(5, Math.max(1, rating)) }).map((_, i) => (
-            <span key={i} className="drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">★</span>
-          ))}
-        </div>
-
-        <p 
-          className="italic text-base md:text-lg leading-relaxed mb-8 font-normal"
-          style={{ color: themeTokens.colors.text }}
-        >
-          &ldquo;{quote}&rdquo;
-        </p>
-      </div>
-
-      <div className="border-t pt-5 flex items-center gap-4" style={{ borderColor: themeTokens.colors.border }}>
-        <div 
-          className="w-12 h-12 rounded-2xl border flex items-center justify-center font-extrabold text-white text-base shadow-inner shrink-0"
-          style={{ 
-            background: \`linear-gradient(135deg, \${primary}33, \${secondary}33)\`,
-            borderColor: \`\${secondary}66\`
-          }}
-        >
-          {avatar ? (
-            <img src={avatar} alt={name} className="w-full h-full rounded-2xl object-cover" />
-          ) : (
-            (name || 'A')[0].toUpperCase()
-          )}
-        </div>
-        <div>
-          <h4 className="font-bold text-base tracking-tight" style={{ color: themeTokens.colors.text }}>{name}</h4>
-          {(role || company) && (
-            <span className="text-xs font-semibold" style={{ color: themeTokens.colors.textMuted }}>
-              {role}{role && company ? ' · ' : ''}{company}
-            </span>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  )
-}
-`
-}
-
-function getFAQAccordionComponentString() {
-  return `import { useState, useId } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useTheme } from '../../theme/ThemeProvider'
-
-export default function FAQAccordion({
-  question = '',
-  answer = '',
-  defaultOpen = false,
-  icon = '+',
-  theme = {}
-}) {
-  const [isOpen, setIsOpen] = useState(defaultOpen)
-  const id = useId()
-  const contentId = \`faq-content-\${id}\`
-  const { themeTokens } = useTheme()
-  const secondary = theme.secondary || themeTokens.colors.secondary
-  const cardRadius = themeTokens.card?.radius ? (themeTokens.radius[themeTokens.card.radius] || themeTokens.card.radius) : themeTokens.radius.md
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className="overflow-hidden transition-colors duration-200 border"
-      style={{
-        backgroundColor: themeTokens.colors.surface,
-        borderColor: isOpen ? secondary : themeTokens.colors.border,
-        borderRadius: cardRadius
-      }}
-    >
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        aria-controls={contentId}
-        className="w-full p-6 text-left flex justify-between items-center text-base md:text-lg font-bold transition-colors focus:outline-none focus-visible:ring-2"
-        style={{ color: isOpen ? secondary : themeTokens.colors.text }}
-      >
-        <span className="pr-4">{question}</span>
-        <span 
-          className="w-8 h-8 rounded-full flex items-center justify-center text-base font-extrabold shrink-0 transition-transform duration-300 border"
-          style={{ 
-            color: secondary, 
-            transform: isOpen ? 'rotate(45deg)' : 'rotate(0deg)',
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            borderColor: themeTokens.colors.border
-          }}
-        >
-          {icon}
-        </span>
-      </button>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            id={contentId}
-            role="region"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <div 
-              className="px-6 pb-6 pt-2 text-sm md:text-base leading-relaxed border-t"
-              style={{ 
-                color: themeTokens.colors.textMuted,
-                borderColor: themeTokens.colors.border
-              }}
-            >
-              {answer}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  )
-}
-`
-}
-
-function getStatCardComponentString() {
-  return `import { motion } from 'framer-motion'
-import { useTheme } from '../../theme/ThemeProvider'
-
-export default function StatCard({
-  value = '0',
-  label = 'Metric',
-  icon = '✦',
-  description = '',
-  color,
-  animation = {}
-}) {
-  const { themeTokens } = useTheme();
-  const accent = color || themeTokens.colors.secondary;
-  const delay = animation.delay || 0;
-  const cardRadius = themeTokens.card?.radius ? (themeTokens.radius[themeTokens.card.radius] || themeTokens.card.radius) : themeTokens.radius.lg;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4, delay }}
-      whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-      className={[
-        "p-8 transition-all duration-300 text-center flex flex-col items-center justify-center relative group overflow-hidden border",
-        themeTokens.card?.className || "bg-neutral-900 border border-neutral-800 shadow-xl"
-      ].filter(Boolean).join(' ')}
-      style={{
-        backgroundColor: themeTokens.colors.surface,
-        borderColor: themeTokens.colors.border,
-        borderRadius: cardRadius,
-        boxShadow: themeTokens.shadows[themeTokens.card?.shadow || 'lg']
-      }}
-    >
-      <div 
-        className="w-12 h-12 rounded-2xl mb-5 flex items-center justify-center text-2xl border shadow-inner group-hover:scale-110 transition-transform duration-300"
-        style={{ background: \`\${accent}15\`, borderColor: \`\${accent}40\`, color: accent }}
-      >
-        {icon}
-      </div>
-      
-      <span 
-        className="text-4xl md:text-5xl font-black tracking-tight mb-2 drop-shadow-sm"
-        style={{ color: accent }}
-      >
-        {value}
-      </span>
-      
-      <h3 className="text-base md:text-lg font-bold mb-2" style={{ color: themeTokens.colors.text }}>
-        {label}
-      </h3>
-      
-      {description && (
-        <p className="text-xs md:text-sm leading-relaxed max-w-xs mx-auto" style={{ color: themeTokens.colors.textMuted }}>
-          {description}
-        </p>
-      )}
-    </motion.div>
-  )
-}
-`
-}
-
-function getContainerComponentString() {
-  return `import React from 'react';
-import { useTheme } from '../../theme/ThemeProvider';
-
-export default function Container({ size = 'xl', className = '', children }) {
-  const { themeTokens } = useTheme();
-  const sizes = {
-    sm: 'max-w-3xl',
-    md: 'max-w-5xl',
-    lg: 'max-w-6xl',
-    xl: 'max-w-7xl',
-    full: 'max-w-full'
-  };
-  const maxW = sizes[size] || sizes.xl;
-  return (
-    <div className={\`mx-auto px-6 w-full \${maxW} \${className}\`}>
-      {children}
-    </div>
-  );
-}
-`;
-}
-
-function getSectionComponentString() {
-  return `import React from 'react';
-import { useTheme } from '../../theme/ThemeProvider';
-
-export default function Section({ spacing = 'lg', background = 'default', divider = false, className = '', id, children }) {
-  const { themeTokens } = useTheme();
-  const spaces = {
-    none: '0px',
-    sm: themeTokens.spacing.xl || '2rem',
-    md: themeTokens.spacing['2xl'] || '3rem',
-    lg: themeTokens.spacing['3xl'] || '5rem',
-    xl: '7rem'
-  };
-  const bgs = {
-    default: 'transparent',
-    surface: themeTokens.colors.surface,
-    dark: themeTokens.colors.background,
-    gradient: \`linear-gradient(to bottom, \${themeTokens.colors.background}, \${themeTokens.colors.surface})\`
-  };
-  const py = spaces[spacing] || spaces.lg;
-  const bg = bgs[background] || background;
-
-  return (
-    <section 
-      id={id} 
-      className={\`relative w-full \${divider ? 'border-t' : ''} \${className}\`}
-      style={{
-        paddingTop: py,
-        paddingBottom: py,
-        background: bg,
-        borderColor: divider ? themeTokens.colors.border : 'transparent'
-      }}
-    >
-      {children}
-    </section>
-  );
-}
-`;
-}
-
-function getGridComponentString() {
-  return `import React from 'react';
-import { useTheme } from '../../theme/ThemeProvider';
-
-export default function Grid({ columns = 3, gap = 'md', align = 'stretch', className = '', children }) {
-  const { themeTokens } = useTheme();
-  const cols = {
-    1: 'grid-cols-1',
-    2: 'grid-cols-1 md:grid-cols-2',
-    3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-    4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
-  };
-  const aligns = {
-    stretch: 'items-stretch',
-    start: 'items-start',
-    center: 'items-center',
-    end: 'items-end'
-  };
-  const colClass = cols[columns] || cols[3];
-  const alignClass = aligns[align] || aligns.stretch;
-  const gapValue = themeTokens.spacing[gap] || themeTokens.spacing.lg || '2rem';
-
-  return (
-    <div 
-      className={\`grid \${colClass} \${alignClass} \${className}\`}
-      style={{ gap: gapValue }}
-    >
-      {children}
-    </div>
-  );
-}
-`;
-}
-
-function getStackComponentString() {
-  return `import React from 'react';
-import { useTheme } from '../../theme/ThemeProvider';
-
-export default function Stack({ spacing = 'md', align = 'stretch', className = '', children }) {
-  const { themeTokens } = useTheme();
-  const aligns = {
-    stretch: 'items-stretch',
-    start: 'items-start',
-    center: 'items-center',
-    end: 'items-end'
-  };
-  const alignClass = aligns[align] || aligns.stretch;
-  const gapValue = themeTokens.spacing[spacing] || themeTokens.spacing.md || '1rem';
-
-  return (
-    <div 
-      className={\`flex flex-col \${alignClass} \${className}\`}
-      style={{ gap: gapValue }}
-    >
-      {children}
-    </div>
-  );
-}
-`;
-}
 
 function getCTASectionComponentString(bp) {
   const ctaSec = bp?.sections?.find(s => s.type === 'cta' || s.id === 'cta');
@@ -1773,87 +1131,7 @@ export default function CTASection({
 `;
 }
 
-function getPricingCardComponentString() {
-  return `import React from 'react';
-import { motion } from 'framer-motion';
-import Button from './Button';
-import { useTheme } from '../../theme/ThemeProvider';
 
-export default function PricingCard({
-  title = 'Standard',
-  price = '$99',
-  period = '/mo',
-  features = [],
-  highlight = false,
-  button = 'Select Plan',
-  theme = {}
-}) {
-  const { themeTokens } = useTheme();
-  const primary = theme.primary || themeTokens.colors.primary;
-  const secondary = theme.secondary || themeTokens.colors.secondary;
-  const cardRadius = themeTokens.card?.radius ? (themeTokens.radius[themeTokens.card.radius] || themeTokens.card.radius) : themeTokens.radius.xl;
-
-  return (
-    <motion.div
-      whileHover={{ y: -6, transition: { duration: 0.2 } }}
-      className={\`p-8 md:p-10 flex flex-col justify-between transition-all duration-300 relative overflow-hidden border \${
-        highlight ? 'shadow-2xl' : 'shadow-xl'
-      }\`}
-      style={{
-        backgroundColor: themeTokens.colors.surface,
-        borderColor: highlight ? secondary : themeTokens.colors.border,
-        borderRadius: cardRadius,
-        boxShadow: highlight ? themeTokens.shadows[themeTokens.card?.shadow || 'glow'] : themeTokens.shadows[themeTokens.card?.shadow || 'md'],
-      }}
-    >
-      {highlight && (
-        <span 
-          className="text-white text-xs px-3.5 py-1 rounded-full uppercase tracking-widest font-extrabold absolute top-4 right-6 shadow-md"
-          style={{ background: \`linear-gradient(135deg, \${primary}, \${secondary})\` }}
-        >
-          Most Popular
-        </span>
-      )}
-      
-      <div>
-        <span 
-          className="text-xs font-bold uppercase tracking-widest"
-          style={{ color: highlight ? secondary : themeTokens.colors.textMuted }}
-        >
-          {title}
-        </span>
-        <div className="mt-4 mb-6">
-          <span className="text-4xl md:text-5xl font-black" style={{ color: themeTokens.colors.text }}>{price}</span>
-          <span className="text-sm md:text-base font-medium" style={{ color: themeTokens.colors.textMuted }}> {period}</span>
-        </div>
-        
-        <ul 
-          className="space-y-4 mb-8 text-sm font-medium border-t pt-6 text-left"
-          style={{ color: themeTokens.colors.text, borderColor: themeTokens.colors.border }}
-        >
-          {(features || []).map((f, idx) => (
-            <li key={idx} className="flex items-center gap-3">
-              <span className="font-bold text-base shrink-0" style={{ color: secondary }}>✓</span> 
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-      
-      <div className="w-full">
-        <Button 
-          variant={highlight ? 'primary' : 'secondary'} 
-          size="md" 
-          className="w-full justify-center"
-        >
-          {button}
-        </Button>
-      </div>
-    </motion.div>
-  );
-}
-`;
-}
 
 // ─── Theme Engine & Design System (Phase 9.4) ──────────────────────────────────
 
@@ -5692,61 +4970,7 @@ export default function ${compName}() {
 }
 
 
-export function validateBlueprintForGeneration(bp) {
-  const errors = [];
 
-  // Branding uses blueprint.brand
-  if (!bp.brand || typeof bp.brand !== 'object') {
-    errors.push("Missing blueprint.brand");
-  } else {
-    if (!bp.brand.name) errors.push("Missing blueprint.brand.name");
-  }
-
-  // Navbar uses blueprint.navigation
-  if (!bp.navigation || typeof bp.navigation !== 'object') {
-    errors.push("Missing blueprint.navigation");
-  } else {
-    if (!bp.navigation.links || !Array.isArray(bp.navigation.links)) {
-      errors.push("Missing blueprint.navigation.links or it is not an array");
-    }
-  }
-
-  // CTA Strategy in navigation
-  if (!bp.navigation?.cta || typeof bp.navigation.cta !== 'object') {
-    errors.push("Missing blueprint.navigation.cta");
-  } else {
-    if (!bp.navigation.cta.label) errors.push("Missing blueprint.navigation.cta.label");
-  }
-
-  // Hero uses blueprint.hero
-  if (!bp.hero || typeof bp.hero !== 'object') {
-    errors.push("Missing blueprint.hero");
-  } else {
-    if (!bp.hero.headline) errors.push("Missing blueprint.hero.headline");
-    if (!bp.hero.description) errors.push("Missing blueprint.hero.description");
-  }
-
-  // Scene uses blueprint.scene
-  if (!bp.scene || typeof bp.scene !== 'object') {
-    errors.push("Missing blueprint.scene");
-  } else {
-    if (!bp.scene.sceneId) errors.push("Missing blueprint.scene.sceneId");
-  }
-
-  // Sections use blueprint.sections
-  if (!bp.sections || !Array.isArray(bp.sections) || bp.sections.length === 0) {
-    errors.push("Missing blueprint.sections or it is not a non-empty array");
-  }
-
-  // Validate hero.buttons array
-  if (bp.hero?.buttons && !Array.isArray(bp.hero.buttons)) {
-    errors.push("blueprint.hero.buttons must be an array");
-  }
-
-  if (errors.length > 0) {
-    throw new Error(`Blueprint Validation Error: ${errors.join("; ")}`);
-  }
-}
 
 
 export function logComponentGeneration(name, sourcePath, fieldsConsumed, missingFields = []) {
@@ -5805,7 +5029,13 @@ console.log(JSON.stringify(bp.hero, null, 2));
     const compName = baseName.endsWith('Page') ? baseName : `${baseName}Page`;
     const fileName = `${compName}.jsx`;
     const cssName = `${compName}.css`;
-    const pageContent = generatePageContent(rawName, compName, bp);
+    let pageContent;
+    if (process.env.BLUEPRINT_V2_ENABLED === "true") {
+      const pageRenderer = new PageRenderer();
+      pageContent = pageRenderer.render({ name: rawName }, bp);
+    } else {
+      pageContent = generatePageContent(rawName, compName, bp);
+    }
     pagesMap[fileName] = createItem(fileName, `src/pages/${fileName}`, pageContent);
     stylesMap[cssName] = createItem(cssName, `src/styles/${cssName}`, `/* Styling for ${compName} */\n.page-${baseName.toLowerCase()} {\n  position: relative;\n  width: 100%;\n  overflow-x: hidden;\n}\n`);
   });

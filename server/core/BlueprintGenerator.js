@@ -1609,6 +1609,7 @@ export function buildLocalBlueprint(intent) {
   const explicitSecs = parseExplicitSections(intent.prompt || "", defaultThree);
   const industrySections = explicitSecs || getIndustrySectionMapping(businessType, heroData, defaultThree, intent.websiteName);
   const intelligentContent = getIntelligentDomainContent(businessType, intent.websiteName, intent.prompt);
+  // Legacy compatibility field
   bp.content_library = intelligentContent;
 
   // ── Industry-aware theme mapping ──────────────────────────────────────────
@@ -1632,12 +1633,16 @@ export function buildLocalBlueprint(intent) {
   const visualIdentity = getThemeVisualIdentity(vTheme, intent.palette || intent.colorPalette || {});
 
   bp.meta.prompt = intent.prompt;
+  // Legacy compatibility field
   bp.industry = businessType;
+  // Legacy compatibility field
   bp.sections = industrySections;
+  // Legacy compatibility field
   bp.visualIdentity = visualIdentity;
 
   const selectedLayout = inferHeroLayout(businessType, intent.prompt);
 
+  // Legacy compatibility field
   bp.creative_concept = {
     business_type: businessType,
     color_palette: [visualIdentity.primaryColor, visualIdentity.secondaryColor, visualIdentity.accentColor],
@@ -1645,6 +1650,7 @@ export function buildLocalBlueprint(intent) {
     layout_archetype: selectedLayout,
     three_d_objects: intent.threeObjects && intent.threeObjects.length ? intent.threeObjects : ["Floating Sphere"],
   };
+  // Legacy compatibility field
   bp.concept = {
     theme: visualIdentity.theme,
     coreIdentity: `${intent.websiteName} (${businessType} platform)`,
@@ -1655,6 +1661,7 @@ export function buildLocalBlueprint(intent) {
     designStyle: visualIdentity.theme,
     brandPersonality: intent.brandPersonality,
   };
+  // Legacy compatibility field
   bp.palette = {
     primary: visualIdentity.primaryColor,
     secondary: visualIdentity.secondaryColor,
@@ -1664,6 +1671,7 @@ export function buildLocalBlueprint(intent) {
     text: visualIdentity.textColor,
     textMuted: visualIdentity.textMutedColor,
   };
+  // Legacy compatibility field
   bp.designSystem = {
     primaryColor: visualIdentity.primaryColor,
     secondaryColor: visualIdentity.secondaryColor,
@@ -1682,7 +1690,9 @@ export function buildLocalBlueprint(intent) {
     animationStyle: "smooth parallax + micro-interactions",
     depth: "cinematic depth of field with realistic materials",
   };
+  // Legacy compatibility field
   bp.design_system = bp.designSystem;
+  // Legacy compatibility field
   bp.hero = {
     threeDScene: defaultThree,
     cameraAngle: "dynamic floating perspective",
@@ -1699,6 +1709,7 @@ export function buildLocalBlueprint(intent) {
     layout: selectedLayout
   };
   const pagesList = intent.pages && intent.pages.length ? intent.pages : ["Home", "About", "Pricing", "Contact"];
+  // Legacy compatibility field
   bp.pages = pagesList.map((pageName) => {
     if (pageName === "Home") {
       return {
@@ -1740,6 +1751,7 @@ export function buildLocalBlueprint(intent) {
       })),
     };
   });
+  // Legacy compatibility field
   bp.navbar = {
     logo: intent.websiteName || "Website",
     links: bp.pages.map((p) => ({
@@ -1748,10 +1760,12 @@ export function buildLocalBlueprint(intent) {
       path: p.path
     }))
   };
+  // Legacy compatibility field
   bp.navigation = bp.navbar;
   if (bp.websiteBlueprint) {
     bp.websiteBlueprint.navbar = { ...bp.navbar };
   }
+  // Legacy compatibility field
   bp.videoScript = {
     duration: 55,
     resolution: "1920x1080",
@@ -1761,7 +1775,9 @@ export function buildLocalBlueprint(intent) {
     aiVideoPrompt: "",
   };
   bp.videoScript.aiVideoPrompt = buildAIVideoPrompt(intent, bp);
+  // Legacy compatibility field
   bp.components = buildComponentStructure(intent, bp);
+  // This is a canonical field, but it's being created in the V1 builder.
   bp.seo = {
     title: `${intent.websiteName || "Modern Site"} — ${bp.concept.tagline || "Platform"}`,
     description: bp.concept.uniqueSellingProposition || "Innovative interactive architecture",
@@ -1769,7 +1785,9 @@ export function buildLocalBlueprint(intent) {
     ogImage: "/og-image.jpg",
   };
 
+  // Legacy compatibility field
   bp.layout_plan = generateLayoutPlan(bp, intent.prompt || intent.websiteName, bp.industry, bp.visualIdentity?.theme || "modernDark");
+  // Legacy compatibility field
   bp.scene_plan = generateScenePlan(bp, intent.prompt || intent.websiteName, bp.industry, bp.visualIdentity?.theme || "modernDark", "Home");
   return bp;
 }

@@ -19,9 +19,17 @@ export class BlueprintAdapterV1 {
       return null;
     }
 
+    const version = String(blueprint.version || "");
+    const isCanonicalV2 = version.startsWith("2.");
+
+    if (isCanonicalV2) {
+      return blueprint;
+    }
+
     const adapted = { ...blueprint };
 
     // 1. Resolve Brand name
+    // Blueprint V2 Canonical Field
     adapted.brand ??= {};
     adapted.brand.name ??= blueprint.name || blueprint.brand?.name || intent.websiteName || "3D Platform";
     adapted.brand.tagline ??= blueprint.concept?.tagline || blueprint.brand?.tagline || "Innovative interactive architecture";
@@ -33,6 +41,7 @@ export class BlueprintAdapterV1 {
       const vTheme = blueprint.concept?.designStyle || blueprint.concept?.theme || intent.style || "Modern";
       const resolvedVid = getThemeVisualIdentity(vTheme, blueprint.palette || intent.palette || {});
       
+      // Blueprint V2 Canonical Field
       adapted.theme = {
         colors: {
           primary: resolvedVid.primaryColor || legacyVid.primaryColor || "#3b82f6",
@@ -53,6 +62,7 @@ export class BlueprintAdapterV1 {
     }
 
     // 3. Resolve Navigation Links
+    // Blueprint V2 Canonical Field
     adapted.navigation ??= {};
     adapted.navigation.logo ??= adapted.brand.name;
     if (!adapted.navigation.links || !Array.isArray(adapted.navigation.links)) {
@@ -77,6 +87,7 @@ export class BlueprintAdapterV1 {
     };
 
     // 4. Resolve Hero parameters
+    // Blueprint V2 Canonical Field
     adapted.hero ??= {};
     const legacyHero = blueprint.hero || blueprint.layout?.hero || {};
     adapted.hero.heading ??= legacyHero.heading || legacyHero.headline || "Welcome to " + adapted.brand.name;
@@ -110,6 +121,7 @@ export class BlueprintAdapterV1 {
     adapted.hero.layout ??= legacyHero.layout || "3d-right";
 
     // 5. Resolve Scene details
+    // Blueprint V2 Canonical Field
     adapted.scene ??= {};
     const legacyScene = blueprint.scene || {};
     adapted.scene.sceneId ??= legacyScene.sceneId || blueprint.layout_plan?.sceneId || "FloatingBlobScene";
@@ -128,6 +140,7 @@ export class BlueprintAdapterV1 {
       ];
     }
 
+    // Legacy compatibility field
     // Adapt to heroScene for Blueprint V2 schema validation alignment
     adapted.heroScene ??= blueprint.heroScene || {
       type: adapted.scene.sceneId,
@@ -139,6 +152,7 @@ export class BlueprintAdapterV1 {
     };
 
     // 6. Resolve Pages & Sections
+    // Blueprint V2 Canonical Field
     const bt = blueprint.concept?.businessType || blueprint.industry || intent.industry || inferBusinessType(intent.prompt);
     
     if (!adapted.pages || !Array.isArray(adapted.pages) || adapted.pages.length === 0) {
@@ -172,10 +186,12 @@ export class BlueprintAdapterV1 {
       }));
     }
 
+    // Legacy compatibility field
     // Ensure top-level sections holds home sections for backward-compatibility
     adapted.sections = adapted.pages[0]?.sections || [];
 
     // 7. Resolve Footer specifications
+    // Blueprint V2 Canonical Field
     adapted.footer ??= {};
     adapted.footer.copyright ??= blueprint.footer?.copyright || `© ${new Date().getFullYear()} ${adapted.brand.name}. All rights reserved.`;
     if (!adapted.footer.links || !Array.isArray(adapted.footer.links)) {

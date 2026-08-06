@@ -283,7 +283,124 @@ export async function runAgenticWebsitePipeline({ plan, prompt }) {
   const debugReport = runDebuggerAgent(codeOutput || { files: {} });
   const deployment = runDeployAgent(debugReport);
 
+  // =================================================================
+  // == Assemble the Canonical Blueprint V2 from AI Phases          ==
+  // =================================================================
+  const pagesList = intent.pages || ["Home", "About", "Pricing", "Contact"];
+  const canonicalSceneId = scenePlan?.sceneName || "FloatingBlobScene";
+  
+  const sectionsForLayout = componentPlan?.components
+    ?.filter((component) => !["Navbar", "Footer"].includes(component.name))
+    .map((component) => ({
+      id: component.name.toLowerCase().replace(/\s+/g, "-"),
+      name: component.name,
+      componentName: component.name,
+      purpose: "Custom section planned by AI Agent",
+      animation: "slide-up",
+      threeObject: scenePlan?.heroObject ?? "floating-sphere",
+      content: { heading: component.name },
+    })) ?? [];
+
+  const blueprint = {
+    version: "2.0.0",
+    meta: {
+      source: "AgenticWebsitePipeline",
+      generatedAt: new Date().toISOString(),
+      prompt: prompt,
+    },
+    brand: {
+      name: intent.notes?.[0] || 'AI Website',
+      industry: intent.projectType,
+      tagline: `Next-Gen ${intent.notes?.[0] || 'Innovation'}`,
+      palette: {
+        primary:    designSystem?.primary    ?? "#3d5eff",
+        secondary:  designSystem?.secondary  ?? "#00d4ff",
+        accent:     designSystem?.accent     ?? "#bf5fff",
+        background: designSystem?.background ?? "#0a0a14",
+        surface:    designSystem?.background ?? "#0a0a14",
+        text:       designSystem?.text       ?? "#f0f0ff",
+      }
+    },
+    navigation: {
+      logo: intent.notes?.[0] || 'AI Website',
+      links: pagesList.map(p => {
+        const normalized = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
+        return {
+          label: normalized,
+          name: normalized,
+          path: normalized === "Home" ? "/" : `/${normalized.toLowerCase()}`
+        };
+      })
+    },
+    hero: {
+      headline:      `Next-Gen ${intent.notes?.[0] || 'Innovation'}`,
+      description:   prompt,
+      buttons: [
+        { label: "Launch Experience", path: "/contact" },
+        { label: "Explore Platform", path: "/about" },
+      ],
+      layout:        designSystem?.layout?.heroMode ?? "split",
+      scene:         canonicalSceneId,
+    },
+    theme: {
+      name: intent.style || 'futuristic',
+      colors: {
+        background: designSystem?.background ?? "#0a0a14",
+        primary:    designSystem?.primary    ?? "#3d5eff",
+        secondary:  designSystem?.secondary  ?? "#00d4ff",
+        accent:     designSystem?.accent     ?? "#bf5fff",
+        text:       designSystem?.text       ?? "#f0f0ff",
+      },
+      typography: {
+        headingFont: designSystem?.fontHeading || 'Inter',
+        bodyFont: designSystem?.fontBody || 'Inter'
+      },
+      layout: {
+        cardStyle: designSystem?.cardStyle ?? "futuristic",
+        radius: designSystem?.radius ?? '16px',
+        shadow: designSystem?.shadowStyle ?? 'soft'
+      }
+    },
+    scene: {
+      sceneId: canonicalSceneId,
+      cameraPreset: scenePlan?.camera?.position?.[2] >= 6 ? "Hero Camera" : "Orbit Camera",
+      lightingPreset: Array.isArray(scenePlan?.lights) && scenePlan.lights.length > 1 ? "Studio" : "Ambient",
+      interactionPreset: scenePlan?.effects?.includes("mouse-follow")
+        ? "Mouse Follow"
+        : scenePlan?.effects?.[0] || "Hover Rotation",
+      qualityProfile: scenePlan?.performance?.adaptiveQuality === false ? "Standard" : "High",
+      heroObject: scenePlan?.heroObject ?? "floating-sphere",
+      effects: scenePlan?.effects || [],
+      r3fDependencies: scenePlan?.r3fDependencies || ["three", "@react-three/fiber", "@react-three/drei"],
+    },
+    pages: pagesList.map(pageName => {
+      const normalizedPage = pageName.charAt(0).toUpperCase() + pageName.slice(1).toLowerCase();
+      const isHomePage = normalizedPage === "Home";
+      return {
+        name: normalizedPage,
+        path: isHomePage ? "/" : `/${normalizedPage.toLowerCase()}`,
+        sections: isHomePage ? sectionsForLayout : [{
+          id: `${normalizedPage.toLowerCase()}-content`,
+          name: `${normalizedPage} Content`,
+          componentName: `${normalizedPage}ContentSection`,
+          content: { heading: normalizedPage, description: `Details about ${normalizedPage}.` }
+        }]
+      };
+    }),
+    // The sections array is a flattened list of sections for the HOME page for V2.
+    sections: sectionsForLayout,
+    footer: {
+      text: `© ${new Date().getFullYear()} ${intent.notes?.[0] || 'AI Website'}. All rights reserved.`
+    },
+    seo: {
+      title: `${intent.notes?.[0] || 'AI Website'} - ${intent.projectType}`,
+      description: prompt
+    },
+    assets: [],
+  };
+
   return {
+    blueprint, // <-- The new canonical V2 blueprint
     phases: {
       planner: intent,
       designer: designSystem,
