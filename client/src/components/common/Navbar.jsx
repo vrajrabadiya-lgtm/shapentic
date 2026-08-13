@@ -213,127 +213,21 @@ export default function Navbar() {
     <>
       <Toast toasts={toasts} />
 
-      <div className="fixed top-4 md:top-6 left-0 right-0 z-50 flex justify-center px-4 w-full pointer-events-none min-h-[80px]">
-        {/* Container with pointer-events-auto for children */}
-        <nav className="pointer-events-auto flex items-center justify-between w-full max-w-5xl md:max-w-fit px-4 py-3 md:py-2 rounded-full border border-white/10 bg-zinc-950/85 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)]">
+      <div className="fixed top-4 md:top-6 left-0 right-0 z-50 flex justify-center px-4 w-full pointer-events-none">
+        {/* Combined Container for Nav + Mobile Menu */}
+        <div className={`pointer-events-auto flex flex-col w-full max-w-5xl md:max-w-fit border border-white/10 bg-zinc-950/85 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] transition-all duration-300 ${mobileMenuOpen ? 'rounded-3xl' : 'rounded-full'}`}>
+          <nav className="flex items-center justify-between w-full h-[56px] px-4 md:px-6">
 
-          {/* Logo */}
-          <div className="flex items-center gap-2.5 pr-2 md:pr-4 md:border-r border-white/10 cursor-pointer" onClick={() => { window.location.hash = ""; window.location.href = "/"; }}>
-            <img src="/logo.svg" alt="Shapentic Logo" className="h-7 w-7 object-contain" />
-            <span className="font-black text-xs tracking-widest text-white uppercase font-sans">
-              Shapentic
-            </span>
-          </div>
-
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => {
-              const isActive = activeTab === item.name;
-              const isPresets = item.name === "Presets";
-              return (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setActiveTab(item.name)}
-                  className={`relative px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all duration-300 ${
-                    isPresets
-                      ? "text-[#2997ff] bg-[#2997ff]/10 border border-[#2997ff]/30 hover:bg-[#2997ff]/20"
-                      : isActive
-                      ? "text-white bg-zinc-800/80 border border-white/10 shadow-sm"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
-                  }`}
-                >
-                  {item.name}
-                </a>
-              );
-            })}
-          </div>
-
-          <div className="h-4 w-px bg-white/10 hidden md:block" />
-
-          {/* Desktop Right Controls */}
-          <div className="hidden md:flex items-center gap-3">
-            {user && (
-              <button
-                onClick={handleLogout}
-                className="text-zinc-500 hover:text-zinc-300 transition-colors p-1.5 rounded-full hover:bg-white/5 cursor-pointer"
-                title="Sign Out"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
-            )}
-
-            {/* Avatar / login trigger */}
-            <div
-              onClick={() => user ? (window.location.hash = "#profile") : setIsModalOpen(true)}
-              className={`h-7 w-7 rounded-full border overflow-hidden bg-zinc-800 transition-all cursor-pointer ${user
-                ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] hover:opacity-80"
-                : "border-white/20 hover:opacity-80"
-                }`}
-              title={user ? `View Profile` : "Sign In"}
-            >
-              {user ? (
-                <div className="h-full w-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-white">
-                    {user.name?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              ) : (
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-                  alt="Profile"
-                  className="h-full w-full object-cover"
-                />
-              )}
-            </div>
-
-            {/* User name pill */}
-            {user && (
-              <span className="text-[10px] text-emerald-400 font-semibold hidden md:block max-w-[80px] truncate">
-                {user.name}
+            {/* Logo */}
+            <div className="flex items-center gap-2.5 pr-2 md:pr-4 md:border-r border-white/10 cursor-pointer" onClick={() => { window.location.hash = ""; window.location.href = "/"; }}>
+              <img src="/logo.svg" alt="Shapentic Logo" className="h-7 w-7 object-contain" />
+              <span className="font-black text-xs tracking-widest text-white uppercase font-sans">
+                Shapentic
               </span>
-            )}
-          </div>
-
-          {/* Mobile Right Controls: Avatar + Hamburger Button */}
-          <div className="flex md:hidden items-center gap-2">
-            <div
-              onClick={() => user ? (window.location.hash = "#profile") : setIsModalOpen(true)}
-              className={`h-7 w-7 rounded-full border overflow-hidden bg-zinc-800 transition-all cursor-pointer ${user
-                ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
-                : "border-white/20"
-                }`}
-              title={user ? `View Profile` : "Sign In"}
-            >
-              {user ? (
-                <div className="h-full w-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-white">
-                    {user.name?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              ) : (
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-                  alt="Profile"
-                  className="h-full w-full object-cover"
-                />
-              )}
             </div>
 
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 rounded-full text-zinc-300 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
-              aria-label="Toggle Mobile Menu"
-            >
-              {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            </button>
-          </div>
-        </nav>
-
-        {/* Mobile Menu Dropdown Drawer Overlay */}
-        {mobileMenuOpen && (
-          <div className="pointer-events-auto fixed top-[80px] left-4 right-4 z-40 bg-zinc-950/95 border border-white/10 rounded-2xl p-4 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex flex-col gap-1.5">
+            {/* Desktop Nav Links */}
+            <div className="hidden md:flex items-center gap-1 pl-2 md:pl-0">
               {navItems.map((item) => {
                 const isActive = activeTab === item.name;
                 const isPresets = item.name === "Presets";
@@ -341,66 +235,174 @@ export default function Navbar() {
                   <a
                     key={item.name}
                     href={item.href}
-                    onClick={() => {
-                      setActiveTab(item.name);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all ${
+                    onClick={() => setActiveTab(item.name)}
+                    className={`relative px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all duration-300 ${
                       isPresets
-                        ? "text-[#2997ff] bg-[#2997ff]/10 border border-[#2997ff]/30"
+                        ? "text-[#2997ff] bg-[#2997ff]/10 border border-[#2997ff]/30 hover:bg-[#2997ff]/20"
                         : isActive
-                        ? "text-white bg-zinc-800/90 border border-white/10"
-                        : "text-zinc-300 hover:text-white hover:bg-white/5"
+                        ? "text-white bg-zinc-800/80 border border-white/10 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
                     }`}
                   >
                     {item.name}
                   </a>
                 );
               })}
+            </div>
 
-              <div className="h-px bg-white/10 my-1" />
+            <div className="h-4 w-px bg-white/10 hidden md:block mx-2" />
 
-              {/* User Account / Profile action inside mobile drawer */}
-              {user ? (
-                <div className="flex items-center justify-between px-4 py-2 rounded-xl bg-zinc-900/60 border border-white/5">
-                  <div
-                    onClick={() => {
-                      window.location.hash = "#profile";
-                      setMobileMenuOpen(false);
-                    }}
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <div className="h-6 w-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center text-[10px] font-bold text-white">
-                      {user.name?.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-xs font-bold text-emerald-400">{user.name}</span>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="flex items-center gap-1 text-[11px] text-red-400 hover:text-red-300 font-semibold p-1"
-                  >
-                    <LogOut className="h-3.5 w-3.5" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-              ) : (
+            {/* Desktop Right Controls */}
+            <div className="hidden md:flex items-center gap-3">
+              {user && (
                 <button
-                  onClick={() => {
-                    setIsModalOpen(true);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full py-2.5 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition-colors shadow-lg cursor-pointer"
+                  onClick={handleLogout}
+                  className="text-zinc-500 hover:text-zinc-300 transition-colors p-1.5 rounded-full hover:bg-white/5 cursor-pointer"
+                  title="Sign Out"
                 >
-                  Sign In / Create Account
+                  <LogOut className="h-4 w-4" />
                 </button>
               )}
+
+              {/* Avatar / login trigger */}
+              <div
+                onClick={() => user ? (window.location.hash = "#profile") : setIsModalOpen(true)}
+                className={`h-7 w-7 rounded-full border overflow-hidden bg-zinc-800 transition-all cursor-pointer ${user
+                  ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] hover:opacity-80"
+                  : "border-white/20 hover:opacity-80"
+                  }`}
+                title={user ? `View Profile` : "Sign In"}
+              >
+                {user ? (
+                  <div className="h-full w-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-white">
+                      {user.name?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                ) : (
+                  <img
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                )}
+              </div>
+
+              {/* User name pill */}
+              {user && (
+                <span className="text-[10px] text-emerald-400 font-semibold hidden md:block max-w-[80px] truncate">
+                  {user.name}
+                </span>
+              )}
             </div>
-          </div>
-        )}
+
+            {/* Mobile Right Controls: Avatar + Hamburger Button */}
+            <div className="flex md:hidden items-center gap-2">
+              <div
+                onClick={() => user ? (window.location.hash = "#profile") : setIsModalOpen(true)}
+                className={`h-7 w-7 rounded-full border overflow-hidden bg-zinc-800 transition-all cursor-pointer ${user
+                  ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                  : "border-white/20"
+                  }`}
+                title={user ? `View Profile` : "Sign In"}
+              >
+                {user ? (
+                  <div className="h-full w-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-white">
+                      {user.name?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                ) : (
+                  <img
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                )}
+              </div>
+
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-1.5 rounded-full text-zinc-300 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
+                aria-label="Toggle Mobile Menu"
+              >
+                {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              </button>
+            </div>
+          </nav>
+
+          {/* Mobile Menu Inline Drawer */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-white/10 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+              <div className="flex flex-col gap-1.5 p-4 max-h-[calc(100dvh-6rem)] overflow-y-auto">
+                {navItems.map((item) => {
+                  const isActive = activeTab === item.name;
+                  const isPresets = item.name === "Presets";
+                  return (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => {
+                        setActiveTab(item.name);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all ${
+                        isPresets
+                          ? "text-[#2997ff] bg-[#2997ff]/10 border border-[#2997ff]/30"
+                          : isActive
+                          ? "text-white bg-zinc-800/90 border border-white/10"
+                          : "text-zinc-300 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      {item.name}
+                    </a>
+                  );
+                })}
+
+                <div className="h-px bg-white/10 my-1" />
+
+                {/* User Account / Profile action inside mobile drawer */}
+                {user ? (
+                  <div className="flex items-center justify-between px-4 py-2 rounded-xl bg-zinc-900/60 border border-white/5">
+                    <div
+                      onClick={() => {
+                        window.location.hash = "#profile";
+                        setMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center text-[10px] font-bold text-white">
+                        {user.name?.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-xs font-bold text-emerald-400">{user.name}</span>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-1 text-[11px] text-red-400 hover:text-red-300 font-semibold p-1"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsModalOpen(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition-colors shadow-lg cursor-pointer"
+                  >
+                    Sign In / Create Account
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
         {/* ── Auth Modal ───────────────────────────────────────────────────── */}
