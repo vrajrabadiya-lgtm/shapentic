@@ -67,6 +67,18 @@ export default function Navbar() {
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
   }, []);
 
+  // ── Prevent scroll when mobile menu is open ──
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [mobileMenuOpen]);
+
   // ── Hash tracking ──
   useEffect(() => {
     const sync = () => {
@@ -213,10 +225,18 @@ export default function Navbar() {
     <>
       <Toast toasts={toasts} />
 
+      {/* Mobile Menu Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden animate-in fade-in duration-300"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       <div className="fixed top-4 md:top-6 left-0 right-0 z-50 flex justify-center px-4 w-full pointer-events-none">
         {/* Combined Container for Nav + Mobile Menu */}
         <div className={`pointer-events-auto flex flex-col w-full max-w-5xl md:max-w-fit border border-white/10 bg-zinc-950/85 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] transition-all duration-300 ${mobileMenuOpen ? 'rounded-3xl' : 'rounded-full'}`}>
-          <nav className="flex items-center justify-between w-full h-[56px] px-4 md:px-6">
+          <nav className="flex items-center justify-between w-full h-16 px-4 md:px-6">
 
             {/* Logo */}
             <div className="flex items-center gap-2.5 pr-2 md:pr-4 md:border-r border-white/10 cursor-pointer" onClick={() => { window.location.hash = ""; window.location.href = "/"; }}>
