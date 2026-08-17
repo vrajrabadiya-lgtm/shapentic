@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { LogOut, CheckCircle, XCircle, Loader2, User, Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { LogOut, CheckCircle, XCircle, Loader2, User, Menu, X, Box } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || "https://shapentic.onrender.com";
 
@@ -240,32 +241,60 @@ export default function Navbar() {
     <>
       <Toast toasts={toasts} />
 
-      {/* Mobile Menu — portal overlay (no circular reveal) */}
+      {/* ── Mobile Menu — floating card modal ── */}
       {createPortal(
         <AnimatePresence>
           {mobileMenuOpen && (
-            <>
+            <motion.div
+              key="mobile-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center pt-20 px-4 md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            >
               <motion.div
-                key="mobile-backdrop"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed inset-0 bg-black/90 backdrop-blur-xl z-40 md:hidden"
-                onClick={() => setMobileMenuOpen(false)}
-              />
-              <motion.div
-                key="mobile-menu"
-                initial={{ opacity: 0, y: -12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="fixed top-[5.25rem] left-4 right-4 z-50 md:hidden mx-auto max-w-5xl border border-white/10 bg-zinc-950/95 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] rounded-2xl overflow-hidden"
+                key="mobile-card"
+                initial={{ opacity: 0, y: -16, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -16, scale: 0.96 }}
+                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm bg-[#0a0b10] border border-slate-800 rounded-[28px] p-5 shadow-2xl"
               >
-                <div className="flex flex-col gap-1 px-3 pt-2 pb-3">
+                {/* Dynamic Header */}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { window.location.hash = ""; window.location.href = "/"; setMobileMenuOpen(false); }}>
+                    <Box className="h-5 w-5 text-[#2997ff]" />
+                    <span className="font-black text-xs tracking-widest text-white uppercase font-sans">
+                      Shapentic
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {user && (
+                      <div
+                        onClick={() => { window.location.hash = "#profile"; setMobileMenuOpen(false); }}
+                        className="h-7 w-7 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center text-[10px] font-bold text-white cursor-pointer"
+                        title={user.name || user.email}
+                      >
+                        {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="h-8 w-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all cursor-pointer"
+                      aria-label="Close menu"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Navigation Links — left-aligned */}
+                <div className="flex flex-col gap-1">
                   {navItems.map((item) => {
                     const isActive = activeTab === item.name;
-                    const isPresets = item.name === "Presets";
                     return (
                       <a
                         key={item.name}
@@ -274,12 +303,10 @@ export default function Navbar() {
                           setActiveTab(item.name);
                           setMobileMenuOpen(false);
                         }}
-                        className={`px-4 py-3.5 text-base font-medium tracking-wide transition-all rounded-xl ${
-                          isPresets
-                            ? "text-[#2997ff] bg-[#2997ff]/10 border border-[#2997ff]/30"
-                            : isActive
-                            ? "text-white bg-zinc-800/80 border border-white/10"
-                            : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"
+                        className={`px-4 py-2.5 text-sm font-medium tracking-wide transition-all rounded-2xl ${
+                          isActive
+                            ? "border border-blue-500/40 bg-blue-950/30 text-blue-400 rounded-2xl"
+                            : "text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent"
                         }`}
                       >
                         {item.name}
@@ -288,49 +315,41 @@ export default function Navbar() {
                   })}
                 </div>
 
-                <div className="border-t border-white/10 mx-3 pt-3 pb-4">
+                {/* User Profile Footer */}
+                <div className="mt-4 pt-4 border-t border-white/5">
                   {user ? (
-                    <div className="flex items-center justify-between px-2 py-2">
+                    <div className="flex items-center justify-between px-3 py-2.5 rounded-2xl bg-zinc-900/40 border border-white/5">
                       <div
-                        onClick={() => {
-                          window.location.hash = "#profile";
-                          setMobileMenuOpen(false);
-                        }}
+                        onClick={() => { window.location.hash = "#profile"; setMobileMenuOpen(false); }}
                         className="flex items-center gap-3 cursor-pointer"
                       >
-                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white shadow-lg shrink-0">
-                          {user.name?.charAt(0).toUpperCase()}
+                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center text-xs font-bold text-white shadow-lg">
+                          {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
                         </div>
-                        <span className="text-sm font-semibold text-emerald-400">
-                          {user.name}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-white">{user.name}</span>
+                          <span className="text-[10px] text-zinc-500 truncate max-w-[140px]">{user.email}</span>
+                        </div>
                       </div>
-
                       <button
-                        onClick={() => {
-                          handleLogout();
-                          setMobileMenuOpen(false);
-                        }}
-                        className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 font-semibold p-2 rounded-xl hover:bg-red-500/10 transition-colors cursor-pointer"
+                        onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                        className="flex items-center gap-1.5 text-[11px] text-red-400 hover:text-red-300 font-semibold p-2 rounded-xl hover:bg-red-500/10 transition-colors"
                       >
-                        <LogOut className="h-4 w-4" />
+                        <LogOut className="h-3.5 w-3.5" />
                         <span>Sign Out</span>
                       </button>
                     </div>
                   ) : (
                     <button
-                      onClick={() => {
-                        setIsModalOpen(true);
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full py-3 px-6 rounded-xl bg-white text-black font-semibold text-sm hover:bg-zinc-200 transition-colors shadow-lg cursor-pointer"
+                      onClick={() => { setIsModalOpen(true); setMobileMenuOpen(false); }}
+                      className="w-full py-3 rounded-2xl bg-white text-black font-bold text-sm hover:bg-zinc-200 transition-colors shadow-lg cursor-pointer"
                     >
                       Sign In / Create Account
                     </button>
                   )}
                 </div>
               </motion.div>
-            </>
+            </motion.div>
           )}
         </AnimatePresence>,
         document.body
@@ -454,6 +473,7 @@ export default function Navbar() {
           </nav>
         </div>
       </div>
+
         {/* ── Auth Modal ───────────────────────────────────────────────────── */}
         {isModalOpen && (
           <div
