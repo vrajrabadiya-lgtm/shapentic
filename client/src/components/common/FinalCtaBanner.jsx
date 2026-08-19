@@ -1,16 +1,15 @@
-import React from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function FinalCtaBanner() {
   return (
-    <section className="w-full py-24 px-6 border-t border-white/10 bg-transparent relative overflow-hidden">
+    <section className="w-full py-12 md:py-16 px-8 md:px-16 border-t border-white/10 bg-transparent relative overflow-hidden">
 
       {/* Ambient glow */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-[600px] h-[300px] bg-[#2997ff]/10 blur-[120px] rounded-full" />
       </div>
 
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         <div className="rounded-[2.5rem] border border-white/10 bg-[#161617] p-10 sm:p-16 text-center relative overflow-hidden shadow-2xl">
 
           {/* Corner glows */}
@@ -31,7 +30,7 @@ export default function FinalCtaBanner() {
           </h2>
 
           {/* Subtext */}
-          <p className="text-[#86868b] text-sm sm:text-base max-w-xl mx-auto leading-relaxed mb-10 font-normal">
+          <p className="text-[#86868b] text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
             Book your free 30-minute strategy session. Our creative directors will map your 3D animation vision into a production blueprint — at no cost.
           </p>
 
