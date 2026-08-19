@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { LogOut, CheckCircle, XCircle, Loader2, User, Menu, X } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || "https://shapentic.onrender.com";
