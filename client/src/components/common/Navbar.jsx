@@ -70,12 +70,27 @@ export default function Navbar() {
   // ── Prevent scroll when mobile menu is open ──
   useEffect(() => {
     if (mobileMenuOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      const scrollY = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.overflow = "";
+      if (scrollY) window.scrollTo(0, parseInt(scrollY || "0", 10) * -1);
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.overflow = "";
     };
   }, [mobileMenuOpen]);
 
@@ -225,18 +240,105 @@ export default function Navbar() {
     <>
       <Toast toasts={toasts} />
 
-      {/* Mobile Menu Backdrop */}
-      {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden animate-in fade-in duration-300"
-          onClick={() => setMobileMenuOpen(false)}
-        />
+      {/* Mobile Menu — portal overlay (no circular reveal) */}
+      {createPortal(
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              <motion.div
+                key="mobile-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 bg-black/90 backdrop-blur-xl z-40 md:hidden"
+                onClick={() => setMobileMenuOpen(false)}
+              />
+              <motion.div
+                key="mobile-menu"
+                initial={{ opacity: 0, y: -12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="fixed top-[5.25rem] left-4 right-4 z-50 md:hidden mx-auto max-w-5xl border border-white/10 bg-zinc-950/95 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] rounded-2xl overflow-hidden"
+              >
+                <div className="flex flex-col gap-1 px-3 pt-2 pb-3">
+                  {navItems.map((item) => {
+                    const isActive = activeTab === item.name;
+                    const isPresets = item.name === "Presets";
+                    return (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => {
+                          setActiveTab(item.name);
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`px-4 py-3.5 text-base font-medium tracking-wide transition-all rounded-xl ${
+                          isPresets
+                            ? "text-[#2997ff] bg-[#2997ff]/10 border border-[#2997ff]/30"
+                            : isActive
+                            ? "text-white bg-zinc-800/80 border border-white/10"
+                            : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"
+                        }`}
+                      >
+                        {item.name}
+                      </a>
+                    );
+                  })}
+                </div>
+
+                <div className="border-t border-white/10 mx-3 pt-3 pb-4">
+                  {user ? (
+                    <div className="flex items-center justify-between px-2 py-2">
+                      <div
+                        onClick={() => {
+                          window.location.hash = "#profile";
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-3 cursor-pointer"
+                      >
+                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white shadow-lg shrink-0">
+                          {user.name?.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-sm font-semibold text-emerald-400">
+                          {user.name}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 font-semibold p-2 rounded-xl hover:bg-red-500/10 transition-colors cursor-pointer"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setIsModalOpen(true);
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full py-3 px-6 rounded-xl bg-white text-black font-semibold text-sm hover:bg-zinc-200 transition-colors shadow-lg cursor-pointer"
+                    >
+                      Sign In / Create Account
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>,
+        document.body
       )}
 
       <div className="fixed top-4 md:top-6 left-0 right-0 z-50 flex justify-center px-4 w-full pointer-events-none">
-        {/* Combined Container for Nav + Mobile Menu */}
-        <div className={`pointer-events-auto flex flex-col w-full max-w-5xl md:max-w-fit border border-white/10 bg-zinc-950/85 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] transition-all duration-300 ${mobileMenuOpen ? 'rounded-3xl' : 'rounded-full'}`}>
-          <nav className="flex items-center justify-between w-full h-16 px-4 md:px-6">
+        <div className="pointer-events-auto flex flex-col w-full max-w-5xl md:max-w-fit border border-white/10 bg-zinc-950/95 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] rounded-full">
+          <nav className="flex items-center justify-between w-full h-16 px-4 md:px-6 shrink-0">
 
             {/* Logo */}
             <div className="flex items-center gap-2.5 pr-2 md:pr-4 md:border-r border-white/10 cursor-pointer" onClick={() => { window.location.hash = ""; window.location.href = "/"; }}>
@@ -350,81 +452,8 @@ export default function Navbar() {
               </button>
             </div>
           </nav>
-
-          {/* Mobile Menu Inline Drawer */}
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-white/10 overflow-hidden animate-in slide-in-from-top-2 duration-200">
-              <div className="flex flex-col gap-1.5 p-4 max-h-[calc(100dvh-6rem)] overflow-y-auto">
-                {navItems.map((item) => {
-                  const isActive = activeTab === item.name;
-                  const isPresets = item.name === "Presets";
-                  return (
-                    <a
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => {
-                        setActiveTab(item.name);
-                        setMobileMenuOpen(false);
-                      }}
-                      className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all ${
-                        isPresets
-                          ? "text-[#2997ff] bg-[#2997ff]/10 border border-[#2997ff]/30"
-                          : isActive
-                          ? "text-white bg-zinc-800/90 border border-white/10"
-                          : "text-zinc-300 hover:text-white hover:bg-white/5"
-                      }`}
-                    >
-                      {item.name}
-                    </a>
-                  );
-                })}
-
-                <div className="h-px bg-white/10 my-1" />
-
-                {/* User Account / Profile action inside mobile drawer */}
-                {user ? (
-                  <div className="flex items-center justify-between px-4 py-2 rounded-xl bg-zinc-900/60 border border-white/5">
-                    <div
-                      onClick={() => {
-                        window.location.hash = "#profile";
-                        setMobileMenuOpen(false);
-                      }}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center text-[10px] font-bold text-white">
-                        {user.name?.charAt(0).toUpperCase()}
-                      </div>
-                      <span className="text-xs font-bold text-emerald-400">{user.name}</span>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="flex items-center gap-1 text-[11px] text-red-400 hover:text-red-300 font-semibold p-1"
-                    >
-                      <LogOut className="h-3.5 w-3.5" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setIsModalOpen(true);
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full py-2.5 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition-colors shadow-lg cursor-pointer"
-                  >
-                    Sign In / Create Account
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
-
         {/* ── Auth Modal ───────────────────────────────────────────────────── */}
         {isModalOpen && (
           <div
