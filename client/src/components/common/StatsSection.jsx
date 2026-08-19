@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const stats = [
-  { value: 500, suffix: "+", label: "Projects Delivered", color: "#6C63FF" },
-  { value: 120, suffix: "+", label: "Global Clients", color: "#00E5FF" },
-  { value: 18, suffix: "+", label: "Countries Reached", color: "#8B5CF6" },
-  { value: 98, suffix: "%", label: "Client Satisfaction", color: "#00FFA3" },
+  { value: 500, suffix: "+", label: "Projects Delivered" },
+  { value: 120, suffix: "+", label: "Global Clients" },
+  { value: 18, suffix: "+", label: "Countries Reached" },
+  { value: 98, suffix: "%", label: "Client Satisfaction" },
 ];
 
 function AnimatedStat({ stat }) {
@@ -33,11 +33,11 @@ function AnimatedStat({ stat }) {
   }, [stat]);
 
   return (
-    <div className="group flex flex-col items-center justify-center text-center rounded-3xl bg-[#0B1120]/70 border border-white/[0.08] p-5 sm:p-10 hover:border-white/20 hover:bg-[#0B1120] hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.6)] transition-all duration-300">
-      <span ref={ref} className="text-4xl sm:text-5xl md:text-6xl font-black tabular-nums mb-2 sm:mb-3" style={{ color: stat.color, fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div className="group flex flex-col items-center justify-center text-center rounded-3xl bg-[#12141D] border border-sky-500/20 p-5 sm:p-10 hover:border-sky-500/40 hover:bg-[#12141D] hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(56,189,248,0.08)] transition-all duration-300">
+      <span ref={ref} className="text-4xl sm:text-5xl md:text-6xl font-black tabular-nums mb-2 sm:mb-3 bg-gradient-to-r from-sky-400 to-blue-600 bg-clip-text text-transparent" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
         0{stat.suffix}
       </span>
-      <span className="text-[#94A3B8] text-xs sm:text-sm font-medium tracking-wide">{stat.label}</span>
+      <span className="text-slate-400 text-xs sm:text-sm font-medium tracking-wide">{stat.label}</span>
     </div>
   );
 }
@@ -49,9 +49,9 @@ export default function StatsSection() {
         <div className="text-center mb-10 sm:mb-16">
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             Proven Results at{" "}
-            <span className="bg-gradient-to-r from-[#6C63FF] to-[#00E5FF] bg-clip-text text-transparent">Global Scale</span>
+            <span className="bg-gradient-to-r from-sky-400 to-blue-600 bg-clip-text text-transparent">Global Scale</span>
           </h2>
-          <p className="text-[#94A3B8] text-sm max-w-md mx-auto">
+          <p className="text-slate-400 text-sm max-w-md mx-auto">
             Numbers that reflect our relentless commitment to visual excellence and client outcomes.
           </p>
         </div>
